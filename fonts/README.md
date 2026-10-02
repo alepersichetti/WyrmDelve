@@ -7,9 +7,10 @@
 | `DejaVuSansMono.ttf`, `DejaVuSansMono-Bold.ttf` | le mappe | `LICENSE-DejaVu.txt` (Bitstream Vera / DejaVu, libera) |
 | `DejaVuSans.ttf` | i simboli nel PDF della storia (frecce, ✓, muri) | `LICENSE-DejaVu.txt` |
 | `CrimsonText-*.ttf` | il testo del PDF della storia | `LICENSE-CrimsonText.txt` (SIL Open Font License 1.1) |
+| `Sebaldus-Gotisch.ttf` | i titoli del PDF della storia | © Typographer Mediengestaltung 2002, digitalizzato da Dieter Steffmann (www.steffmann.de); il file non contiene una licenza |
 | `UnifrakturMaguntia-Book.ttf` | titoli del PDF della storia, se manca Sebaldus-Gotisch | `LICENSE-UnifrakturMaguntia.txt` (SIL Open Font License 1.1) |
 
-**Sebaldus-Gotisch.** Per i titoli il programma preferisce *Sebaldus-Gotisch* di Dieter Steffmann. Non è incluso, perché non è stato possibile verificare che la sua licenza ne permetta la ridistribuzione. Se vuoi usarlo, scaricalo (per esempio da dafont.com), prendi il file `Sebaldus-Gotisch.ttf` (oppure `.otf`) e mettilo in questa cartella: dalla volta dopo i titoli useranno quel font.
+**Sebaldus-Gotisch** è distribuito gratuitamente dall'autore sui siti di font; il file riporta «All rights reserved» e non include un testo di licenza. Se lo togli da questa cartella, i titoli usano UnifrakturMaguntia.
 
 ---
 
@@ -20,6 +21,7 @@
 | `DejaVuSansMono.ttf`, `DejaVuSansMono-Bold.ttf` | the maps | `LICENSE-DejaVu.txt` (Bitstream Vera / DejaVu, free) |
 | `DejaVuSans.ttf` | symbols in the story PDF (arrows, ✓, walls) | `LICENSE-DejaVu.txt` |
 | `CrimsonText-*.ttf` | the text of the story PDF | `LICENSE-CrimsonText.txt` (SIL Open Font License 1.1) |
+| `Sebaldus-Gotisch.ttf` | the headings of the story PDF | © Typographer Mediengestaltung 2002, digitized by Dieter Steffmann (www.steffmann.de); the file carries no license |
 | `UnifrakturMaguntia-Book.ttf` | headings of the story PDF, when Sebaldus-Gotisch is missing | `LICENSE-UnifrakturMaguntia.txt` (SIL Open Font License 1.1) |
 
-**Sebaldus-Gotisch.** For the headings the program prefers *Sebaldus-Gotisch* by Dieter Steffmann. It isn't included, because its license could not be checked for redistribution. To use it, download it (for example from dafont.com), take the file `Sebaldus-Gotisch.ttf` (or `.otf`) and put it in this folder: from the next run the headings will use it.
+**Sebaldus-Gotisch** is given away for free by its author on font sites; the file says "All rights reserved" and comes with no license text. If you remove it from this folder, the headings use UnifrakturMaguntia.

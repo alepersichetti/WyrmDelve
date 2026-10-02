@@ -2999,7 +2999,7 @@ def font_file(name):
 
 
 def heading_font():
-    """Sebaldus-Gotisch if the user put it in fonts/, else the bundled blackletter."""
+    """Sebaldus-Gotisch (in fonts/), or the free blackletter if it was removed."""
     try:
         names = sorted(os.listdir(FONT_DIR))
     except OSError:

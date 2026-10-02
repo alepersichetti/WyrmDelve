@@ -232,7 +232,7 @@ Tutto va in `dungeons_generated/<seme>/`, una cartella per ogni dungeon:
 
 Se scegli **solo le mappe**, la chiave e il PDF della storia non vengono creati.
 
-I titoli della storia usano **Sebaldus-Gotisch** se metti il file `Sebaldus-Gotisch.ttf` nella cartella `fonts` (non è incluso: vedi `fonts/README.md`); altrimenti usano UnifrakturMaguntia, un gotico simile che viene con il programma.
+I titoli della storia usano **Sebaldus-Gotisch**, che è nella cartella `fonts`; se lo togli, usano UnifrakturMaguntia, un gotico simile che viene anch'esso con il programma (vedi `fonts/README.md`).
 
 Con **un livello per foglio** i nomi dei PNG contengono il livello: `<seme>_gm_L1.png`, `<seme>_gm_L2a.png`… Tutti i fogli usano caratteri della stessa grandezza, così i livelli restano in scala. Con il **PDF** ottieni invece `<seme>_gm.pdf` e `<seme>_players.pdf` (una pagina per foglio, 600 dpi, senza perdita di qualità), ognuno con il suo `.txt`.
 
@@ -425,4 +425,4 @@ Premi **Ctrl+C**. Non si rompe niente: basta riavviarlo.
 
 ## Licenza
 
-WyrmDelve è software libero con licenza [GNU General Public License v3.0](LICENSE). Le parti di `wyrmdelve_tables.json` adattate da Ironsworn mantengono la loro attribuzione CC BY 4.0 (vedi Fonti qui sopra). I font della cartella `fonts/` mantengono le loro licenze libere (SIL Open Font License per Crimson Text e UnifrakturMaguntia, la licenza DejaVu per DejaVu): vedi `fonts/README.md`.
+WyrmDelve è software libero con licenza [GNU General Public License v3.0](LICENSE). Le parti di `wyrmdelve_tables.json` adattate da Ironsworn mantengono la loro attribuzione CC BY 4.0 (vedi Fonti qui sopra). I font della cartella `fonts/` mantengono le loro licenze libere (SIL Open Font License per Crimson Text e UnifrakturMaguntia, la licenza DejaVu per DejaVu); Sebaldus-Gotisch appartiene ai suoi autori: vedi `fonts/README.md`.

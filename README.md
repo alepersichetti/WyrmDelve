@@ -232,7 +232,7 @@ Everything goes in `dungeons_generated/<seed>/`, one folder per dungeon:
 
 If you choose **only the maps**, the key and the story PDF are not made.
 
-The headings of the story use **Sebaldus-Gotisch** if you put the file `Sebaldus-Gotisch.ttf` in the `fonts` folder (it isn't included: see `fonts/README.md`); otherwise they use UnifrakturMaguntia, a similar blackletter that comes with the program.
+The headings of the story use **Sebaldus-Gotisch**, which is in the `fonts` folder; if you remove it, they use UnifrakturMaguntia, a similar blackletter that also comes with the program (see `fonts/README.md`).
 
 With **one level per sheet** the PNG names get the level: `<seed>_gm_L1.png`, `<seed>_gm_L2a.png`… All sheets use the same letter size, so the levels keep the same scale. With **PDF** you get `<seed>_gm.pdf` and `<seed>_players.pdf` instead (one page per sheet, 600 dpi, no loss of quality), each with its `.txt`.
 
@@ -425,4 +425,4 @@ Press **Ctrl+C**. Nothing breaks: just start it again.
 
 ## License
 
-WyrmDelve is free software under the [GNU General Public License v3.0](LICENSE). The parts of `wyrmdelve_tables.json` adapted from Ironsworn keep their CC BY 4.0 attribution (see Sources above). The fonts in `fonts/` keep their own free licenses (SIL Open Font License for Crimson Text and UnifrakturMaguntia, the DejaVu license for DejaVu): see `fonts/README.md`.
+WyrmDelve is free software under the [GNU General Public License v3.0](LICENSE). The parts of `wyrmdelve_tables.json` adapted from Ironsworn keep their CC BY 4.0 attribution (see Sources above). The fonts in `fonts/` keep their own free licenses (SIL Open Font License for Crimson Text and UnifrakturMaguntia, the DejaVu license for DejaVu); Sebaldus-Gotisch belongs to its authors: see `fonts/README.md`.
