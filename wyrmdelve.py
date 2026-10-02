@@ -9,6 +9,11 @@ Brogue, Caves of Qud, Dwarf Fortress). Every dungeon has a layered history
 shows in its walls: ═║ founders, ─│ second age, # caves and crude tunnels.
 Rooms are numbered level-room: 1-01, 2-07, and 1a-01 on a sub-level.
 
+Every level is one of 11 dungeon types (palace, prison, tower, castle,
+temple, city, arcane laboratory, academy, border fortress, tomb, Underdark),
+each with its own floor plan, rooms, builders and entrances. The levels
+stack coherently: a tower stands above a castle, never below a cave.
+
 The layout always follows Jennell Jaquays' principles as described by Justin
 Alexander ("Xandering the Dungeon"): multiple entrances, loops, multiple and
 discontinuous level connections, secret and unusual paths, sub-levels,
@@ -25,8 +30,9 @@ Output goes to dungeons_generated/<seed>/ next to this file (or --output):
 One level per sheet adds the level to the PNG names (<seed>_gm_L1.png ...);
 with PDF every map is a single <seed>_gm.pdf / <seed>_players.pdf.
 
-The seed (e.g. 3-24-2-5-K7Q2MB = levels-rooms-entrances-secrets-code) holds
-the whole dungeon: the same seed always gives the same dungeon.
+The seed (e.g. 3-24-2-5-CDK-K7Q2MB = levels-rooms-entrances-secrets-types-code)
+holds the whole dungeon: the same seed always gives the same dungeon. Types
+are one letter per level, A-K in menu order (one letter = every level).
 
 Usage. Every option has an Italian and an English name, use whichever:
   python wyrmdelve.py                                interactive
@@ -34,7 +40,8 @@ Usage. Every option has an Italian and an English name, use whichever:
   python wyrmdelve.py --ingressi 3 --segreti 6      / --entrances 3 --secrets 6
   python wyrmdelve.py --colori 2                    / --colors 2
       (1 black on white, 2 white on light blue, 3 white on black)
-  python wyrmdelve.py --seme 3-24-2-5-K7Q2MB        / --seed 3-24-2-5-K7Q2MB
+  python wyrmdelve.py --tipo 3,4,11                 / --type 3,4,11  (tower, castle, Underdark)
+  python wyrmdelve.py --seme 3-24-2-5-CDK-K7Q2MB    / --seed 3-24-2-5-CDK-K7Q2MB
   python wyrmdelve.py --formato A2                  / --format A2
   python wyrmdelve.py --per-livello                 / --per-level  (one level per sheet)
   python wyrmdelve.py --un-foglio                   / --one-sheet  (all levels on one sheet)
@@ -47,8 +54,9 @@ Usage. Every option has an Italian and an English name, use whichever:
 Parameters you leave out are chosen at random.
 
 Code and comments are in English, the UI is Italian or English. The words
-the dungeons are made of (names, founders, occupants, rooms, events,
-entrances, history) are data, not code: they live in wyrmdelve_tables.json.
+the dungeons are made of (dungeon types and how they stack, names,
+builders, occupants, rooms, events, entrances, history) are data, not code:
+they live in wyrmdelve_tables.json.
 """
 
 import argparse
@@ -153,6 +161,15 @@ TEXTS = {
     "color_2": ("    2 = simboli bianchi su sfondo celeste", "    2 = white symbols on light blue"),
     "color_3": ("    3 = simboli bianchi su sfondo nero", "    3 = white symbols on black"),
     "choice": ("Scelta", "Choice"),
+    "types_same_intro": ("\n  I livelli sono tutti dello stesso tipo?", "\n  Are all levels of the same type?"),
+    "types_same": ("    1 = sì, stesso tipo per tutti", "    1 = yes, the same type for all"),
+    "types_each": ("    2 = no, ogni livello ha il suo tipo", "    2 = no, each level has its own type"),
+    "types_intro": ("\n  Tipo di dungeon:", "\n  Dungeon type:"),
+    "types_level_intro": ("\n  Tipo del livello {n} (sotto: {above}):", "\n  Type of level {n} (below: {above}):"),
+    "types_level_first": ("\n  Tipo del livello 1 (il più in alto):", "\n  Type of level 1 (the top one):"),
+    "type_random": ("     0 = a caso", "     0 = at random"),
+    "type_not_allowed": ("    Questo tipo non può stare lì sotto: scegline uno dell'elenco.",
+                         "    This type can't go down there: choose one from the list."),
     "name_intro": ("\n  Vuoi un nome per la mappa del dungeon?", "\n  Do you want a name on the dungeon map?"),
     "name_yes": ("    1 = sì", "    1 = yes"),
     "name_no": ("    2 = no, mappa senza nome", "    2 = no, a map without a name"),
@@ -172,6 +189,12 @@ TEXTS = {
     "err_entrances": ("Gli ingressi non possono essere più delle stanze.",
                       "There can't be more entrances than rooms."),
     "err_seed": ("Seme non valido: {s}", "Invalid seed: {s}"),
+    "err_types_count": ("Hai indicato {n} tipi per {l} livelli: indicane uno solo (per tutti) o uno per livello.",
+                        "You gave {n} types for {l} levels: give just one (for all) or one per level."),
+    "err_types_order": ("Il livello {i} ({a}) non può stare sopra il livello {j} ({b}).",
+                        "Level {i} ({a}) can't stand above level {j} ({b})."),
+    "err_type_value": ("Tipo di dungeon non valido: {s} (usa numeri da 1 a {n}, separati da virgole).",
+                       "Invalid dungeon type: {s} (use numbers from 1 to {n}, separated by commas)."),
     "err_no_font": ("Nessun font monospazio trovato. Indica un file .ttf con --font (es. DejaVuSansMono.ttf).",
                     "No monospaced font found. Give a .ttf file with --font (e.g. DejaVuSansMono.ttf)."),
     "err_size": ("{path}: {size} non è un foglio A4, A3, A2 o A1 a 600 dpi",
@@ -184,6 +207,8 @@ TEXTS = {
     "info_params": ("{l} livelli, {r} stanze, {e} ingressi, {x} porte/passaggi segreti",
                     "{l} levels, {r} rooms, {e} entrances, {x} secret doors/passages"),
     "info_random": ("Parametri scelti a caso", "Parameters chosen at random"),
+    "info_types": ("Tipo di dungeon: {t}", "Dungeon type: {t}"),
+    "types_all": (" (tutti i livelli)", " (every level)"),
     "info_colors": ("Colori: {c}", "Colours: {c}"),
     "info_name_mine": ("Nome della mappa: «{t}»", "Map name: “{t}”"),
     "info_name_none": ("Mappa senza nome", "Map without a name"),
@@ -194,7 +219,7 @@ TEXTS = {
     "step_story": ("Storia a strati", "Layered history"),
     "info_title": ("«{t}»", "“{t}”"),
     "step_rooms": ("Stanze e strati", "Rooms and strata"),
-    "info_level_rooms": ("Livello {n}: {r} stanze{extra}", "Level {n}: {r} rooms{extra}"),
+    "info_level_rooms": ("Livello {n} ({t}): {r} stanze{extra}", "Level {n} ({t}): {r} rooms{extra}"),
     "info_divided": (" (diviso in due)", " (divided in two)"),
     "info_sub": (" (sottolivello)", " (sub-level)"),
     "step_corridors": ("Corridoi e anelli", "Corridors and loops"),
@@ -290,6 +315,7 @@ TEXTS = {
     # key file
     "key_seed": ("Seme", "Seed"),
     "key_history": ("STORIA", "HISTORY"),
+    "key_types": ("Tipo", "Type"),
     "key_strata": ("STRATI (dal più antico)", "STRATA (oldest first)"),
     "key_entrances": ("INGRESSI E USCITE", "ENTRANCES AND EXITS"),
     "key_links": ("COLLEGAMENTI TRA LIVELLI", "LEVEL CONNECTIONS"),
@@ -347,6 +373,10 @@ TEXTS = {
     "jq_why_entr": ("serve più di un ingresso", "needs more than one entrance"),
     "jq_why_small": ("troppe poche stanze per livello", "too few rooms per level"),
     "jq_why_caves": ("nessuna grotta naturale", "no natural caves"),
+    "jq_nested_kinds": ("Dungeon annidati: costruzioni di tipo diverso collegate in {n} punti",
+                        "Nested dungeons: buildings of different types joined in {n} places"),
+    "jq_nested_ages": ("Dungeon annidati: opera dei fondatori e ampliamenti successivi collegati in {n} punti",
+                       "Nested dungeons: the founders' work and later additions joined in {n} places"),
     "jq_t_multi": ("Collegamenti multipli tra livelli", "Multiple level connections"),
     "jq_t_disc": ("Collegamenti discontinui", "Discontinuous level connections"),
     "jq_t_mid": ("Ingresso a metà dungeon", "Midpoint entry"),
@@ -366,12 +396,18 @@ TEXTS = {
     "h_secrets": ("porte e passaggi segreti (0-60)", "secret doors and passages (0-60)"),
     "h_colors": ("1 nero su bianco (default), 2 bianco su celeste, 3 bianco su nero",
                  "1 black on white (default), 2 white on light blue, 3 white on black"),
-    "h_seed": ("seme completo (es. 3-24-2-5-K7Q2MB) per rifare un dungeon", "full seed (e.g. 3-24-2-5-K7Q2MB) to rebuild a dungeon"),
+    "h_seed": ("seme completo (es. 3-24-2-5-CDK-K7Q2MB) per rifare un dungeon", "full seed (e.g. 3-24-2-5-CDK-K7Q2MB) to rebuild a dungeon"),
     "h_format": ("formato di stampa; senza, viene suggerito e chiesto", "print format; without it, it is suggested and asked"),
     "h_per_level": ("un livello per foglio, su file separati", "one level per sheet, in separate files"),
     "h_one_sheet": ("tutti i livelli in un solo foglio", "all levels on one sheet"),
     "h_pdf": ("salva le mappe in PDF (un solo file anche con più fogli)", "save the maps as PDF (one file even with many sheets)"),
     "h_png": ("salva le mappe in PNG (un file per foglio)", "save the maps as PNG (one file per sheet)"),
+    "h_type": ("tipo di dungeon, da 1 a 11: uno per tutti i livelli (es. 4) o uno per livello dall'alto "
+               "(es. 3,4,11). 1 palazzo, 2 prigione, 3 torre, 4 castello, 5 tempio, 6 città, 7 laboratorio "
+               "arcano, 8 accademia, 9 fortezza di confine, 10 tomba, 11 underdark",
+               "dungeon type, 1 to 11: one for every level (e.g. 4) or one per level from the top (e.g. 3,4,11). "
+               "1 palace, 2 prison, 3 tower, 4 castle, 5 temple, 6 city, 7 arcane laboratory, 8 academy, "
+               "9 border fortress, 10 tomb, 11 underdark"),
     "h_title": ("titolo della mappa (default: il nome del dungeon)", "map title (default: the dungeon's name)"),
     "h_no_title": ("mappa senza nome", "map without a name"),
     "h_ascii": ("solo caratteri base della tastiera", "only basic keyboard characters"),
@@ -480,7 +516,10 @@ class QuietLog:
 
 
 # --- seed ---
-# levels-rooms-entrances-secrets-CODE, CODE = 6 symbols, 30 random bits.
+# levels-rooms-entrances-secrets-TYPES-CODE: TYPES is one letter per level
+# (or a single letter when every level is of that type), CODE = 6 symbols,
+# 30 random bits. Older seeds without TYPES still work: their types come
+# from CODE.
 SEED_SYMBOLS = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"   # no I, L, O, U: too easy to misread
 CODE_LENGTH = 6
 
@@ -508,26 +547,30 @@ def from_code(text):
 
 
 def make_seed(p):
-    return f"{p['levels']}-{p['rooms']}-{p['entrances']}-{p['secrets']}-{to_code(p['number'])}"
+    return (f"{p['levels']}-{p['rooms']}-{p['entrances']}-{p['secrets']}-{types_code(p['types'])}-"
+            f"{to_code(p['number'])}")
 
 
 def read_seed(text):
     parts = (text or "").strip().split("-")
-    if len(parts) != 5:
+    if len(parts) not in (5, 6):
         return None
     try:
         levels, rooms, entrances, hidden = (int(x) for x in parts[:4])
     except ValueError:
         return None
-    number = from_code(parts[4])
+    number = from_code(parts[-1])
     if number is None:
         return None
     p = {"levels": levels, "rooms": rooms, "entrances": entrances, "secrets": hidden, "number": number}
-    return None if check_params(p) else p
+    if check_params(p):
+        return None
+    p["types"] = read_types(parts[4], levels) if len(parts) == 6 else default_types(levels, number)
+    return None if p["types"] is None or check_params(p) else p
 
 
 def example_seed():
-    return "3-24-2-5-K7Q2MB"
+    return "3-24-2-5-CDK-K7Q2MB"
 
 
 def check_params(p):
@@ -539,6 +582,14 @@ def check_params(p):
         return tr("err_rooms_levels", n=2 * p["levels"], l=p["levels"])
     if p["entrances"] > p["rooms"]:
         return tr("err_entrances")
+    types = p.get("types")
+    if types is not None:
+        if len(types) != p["levels"]:
+            return tr("err_types_count", n=len(types), l=p["levels"])
+        wrong = stack_error(types)
+        if wrong:
+            a, b = wrong
+            return tr("err_types_order", a=type_name(types[a]), b=type_name(types[b]), i=a + 1, j=b + 1)
     return None
 
 
@@ -559,14 +610,19 @@ def random_params(number, fixed=None):
         p["entrances"] = min(p["entrances"], p["rooms"])
     if "secrets" not in fixed:
         p["secrets"] = r.randint(1, max(2, p["rooms"] // 5))
+    if "types" in fixed and len(fixed["types"]) == 1:
+        p["types"] = fixed["types"] * p["levels"]
+    elif "types" not in fixed:
+        p["types"] = default_types(p["levels"], number)
     p["number"] = number
     return p
 
 
 # --- story tables ---
-# The words the dungeons are made of (names, founders, later occupants, rooms,
-# events, entrances, the history) live in wyrmdelve_tables.json, next to this
-# file. Every text there is {"it": ..., "en": ...}; here it becomes (it, en).
+# The words the dungeons are made of (dungeon types, names, later occupants,
+# rooms, events, places, entrances, the history) live in wyrmdelve_tables.json,
+# next to this file. Every text there is {"it": ..., "en": ...}; here it
+# becomes (it, en).
 TABLES_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "wyrmdelve_tables.json")
 
 
@@ -580,8 +636,10 @@ def from_json(value):
     return value
 
 
-TABLE_KEYS = ("name_syllables", "founders", "second_age", "present_day", "natural_rooms", "events", "areas",
-              "main_entrances", "surface_shaft", "midpoint_entrances", "history")
+TABLE_KEYS = ("name_syllables", "dungeon_types", "second_age", "present_day", "natural_rooms", "events", "areas",
+              "surface_shaft", "history")
+TYPE_KEYS = ("id", "code", "menu", "name", "surface", "below", "eras", "pattern", "builders", "built", "titles",
+             "rooms", "entrances", "side_entrances")
 
 
 def load_tables(path=TABLES_FILE):
@@ -595,29 +653,105 @@ def load_tables(path=TABLES_FILE):
     except ValueError as e:
         sys.exit(f"C'è un errore nel file {name} / There is a mistake in {name}:\n  {e}")
     missing = [k for k in TABLE_KEYS if k not in tables]
+    for t in tables.get("dungeon_types", []):
+        missing += [f"{t.get('id', '?')}.{k}" for k in TYPE_KEYS if k not in t]
     if missing:
         sys.exit(f"Nel file {name} mancano / {name} lacks: {', '.join(missing)}")
+    ids = {t["id"] for t in tables["dungeon_types"]}
+    wrong = [f"{t['id']}.below: {b}" for t in tables["dungeon_types"] for b in t["below"] if b not in ids]
+    if wrong:
+        sys.exit(f"Nel file {name} ci sono tipi sconosciuti / {name} names unknown types: {', '.join(wrong)}")
     return tables
 
 
 TABLES = load_tables()
 NAME_SYLLABLES = TABLES["name_syllables"]
-FOUNDERS = TABLES["founders"]
+TYPES = TABLES["dungeon_types"]                 # in menu order
+TYPE = {t["id"]: t for t in TYPES}
+TYPE_BY_CODE = {t["code"]: t["id"] for t in TYPES}
 SECOND = TABLES["second_age"]
 PRESENT = TABLES["present_day"]
 NATURAL_ROOMS = TABLES["natural_rooms"]
 EVENTS = TABLES["events"]
 AREAS = TABLES["areas"]
-MAIN_ENTRANCES = TABLES["main_entrances"]
 SURFACE_SHAFT = TABLES["surface_shaft"]
-MIDPOINT_ENTRANCES = TABLES["midpoint_entrances"]
 HISTORY = TABLES["history"]
 
 ERA_TAGS = {0: "N", 1: "I", 2: "II", 3: "III"}
 
 
+# --- dungeon types and how they stack ---
+# Every type lists the types that may lie directly below it ("below"), so the
+# levels always make sense from top to bottom: a tower stands on a castle, a
+# crypt lies under a temple, the Underdark is at the bottom of everything.
+def stack_error(types):
+    """(upper index, lower index) of the first pair that can't be stacked, or None."""
+    for k in range(len(types) - 1):
+        if types[k + 1] not in TYPE[types[k]]["below"]:
+            return k, k + 1
+    return None
+
+
+def random_types(levels, rng):
+    """All levels of one type, or a coherent mix, top to bottom."""
+    ids = [t["id"] for t in TYPES]
+    if levels == 1 or rng.random() < 0.4:
+        return [rng.choice(ids)] * levels
+    chain = [rng.choice(ids)]
+    while len(chain) < levels:
+        below = TYPE[chain[-1]]["below"]
+        chain.append(chain[-1] if rng.random() < 0.4 else rng.choice(below))
+    return chain
+
+
+def default_types(levels, number):
+    return random_types(levels, random.Random(f"wyrmdelve-types-{number}"))
+
+
+def types_code(types):
+    codes = [TYPE[t]["code"] for t in types]
+    return codes[0] if len(set(codes)) == 1 else "".join(codes)
+
+
+def read_types(text, levels):
+    ids = [TYPE_BY_CODE.get(ch) for ch in text.strip().upper()]
+    if not ids or None in ids:
+        return None
+    if len(ids) == 1:
+        ids = ids * levels
+    return ids if len(ids) == levels else None
+
+
+def ground_index(types):
+    """The level at ground level: the lowest building above ground, or else
+    the top one. The main entrances are there."""
+    above = [k for k, t in enumerate(types) if TYPE[t]["surface"]]
+    return above[-1] if above else 0
+
+
+def type_name(kind):
+    return pick(TYPE[kind]["name"])
+
+
+def types_text(types):
+    """"Castle (every level)" or "1 Tower, 2 Castle, 3 Underdark"."""
+    if len(set(types)) == 1:
+        return type_name(types[0]) + (tr("types_all") if len(types) > 1 else "")
+    return ", ".join(f"{k + 1} {type_name(t)}" for k, t in enumerate(types))
+
+
+# --- the story ---
 def fmt(pair, **values):
     return tuple(t.format(**values) for t in pair)
+
+
+def join_pairs(pairs):
+    """[(it, en), ...] -> ("a, b e c", "a, b and c")"""
+    out = []
+    for lang, word in enumerate((" e ", " and ")):
+        words = [p[lang] for p in pairs]
+        out.append(words[0] if len(words) == 1 else ", ".join(words[:-1]) + word + words[-1])
+    return tuple(out)
 
 
 def make_name(rng, used):
@@ -641,30 +775,59 @@ class Deck:
         return self.pool.pop()
 
 
-def make_story(rng):
+def make_story(rng, types):
+    """Who built the dungeon (the type of its ground level decides), who came
+    next, who lives there today; one deck of room names per type and role."""
     used = set()
-    founders, second, present = rng.choice(FOUNDERS), rng.choice(SECOND), rng.choice(PRESENT)
+    primary = TYPE[types[ground_index(types)]]
+    kinds = list(dict.fromkeys(types))
+    second, present = rng.choice(SECOND), rng.choice(PRESENT)
     e1, e2 = rng.sample(EVENTS, 2)
+    outdoors = any(TYPE[t]["surface"] for t in types)
     story = {
-        "founders": founders, "second": second, "present": present,
-        "f_who": fmt(founders["who"], n=make_name(rng, used)),
+        "types": types, "second": second, "present": present,
+        "f_who": fmt(rng.choice(primary["builders"]), n=make_name(rng, used)),
+        "built": join_pairs([rng.choice(TYPE[t]["built"]) for t in kinds]),
         "s_who": fmt(second["who"], n=make_name(rng, used)),
         "p_who": fmt(present["who"], n=make_name(rng, used)),
-        "area": rng.choice(AREAS), "e1": e1, "e2": e2,
+        "area": rng.choice(AREAS["surface" if outdoors else "underground"]), "e1": e1, "e2": e2,
     }
-    story["title"] = fmt(founders["title"], n=make_name(rng, used))
-    story["history"] = tuple(HISTORY[i].format(f=story["f_who"][i], built=founders["built"][i], area=story["area"][i],
-                                               e1=e1[i], s=story["s_who"][i], e2=e2[i], p=story["p_who"][i])
-                             for i in range(2))
-    story["decks"] = {0: Deck(NATURAL_ROOMS, rng), 1: Deck(founders["rooms"], rng),
-                      2: Deck(second["rooms"], rng), 3: Deck(present["rooms"], rng)}
+    story["title"] = fmt(rng.choice(primary["titles"]), n=make_name(rng, used))
+    decks = {0: Deck(NATURAL_ROOMS, rng), 2: Deck(second["rooms"], rng), 3: Deck(present["rooms"], rng)}
+    for t in kinds:
+        decks[t] = Deck(TYPE[t]["rooms"], rng)
+        for role, names in TYPE[t].get("special", {}).items():
+            decks[(t, role)] = Deck(names, rng)
+    story["decks"] = decks
     return story
 
 
+def history_text(dungeon):
+    """The history in the key, sentence by sentence: caves and crude tunnels
+    are only mentioned if the dungeon has them."""
+    s = dungeon.story
+    eras = {r.era for r in dungeon.rooms}
+    parts = ["founded"] + (["caves"] if 0 in eras else []) + ["second", "fall", "present"]
+    parts += ["crude"] if 3 in eras else []
+    out = []
+    for i in range(2):
+        values = dict(f=s["f_who"][i], built=s["built"][i], area=s["area"][i], e1=s["e1"][i], s=s["s_who"][i],
+                      e2=s["e2"][i], p=s["p_who"][i])
+        out.append(" ".join(HISTORY[k][i].format(**values) for k in parts))
+    return tuple(out)
+
+
 def describe_room(room, story, rng):
-    """The room's strata: [(era, (it, en)), ...], oldest first."""
-    decks = story["decks"]
-    layers = [(room.era, decks[room.era].draw())]
+    """The room's strata: [(era, (it, en)), ...], oldest first. Special rooms
+    (a throne hall, a cloister...) take their name from their role."""
+    decks, kind = story["decks"], room.level.kind
+    if room.role and (kind, room.role) in decks:
+        first = decks[(kind, room.role)].draw()
+    elif room.era == 1:
+        first = decks[kind].draw()
+    else:
+        first = decks[room.era].draw()
+    layers = [(room.era, first)]
     if room.era == 0:
         if rng.random() < 0.15:
             layers.append((2, decks[2].draw()))
@@ -689,8 +852,12 @@ ROCK, ROOM, CORRIDOR, DOORWAY = 0, 1, 2, 3
 
 class Room:
 
-    def __init__(self, uid, level, era, slot, comp):
+    def __init__(self, uid, level, era, slot, comp, spec=None):
         self.uid, self.level, self.era, self.slot, self.comp = uid, level, era, slot, comp
+        spec = spec or Spec(slot)
+        self.span, self.shape, self.role = spec.span, spec.shape, spec.role
+        self.forced = spec.era is not None      # its era comes from the layout (a throne hall is the founders')
+        self.mirror_of = None                   # the room it mirrors, in symmetric layouts
         self.cells = set()
         self.ring = set()
         self.box = None             # floor bounding box x0, y0, x1, y1
@@ -744,8 +911,8 @@ class Link:
 
 class Level:
 
-    def __init__(self, name, depth, cols, rows, sub=False):
-        self.name, self.depth, self.sub = name, depth, sub
+    def __init__(self, name, depth, cols, rows, sub=False, kind="underdark"):
+        self.name, self.depth, self.sub, self.kind = name, depth, sub, kind
         self.cols, self.rows = cols, rows
         self.W, self.H = cols * SLOT_W + 2, rows * SLOT_H + 2
         size = self.W * self.H
@@ -779,9 +946,10 @@ class Level:
         return (1, self.split - 1) if comp == 0 else (self.split + 1, self.W - 2)
 
     def header(self):
+        kind = " · " + type_name(self.kind).upper()
         if self.sub:
-            return tr("sub_header", n=self.name)
-        return tr("level_header", n=self.name) + (tr("divided_header") if self.split is not None else "")
+            return tr("sub_header", n=self.name) + kind
+        return tr("level_header", n=self.name) + kind + (tr("divided_header") if self.split is not None else "")
 
 
 class Dungeon:
@@ -796,54 +964,116 @@ class Dungeon:
 
 
 # --- room shapes ---
-def slot_box(slot):
-    """Floor area a room may use inside its slot (inclusive)."""
+BIG_ROLES = {"hall", "court", "nave", "plaza", "cloister", "keep", "grotto", "burial", "library", "lab"}
+OPEN_ROLES = {"court", "plaza"}             # yards and squares: no pillars
+
+
+def slot_box(slot, span=(1, 1)):
+    """Floor area a room may use inside its slots (inclusive)."""
     c, r = slot
+    w, h = span
     ox, oy = 1 + c * SLOT_W, 1 + r * SLOT_H
-    return ox + 2, oy + 2, ox + SLOT_W - 3, oy + SLOT_H - 3
+    return ox + 2, oy + 2, ox + w * SLOT_W - 3, oy + h * SLOT_H - 3
+
+
+def cave_cells(x0, y0, x1, y1, rng):
+    """A natural cave: an ellipse with a wobbly edge, always connected."""
+    w, h = x1 - x0 + 1, y1 - y0 + 1
+    cx, cy, rx, ry = (x0 + x1) / 2, (y0 + y1) / 2, w / 2, h / 2
+    waves = [(k, rng.uniform(0.04, 0.13), rng.uniform(0, 2 * math.pi)) for k in (2, 3, 5)]
+    cells = set()
+    for x in range(x0, x1 + 1):
+        for y in range(y0, y1 + 1):
+            u, v = (x - cx) / rx, (y - cy) / ry
+            limit = 0.97 + sum(a * math.sin(k * math.atan2(v, u) + ph) for k, a, ph in waves)
+            if u * u + v * v <= min(1.0, max(0.55, limit)) ** 2:
+                cells.add((x, y))
+    return largest_part(cells, (round(cx), round(cy)))
+
+
+def crude_cells(x0, y0, x1, y1, box, rng):
+    """Dug in a hurry: corners chipped off and bumps along the sides."""
+    bx0, by0, bx1, by1 = box
+    w, h = x1 - x0 + 1, y1 - y0 + 1
+    cells = {(x, y) for x in range(x0, x1 + 1) for y in range(y0, y1 + 1)}
+    for corner in ((x0, y0), (x1, y0), (x0, y1), (x1, y1)):
+        if rng.random() < 0.5:
+            cells.discard(corner)
+    for _ in range(rng.randint(1, 4)):
+        side = rng.randrange(4)
+        if side < 2 and w >= 6:
+            y = y0 - 1 if side == 0 else y1 + 1
+            if by0 <= y <= by1:
+                a = rng.randint(x0 + 1, x1 - 3)
+                cells |= {(x, y) for x in range(a, a + rng.randint(2, 3))}
+        elif side >= 2 and h >= 3:
+            x = x0 - 1 if side == 2 else x1 + 1
+            if bx0 <= x <= bx1:
+                cells.add((x, rng.randint(y0 + 1, y1 - 1)))
+    return cells
+
+
+def round_cells(x0, y0, x1, y1):
+    """A round room (letters are about twice as tall as wide)."""
+    cx, cy, rx, ry = (x0 + x1) / 2, (y0 + y1) / 2, (x1 - x0 + 1) / 2, (y1 - y0 + 1) / 2
+    cells = {(x, y) for x in range(x0, x1 + 1) for y in range(y0, y1 + 1)
+             if ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1.08}
+    return largest_part(cells, (round(cx), round(cy)))
+
+
+def octagon_cells(x0, y0, x1, y1):
+    k = max(1, min(x1 - x0 + 1, 2 * (y1 - y0 + 1)) // 5)
+    return {(x, y) for x in range(x0, x1 + 1) for y in range(y0, y1 + 1)
+            if min(x - x0, x1 - x) + 2 * min(y - y0, y1 - y) >= k}
 
 
 def shape_room(room, rng):
-    bx0, by0, bx1, by1 = slot_box(room.slot)
-    if room.era == 1:
-        w, h = rng.randint(8, 18), rng.randint(4, 7)
-    elif room.era == 2:
-        w, h = rng.randint(6, 13), rng.randint(3, 5)
-    elif room.era == 3:
-        w, h = rng.randint(6, 14), rng.randint(3, 5)
+    box = bx0, by0, bx1, by1 = slot_box(room.slot, room.span)
+    level = room.level
+    if room.mirror_of is not None:
+        # symmetric layouts: the mirror image of its twin across the level's axis
+        cells = {(level.W - 1 - x, y) for x, y in room.mirror_of.cells}
     else:
-        w, h = rng.randint(10, 20), rng.randint(5, 7)
-    x0, y0 = rng.randint(bx0, bx1 - w + 1), rng.randint(by0, by1 - h + 1)
-    x1, y1 = x0 + w - 1, y0 + h - 1
-    cells = {(x, y) for x in range(x0, x1 + 1) for y in range(y0, y1 + 1)}
-    if room.era == 3:
-        # dug in a hurry: corners chipped off and bumps along the sides
-        for corner in ((x0, y0), (x1, y0), (x0, y1), (x1, y1)):
-            if rng.random() < 0.5:
-                cells.discard(corner)
-        for _ in range(rng.randint(1, 4)):
-            side = rng.randrange(4)
-            if side < 2 and w >= 6:
-                y = y0 - 1 if side == 0 else y1 + 1
-                if by0 <= y <= by1:
-                    a = rng.randint(x0 + 1, x1 - 3)
-                    cells |= {(x, y) for x in range(a, a + rng.randint(2, 3))}
-            elif side >= 2 and h >= 3:
-                x = x0 - 1 if side == 2 else x1 + 1
-                if bx0 <= x <= bx1:
-                    cells.add((x, rng.randint(y0 + 1, y1 - 1)))
-    elif room.era == 0:
-        # natural cave: an ellipse with a wobbly edge, always connected
-        cx, cy, rx, ry = (x0 + x1) / 2, (y0 + y1) / 2, w / 2, h / 2
-        waves = [(k, rng.uniform(0.04, 0.13), rng.uniform(0, 2 * math.pi)) for k in (2, 3, 5)]
-        cells = set()
-        for x in range(x0, x1 + 1):
-            for y in range(y0, y1 + 1):
-                u, v = (x - cx) / rx, (y - cy) / ry
-                limit = 0.97 + sum(a * math.sin(k * math.atan2(v, u) + ph) for k, a, ph in waves)
-                if u * u + v * v <= min(1.0, max(0.55, limit)) ** 2:
-                    cells.add((x, y))
-        cells = largest_part(cells, (round(cx), round(cy)))
+        maxw, maxh = bx1 - bx0 + 1, by1 - by0 + 1
+        big = room.role in BIG_ROLES
+        shape = room.shape
+        if room.era == 0:
+            shape = "cave"
+        elif room.era == 3 and not room.forced and shape in ("rect", "uniform"):
+            shape = "crude"
+        if shape == "small":
+            w, h = rng.randint(5, 7), rng.randint(2, 3)
+        elif shape == "uniform":
+            w, h = maxw - 4, maxh - 2
+        elif shape == "round":
+            w = min(maxw, 2 * maxh)
+            w = max(7, round(w * (1.0 if big else rng.uniform(0.7, 1.0))))
+            h = max(4, min(maxh, round(w / ASPECT_GUESS)))
+        elif shape == "cave":
+            w = rng.randint(min(maxw, max(10, round(maxw * 0.5))), maxw)
+            h = rng.randint(min(maxh, max(5, round(maxh * 0.7))), maxh)
+        elif big:
+            w, h = rng.randint(round(maxw * 0.75), maxw), rng.randint(round(maxh * 0.75), maxh)
+        elif room.era == 1:
+            w, h = rng.randint(round(maxw * 0.4), maxw), rng.randint(min(maxh, 4), maxh)
+        else:
+            w, h = rng.randint(6, max(6, round(maxw * 0.68))), rng.randint(3, max(3, round(maxh * 0.7)))
+        w, h = min(w, maxw), min(h, maxh)
+        if shape == "small":
+            x0, y0 = bx0 + (maxw - w) // 2, by0 + (maxh - h) // 2      # cells line up in rows
+        else:
+            x0, y0 = rng.randint(bx0, bx1 - w + 1), rng.randint(by0, by1 - h + 1)
+        x1, y1 = x0 + w - 1, y0 + h - 1
+        if shape == "cave":
+            cells = cave_cells(x0, y0, x1, y1, rng)
+        elif shape == "crude":
+            cells = crude_cells(x0, y0, x1, y1, box, rng)
+        elif shape == "round":
+            cells = round_cells(x0, y0, x1, y1)
+        elif shape == "octagon":
+            cells = octagon_cells(x0, y0, x1, y1)
+        else:
+            cells = {(x, y) for x in range(x0, x1 + 1) for y in range(y0, y1 + 1)}
     room.cells = cells
     xs, ys = [x for x, _ in cells], [y for _, y in cells]
     room.box = (min(xs), min(ys), max(xs), max(ys))
@@ -890,15 +1120,288 @@ def place_label(level, room):
 def place_pillars(level, room):
     """Founders' big halls get two rows of pillars, kept symmetrical."""
     x0, y0, x1, y1 = room.box
-    if room.era != 1 or x1 - x0 + 1 < 10 or y1 - y0 + 1 < 5:
+    grand = room.role in BIG_ROLES - OPEN_ROLES or (room.role is None and room.shape == "rect")
+    if room.era != 1 or room.shape not in ("rect", "uniform") or not grand or x1 - x0 + 1 < 10 or y1 - y0 + 1 < 5:
         return
     xs = list(range(x0 + 2, x1 - 1, 3))
     shift = ((x1 - 2) - xs[-1]) // 2
     for y in (y0 + 1, y1 - 1):
         for x in xs:
             i = level.i(x + shift, y)
-            if i not in level.labels:
+            if (x + shift, y) in room.cells and i not in level.labels:
                 level.feat[i] = "pillar"
+
+
+# --- layouts: every dungeon type has its own floor plan ---
+# A layout places the rooms of one level on a grid of slots (a slot holds one
+# room, a big room may span several). Corridors, loops, level connections,
+# entrances and secrets come afterwards and are the same for every type, so
+# every layout keeps Jaquays' principles.
+class Spec:
+    """Where a room goes and what it is: slot, span, shape, role, a fixed era,
+    the index of the room it mirrors."""
+
+    def __init__(self, slot, span=(1, 1), shape="rect", role=None, era=None, mirror=None):
+        self.slot, self.span, self.shape, self.role, self.era, self.mirror = slot, span, shape, role, era, mirror
+
+    def slots(self):
+        c, r = self.slot
+        return [(c + i, r + j) for i in range(self.span[0]) for j in range(self.span[1])]
+
+
+def grid_for(n, spare=None):
+    """Slot columns and rows for n rooms with some empty slots, about square on paper."""
+    slots = n + (math.ceil(n * 0.35) + 1 if spare is None else spare)
+    cols = max(2, round(math.sqrt(slots * 1.25)))
+    rows = max(1, math.ceil(slots / cols))
+    return cols, rows
+
+
+def all_slots(cols, rows):
+    return [(c, r) for r in range(rows) for c in range(cols)]
+
+
+def free_slots(cols, rows, specs):
+    used = {s for spec in specs for s in spec.slots()}
+    return [s for s in all_slots(cols, rows) if s not in used]
+
+
+def mirror_pairs(specs, cols, rows, pairs, rng, shape_of, role_of=lambda c: None):
+    """`pairs` rooms on the left half and their mirror images on the right,
+    closest to the axis first."""
+    axis = cols // 2
+    left = [s for s in free_slots(cols, rows, specs) if s[0] < axis]
+    left.sort(key=lambda s: (axis - s[0]) + rng.random() * 1.6)
+    for c, r in left[:pairs]:
+        specs.append(Spec((c, r), shape=shape_of(c), role=role_of(c)))
+        specs.append(Spec((cols - 1 - c, r), shape=specs[-1].shape, role=specs[-1].role, mirror=len(specs) - 1))
+
+
+def lay_scatter(n, rng):
+    """Underdark and caves: rooms anywhere, one great cavern if there's room."""
+    cols, rows = grid_for(n)
+    specs = []
+    if n >= 8 and cols >= 3:
+        specs.append(Spec((rng.randrange(cols - 1), rng.randrange(rows)), (2, 1), "cave", "grotto", era=0))
+    for slot in rng.sample(free_slots(cols, rows, specs), n - len(specs)):
+        specs.append(Spec(slot))
+    return cols, rows, specs
+
+
+def lay_palace(n, rng):
+    """Symmetric about a north-south axis, the throne hall in the middle."""
+    cols, rows = grid_for(n)
+    cols += 1 - cols % 2
+    rows = max(rows, 2)
+    while True:
+        hall_h = 2 if rows >= 3 and n >= 6 else 1
+        options = [c for c in range(rows - hall_h + 1) if (n - 1 - c) % 2 == 0 and (n - 1 - c) // 2 <= (cols // 2) * rows]
+        if options:
+            break
+        rows += 1
+    axis, centre = cols // 2, options[0]
+    r0 = (rows - hall_h) // 2
+    specs = [Spec((axis, r0), (1, hall_h), "rect", "hall", era=1)]
+    spare = [(axis, r) for r in range(rows) if not r0 <= r < r0 + hall_h]
+    for k, slot in enumerate(rng.sample(spare, centre)):
+        specs.append(Spec(slot, role="court" if k == 0 else None))
+    mirror_pairs(specs, cols, rows, (n - 1 - centre) // 2, rng, lambda c: rng.choice(("rect", "rect", "octagon")))
+    return cols, rows, specs
+
+
+def lay_temple(n, rng):
+    """A long nave on the axis, the apse at its head, side chapels in pairs."""
+    cols, rows = grid_for(n)
+    cols += 1 - cols % 2
+    rows = max(rows, 2)
+    axis = cols // 2
+    while True:
+        extra = (n - 2) % 2                     # one more room on the axis keeps the rest in pairs
+        nave_h = rows - 1 - extra
+        if nave_h >= 1 and (n - 2 - extra) // 2 <= axis * rows:
+            break
+        rows += 1
+    specs = [Spec((axis, 0), shape="round", role="apse", era=1),
+             Spec((axis, 1), (1, nave_h), "rect", "nave", era=1)]
+    if extra:
+        specs.append(Spec((axis, rows - 1)))
+    mirror_pairs(specs, cols, rows, (n - 2 - extra) // 2, rng, lambda c: "rect",
+                 lambda c: "chapel" if c == axis - 1 and rng.random() < 0.6 else None)
+    return cols, rows, specs
+
+
+def lay_tomb(n, rng):
+    """A processional axis: antechamber, halls, burial chamber at the far end;
+    burial niches in pairs on both sides."""
+    cols = 3 if n <= 9 else 5 if n <= 25 else 7
+    rows = max(2, math.ceil((n + math.ceil(n * 0.35) + 1) / cols))
+    axis = cols // 2
+    while True:
+        options = [c for c in range(2, min(rows, n) + 1) if (n - c) % 2 == 0 and (n - c) // 2 <= axis * rows]
+        if options:
+            break
+        rows += 1
+    centre = max(c for c in options if c <= max(2, n // 2 + 1)) if any(c <= max(2, n // 2 + 1) for c in options) \
+        else options[0]
+    middle = sorted(rng.sample(range(1, rows - 1), centre - 2))
+    specs = [Spec((axis, 0), role="antechamber", era=1), Spec((axis, rows - 1), role="burial", era=1)]
+    specs += [Spec((axis, r)) for r in middle]
+    mirror_pairs(specs, cols, rows, (n - centre) // 2, rng, lambda c: "small" if c == axis - 1 else "rect",
+                 lambda c: "niche" if c == axis - 1 else None)
+    return cols, rows, specs
+
+
+def grow_rect(slot, free, cols, rows, rng, inner=True):
+    """The biggest rectangle of free slots grown from `slot` (away from the outer ring if `inner`)."""
+    ok = (lambda s: s in free and (not inner or 0 < s[0] < cols - 1 and 0 < s[1] < rows - 1))
+    c0 = c1 = slot[0]
+    r0 = r1 = slot[1]
+    grown = True
+    while grown:
+        grown = False
+        for d in rng.sample(range(4), 4):
+            if d == 0 and all(ok((c1 + 1, r)) for r in range(r0, r1 + 1)):
+                c1 += 1
+            elif d == 1 and all(ok((c0 - 1, r)) for r in range(r0, r1 + 1)):
+                c0 -= 1
+            elif d == 2 and all(ok((c, r1 + 1)) for c in range(c0, c1 + 1)):
+                r1 += 1
+            elif d == 3 and all(ok((c, r0 - 1)) for c in range(c0, c1 + 1)):
+                r0 -= 1
+            else:
+                continue
+            grown = True
+    return (c0, r0), (c1 - c0 + 1, r1 - r0 + 1)
+
+
+def lay_ring(n, rng, kind):
+    """Castles and academies: buildings around a courtyard (or cloister), the
+    outer ring first; a castle has towers at the corners."""
+    cols, rows = grid_for(n)
+    cols, rows = max(cols, 3), max(rows, 3)
+    corners = {(0, 0), (cols - 1, 0), (0, rows - 1), (cols - 1, rows - 1)}
+
+    def ring(s):
+        return min(s[0], s[1], cols - 1 - s[0], rows - 1 - s[1])
+    order = sorted(all_slots(cols, rows), key=lambda s: (ring(s), s not in corners, rng.random()))
+    taken, free = order[:n - 1], set(order[n - 1:])
+    centre = min(free, key=lambda s: (s[0] - (cols - 1) / 2) ** 2 + (s[1] - (rows - 1) / 2) ** 2 + rng.random() * 0.1)
+    slot, span = grow_rect(centre, free, cols, rows, rng)
+    castle = kind == "castle"
+    specs = [Spec(slot, span, "rect" if castle else "uniform", "court" if castle else "cloister", era=1)]
+    outer = [s for s in taken if ring(s) == 0 and s not in corners]
+    rng.shuffle(outer)
+    special = (["keep"] if castle else ["library", "hall"])[:len(outer)]
+    for s in taken:
+        if castle and s in corners:
+            specs.append(Spec(s, shape="round", role="corner", era=1))
+        elif s in outer[:len(special)]:
+            specs.append(Spec(s, shape="rect" if castle else "uniform", role=special[outer.index(s)], era=1))
+        else:
+            specs.append(Spec(s, shape="rect" if castle else "uniform"))
+    return cols, rows, specs
+
+
+def lay_radial(n, rng, kind):
+    """Towers and wizards' lairs: a round core and the rest packed around it."""
+    cols, rows = grid_for(n, 1 + n // (5 if kind == "tower" else 3))
+    cx, cy = (cols - 1) / 2, (rows - 1) / 2
+    order = sorted(all_slots(cols, rows), key=lambda s: (s[0] - cx) ** 2 + (s[1] - cy) ** 2 + rng.random() * 0.8)
+    tower = kind == "tower"
+    specs = [Spec(order[0], shape="round", role="core" if tower else "circle", era=1)]
+    for k, s in enumerate(order[1:n]):
+        if tower:
+            specs.append(Spec(s, shape="round"))
+        elif k == 0:
+            specs.append(Spec(s, shape="octagon", role="lab", era=1))
+        else:
+            specs.append(Spec(s, shape=rng.choice(("round", "octagon", "rect"))))
+    return cols, rows, specs
+
+
+def lay_prison(n, rng):
+    """Blocks of cells in rows, guard rooms at the ends, a pit in the middle."""
+    guards, pit = max(1, round(n / 8)), int(n >= 12)
+    cells = n - guards - pit
+    slots = math.ceil(n * 1.2) + 1
+    rows = max(1, round(math.sqrt(slots / 2)))
+    cols = max(3, math.ceil(slots / rows))
+    specs = []
+    if pit:
+        specs.append(Spec((cols // 2, rows // 2), shape="round", role="pit", era=1))
+    ends = [(0, r) for r in range(rows)] + [(cols - 1, r) for r in range(rows)]
+    ends = [s for s in ends if s not in {sp.slot for sp in specs}]
+    step = max(1, len(ends) // guards)
+    for s in ends[::step][:guards]:
+        specs.append(Spec(s, role="guard", era=1))
+    for s in free_slots(cols, rows, specs)[:cells]:
+        specs.append(Spec(s, shape="small", role="cell"))
+    return cols, rows, specs
+
+
+def lay_city(n, rng):
+    """Packed buildings with streets between them and a square in the middle."""
+    cols, rows = grid_for(n, 2 + n // 6)
+    pw, ph = (2, 2) if n >= 10 and cols >= 4 and rows >= 3 else (2, 1) if n >= 5 and cols >= 3 else (1, 1)
+    plaza = Spec(((cols - pw) // 2, (rows - ph) // 2), (pw, ph), "rect", "plaza", era=1)
+    specs = [plaza]
+    free = free_slots(cols, rows, specs)
+    if n >= 6:
+        near = min(free, key=lambda s: abs(s[0] - plaza.slot[0]) + abs(s[1] - plaza.slot[1]) + rng.random())
+        specs.append(Spec(near, role="hall", era=1))
+    for s in rng.sample(free_slots(cols, rows, specs), n - len(specs)):
+        specs.append(Spec(s))
+    return cols, rows, specs
+
+
+def lay_fortress(n, rng):
+    """A long walled line: bastions at the ends, the keep in the middle, a gate."""
+    slots = math.ceil(n * 1.35) + 1
+    rows = max(1, round(math.sqrt(slots / 3)))
+    cols = max(3, math.ceil(slots / rows))
+    while True:
+        specs = [Spec((cols // 2, 0), (1, rows) if n >= 6 else (1, 1), "rect", "keep", era=1)]
+        ends = [(0, 0), (cols - 1, rows - 1), (cols - 1, 0), (0, rows - 1)]
+        for s in list(dict.fromkeys(ends))[:(4 if n >= 12 and rows >= 2 else 2) if n >= 4 else 0]:
+            specs.append(Spec(s, shape="round", role="bastion", era=1))
+        free = free_slots(cols, rows, specs)
+        if len(free) >= n - len(specs):
+            break
+        cols += 1
+    if n >= 5:
+        gate = min(free, key=lambda s: (s[1] != rows - 1, abs(s[0] - 1), rng.random()))
+        specs.append(Spec(gate, role="gate", era=1))
+    for s in rng.sample(free_slots(cols, rows, specs), n - len(specs)):
+        specs.append(Spec(s))
+    return cols, rows, specs
+
+
+LAYOUTS = {
+    "palace": lay_palace, "temple": lay_temple, "tomb": lay_tomb, "prison": lay_prison, "city": lay_city,
+    "fortress": lay_fortress, "underdark": lay_scatter,
+    "castle": lambda n, rng: lay_ring(n, rng, "castle"), "academy": lambda n, rng: lay_ring(n, rng, "academy"),
+    "tower": lambda n, rng: lay_radial(n, rng, "tower"), "wizard": lambda n, rng: lay_radial(n, rng, "wizard"),
+}
+
+
+def lay_out(kind, n, rng):
+    """(cols, rows, specs) for n rooms of a type; plain scatter if the plan doesn't fit."""
+    cols, rows, specs = LAYOUTS.get(TYPE[kind]["pattern"], lay_scatter)(n, rng)
+    used = [s for spec in specs for s in spec.slots()]
+    if len(specs) != n or len(used) != len(set(used)) or any(not (0 <= c < cols and 0 <= r < rows) for c, r in used):
+        return lay_scatter(n, rng)
+    return cols, rows, specs
+
+
+def divide(specs, cols):
+    """Split a level in two halves that don't connect (Jaquays: divided
+    levels): components per room, or None if a half would be too small."""
+    half = cols // 2
+    for spec in specs:
+        if spec.slot[0] < half < spec.slot[0] + spec.span[0]:
+            spec.span = (half - spec.slot[0], spec.span[1])
+    comps = [0 if spec.slot[0] < half else 1 for spec in specs]
+    return comps if min(comps.count(0), comps.count(1)) >= 2 else None
 
 
 # --- room layout and strata ---
@@ -921,24 +1424,11 @@ def split_rooms(params, rng):
     return counts, sub
 
 
-def grid_for(n):
-    """Slot columns and rows for a level holding up to n rooms."""
-    slots = math.ceil(n * 1.35) + 1
-    cols = max(2, round(math.sqrt(slots * 1.25)))
-    rows = max(1, math.ceil(slots / cols))
-    return cols, rows
-
-
-def era_weights(t):
-    """Natural caves deeper down, founders and today's tunnels nearer the top."""
-    return [0.10 + 0.50 * t, 0.45 - 0.15 * t, 0.25, 0.30 * (1 - t) + 0.05]
-
-
-def assign_eras(slots, cols, rows, t, rng):
+def assign_eras(slots, cols, rows, weights, rng):
     """Eras grow in patches (each patch is the work of one age), so the strata
     read on the map: every room takes the era of the nearest patch seed."""
     k = max(2, round(len(slots) / 3))
-    seeds = [((rng.uniform(0, cols - 1), rng.uniform(0, rows - 1)), rng.choices(range(4), era_weights(t))[0])
+    seeds = [((rng.uniform(0, cols - 1), rng.uniform(0, rows - 1)), rng.choices(range(4), weights)[0])
              for _ in range(k)]
 
     def nearest(slot):
@@ -946,59 +1436,68 @@ def assign_eras(slots, cols, rows, t, rng):
     return [nearest(s) for s in slots]
 
 
+def level_eras(specs, cols, rows, kind, rng):
+    eras = assign_eras([s.slot for s in specs], cols, rows, TYPE[kind]["eras"], rng)
+    for k, spec in enumerate(specs):
+        if spec.era is not None:
+            eras[k] = spec.era
+        elif spec.mirror is not None:
+            eras[k] = eras[spec.mirror]
+    return eras
+
+
 def build_rooms(dungeon, rng, log):
     params, story = dungeon.params, dungeon.story
+    types = params["types"]
     counts, sub_rooms = split_rooms(params, rng)
     L = params["levels"]
-    cols, rows = grid_for(max(counts))
 
-    # divided level: needs 6+ rooms, room for both halves, and never next to another divided one
+    # divided level: needs 6+ rooms and never next to another divided one
     divided = set()
-    candidates = [d for d in range(L) if counts[d] >= 6 and cols >= 2] if L >= 2 else []
+    candidates = [d for d in range(L) if counts[d] >= 6] if L >= 2 else []
     rng.shuffle(candidates)
     for d in candidates:
         if len(divided) >= max(1, L // 3):
             break
-        if d - 1 not in divided and d + 1 not in divided and (cols // 2) * rows >= (counts[d] + 1) // 2:
+        if d - 1 not in divided and d + 1 not in divided:
             divided.add(d)
 
     uid = 0
-    all_eras = []
     for d in range(L):
-        level = Level(str(d + 1), d, cols, rows)
-        t = d / (L - 1) if L > 1 else 0.0
-        if d in divided:
+        kind = types[d]
+        cols, rows, specs = lay_out(kind, counts[d], rng)
+        level = Level(str(d + 1), d, cols, rows, kind=kind)
+        comps = divide(specs, cols) if d in divided else None
+        if comps:
             level.split = 1 + (cols // 2) * SLOT_W
-            left = [(c, r) for c in range(cols // 2) for r in range(rows)]
-            right = [(c, r) for c in range(cols // 2, cols) for r in range(rows)]
-            na = counts[d] // 2
-            slots = rng.sample(left, na) + rng.sample(right, counts[d] - na)
-            comps = [0] * na + [1] * (counts[d] - na)
-        else:
-            slots = rng.sample([(c, r) for c in range(cols) for r in range(rows)], counts[d])
-            comps = [0] * counts[d]
-        eras = assign_eras(slots, cols, rows, t, rng)
-        for slot, comp, era in zip(slots, comps, eras):
-            level.rooms.append(Room(uid, level, era, slot, comp))
+        comps = comps or [0] * len(specs)
+        eras = level_eras(specs, cols, rows, kind, rng)
+        for spec, comp, era in zip(specs, comps, eras):
+            level.rooms.append(Room(uid, level, era, spec.slot, comp, spec))
             uid += 1
-        all_eras += eras
+        for room, spec in zip(level.rooms, specs):
+            if spec.mirror is not None:
+                room.mirror_of = level.rooms[spec.mirror]
         dungeon.levels.append(level)
 
-    # every story needs its founders, and a dungeon of 4+ rooms shows at least two ages
+    # every story needs its founders, and every dungeon shows at least two ages
     mains = dungeon.levels
-    if 1 not in all_eras:
-        rng.choice(rng.choice(mains).rooms).era = 1
-    if len({r.era for lv in mains for r in lv.rooms}) < 2 and params["rooms"] >= 4:
-        room = rng.choice([r for lv in mains for r in lv.rooms if r.era == 1])
-        others = [r for lv in mains for r in lv.rooms if r is not room]
-        rng.choice(others).era = rng.choice((0, 2, 3))
+    free = [r for lv in mains for r in lv.rooms if not r.forced]
+    if not any(r.era == 1 for lv in mains for r in lv.rooms) and free:
+        rng.choice(free).era = 1
+    if len({r.era for lv in mains for r in lv.rooms}) < 2:
+        # tiny levels made only of key rooms: one of them was refitted later
+        room = rng.choice(free or [r for lv in mains for r in lv.rooms[1:]] or mains[0].rooms)
+        weights = TYPE[room.level.kind]["eras"]
+        room.era = rng.choice([e for e in (0, 2, 3) if weights[e] > 0] or [2])
 
     # the sub-level: a small hideout between two levels (or below the only one)
     if sub_rooms:
         d = rng.randrange(L - 1) if L >= 2 else 0
+        kind = types[d]
         sc, sr = (sub_rooms, 1) if sub_rooms <= 3 else (2, 2)
-        level = Level(f"{d + 1}a", d + 0.5, sc, sr, sub=True)
-        era = rng.choice((0, 2, 2))
+        level = Level(f"{d + 1}a", d + 0.5, sc, sr, sub=True, kind=kind)
+        era = rng.choice((0, 2, 2) if TYPE[kind]["eras"][0] > 0 else (2,))
         for slot in rng.sample([(c, r) for c in range(sc) for r in range(sr)], sub_rooms):
             level.rooms.append(Room(uid, level, era, slot, 0))
             uid += 1
@@ -1017,7 +1516,7 @@ def build_rooms(dungeon, rng, log):
             place_pillars(level, room)
         dungeon.rooms += level.rooms
         extra = tr("info_sub") if level.sub else (tr("info_divided") if level.split is not None else "")
-        log.info(tr("info_level_rooms", n=level.name, r=len(level.rooms), extra=extra))
+        log.info(tr("info_level_rooms", n=level.name, t=type_name(level.kind), r=len(level.rooms), extra=extra))
 
 
 # --- corridors ---
@@ -1183,7 +1682,7 @@ def connect_level(level, rng):
         edges = gabriel_edges(rooms)
         tree, rest = spanning_tree(len(rooms), edges)
         n = len(rooms)
-        want = 0 if n < 3 else max(1, round(n * 0.3))
+        want = 0 if n < 3 else max(1, round(n * TYPE[level.kind].get("loops", 0.3)))
         if want and not rest:
             # tiny or lined-up rooms: Gabriel has no spare edge, use any other pair
             tree_pairs = {(a, b) for _, a, b in tree}
@@ -1271,7 +1770,8 @@ def plan_links(dungeon, rng):
         below = mains[d + 1] if d + 1 < len(mains) else mains[d]
         add_link(dungeon, "shaft", b, choose(below), rng)
 
-    if len(dungeon.rooms) >= 15 and (rng.random() < 0.4 or dungeon.story["founders"].get("wizard")):
+    chance = max(TYPE[lv.kind].get("portal", 0.4) for lv in mains)
+    if len(dungeon.rooms) >= (8 if chance >= 1 else 15) and rng.random() < chance:
         if len(mains) >= 2:
             la, lb = rng.sample(mains, 2)
             add_link(dungeon, "portal", choose(la), choose(lb), rng)
@@ -1324,16 +1824,23 @@ def exit_ray(level, room, rng, region, spacing=6):
 
 
 def place_entrances(dungeon, rng):
+    """The main entrance is on the ground level (the lowest building above
+    ground, or the top level underground); the second one is a midpoint entry
+    on another level (Jaquays), the others anywhere, mostly on the ground."""
     mains = dungeon.mains()
     want = dungeon.params["entrances"]
+    ground = ground_index([lv.kind for lv in mains])
+    below = [k for k in range(len(mains)) if k > ground]
+    above = [k for k in range(len(mains)) if k < ground]
+    midpoint = below[(len(below) - 1) // 2] if below else above[0] if above else ground
     targets = []
     for n in range(want):
         if n == 0:
-            targets.append(0)
+            targets.append(ground)
         elif n == 1 and len(mains) >= 2:
-            targets.append(len(mains) // 2)       # midpoint entry
+            targets.append(midpoint)
         else:
-            targets.append(0 if rng.random() < 0.6 else rng.randrange(len(mains)))
+            targets.append(ground if rng.random() < 0.6 else rng.randrange(len(mains)))
     taken = set()
     for n, d in enumerate(targets):
         letter = "ABCDEFGHJ"[n]
@@ -1362,9 +1869,9 @@ def place_entrances(dungeon, rng):
                     level.floor[i], level.era[i] = CORRIDOR, max(room.era, 3 if room.era == 0 else room.era)
             level.exits.append((letter, cells[-1], direction))
             taken.add(room.uid)
-            table = MAIN_ENTRANCES if k == 0 else MIDPOINT_ENTRANCES
+            table = TYPE[level.kind]["entrances" if k == ground else "side_entrances"]
             dungeon.entrances.append({"letter": letter, "room": room, "level": level, "kind": rng.choice(table),
-                                      "midpoint": k > 0, "cells": cells})
+                                      "midpoint": k != ground, "cells": cells})
             placed = True
             break
         if not placed:
@@ -1383,8 +1890,9 @@ def place_entrances(dungeon, rng):
                 level.inner_tags.append((letter, tag))
                 level.feat[level.i(*tag)] = "tag"
             taken.add(room.uid)
-            dungeon.entrances.append({"letter": letter, "room": room, "level": level, "kind": SURFACE_SHAFT,
-                                      "midpoint": d > 0, "cells": []})
+            kind = TYPE[level.kind].get("shaft_entrance", SURFACE_SHAFT)
+            dungeon.entrances.append({"letter": letter, "room": room, "level": level, "kind": kind,
+                                      "midpoint": d != ground, "cells": []})
 
 
 # --- secret and unusual paths ---
@@ -1510,6 +2018,19 @@ def secret_and_unusual(dungeon, rng, log):
                 break
             if mark(level, c, "steps", 2):
                 done += 1
+        if not done:
+            # no straight stretch: a single step in a corridor, or else a raised dais in a room
+            for c in pool:
+                if c.feature is None and mark(level, c, "steps", 1):
+                    done = 1
+                    break
+        if not done:
+            for room in sorted(level.rooms, key=lambda r: -len(r.cells)):
+                spot = free_spot(level, room, rng)
+                if spot:
+                    level.feat[level.i(*spot)] = "steps"
+                    done = 1
+                    break
         stats["steps"] += done
 
     # pools of water in some caves
@@ -1623,8 +2144,15 @@ def jaquays_report(dungeon):
         lines.append(("-", tr("jq_na", what=tr("jq_t_mid"), why=tr("jq_why_one") if L == 1 else tr("jq_why_entr"))))
     contacts = sum(1 for lv in dungeon.levels for c in lv.corridors if (c.a.era == 0) != (c.b.era == 0))
     contacts += sum(1 for k in dungeon.links if (k.a.era == 0) != (k.b.era == 0))
+    kinds = sum(1 for k in dungeon.links if k.a.level.kind != k.b.level.kind)
+    ages = sum(1 for lv in dungeon.levels for c in lv.corridors if c.a.era != c.b.era)
+    ages += sum(1 for k in dungeon.links if k.a.era != k.b.era)
     if contacts and any(r.era == 0 for r in dungeon.rooms):
         lines.append(("ok", tr("jq_nested", n=contacts)))
+    elif kinds:
+        lines.append(("ok", tr("jq_nested_kinds", n=kinds)))
+    elif ages:
+        lines.append(("ok", tr("jq_nested_ages", n=ages)))
     else:
         lines.append(("-", tr("jq_na", what=tr("jq_t_nest"), why=tr("jq_why_caves"))))
     return lines
@@ -1635,7 +2163,7 @@ def generate(params, log):
     seed = make_seed(params)
     for attempt in range(8):
         rng = random.Random(f"wyrmdelve-{seed}-{attempt}")
-        story = make_story(random.Random(f"wyrmdelve-story-{seed}"))
+        story = make_story(random.Random(f"wyrmdelve-story-{seed}"), params["types"])
         dungeon = Dungeon(params, story)
         quiet = log if attempt == 0 else QuietLog()
         if attempt == 0:
@@ -2340,12 +2868,13 @@ def room_exits(dungeon, room):
 def write_key(dungeon, path, seed, title):
     story = dungeon.story
     width = 100
-    lines = [f"WyrmDelve v{VERSION}" + (f" — {title}" if title else ""), f"{tr('key_seed')}: {seed}", ""]
-    lines += [tr("key_history"), *wrap(pick(story["history"]), width, "  "), ""]
+    lines = [f"WyrmDelve v{VERSION}" + (f" — {title}" if title else ""), f"{tr('key_seed')}: {seed}",
+             f"{tr('key_types')}: {types_text(dungeon.params['types'])}", ""]
+    lines += [tr("key_history"), *wrap(pick(history_text(dungeon)), width, "  "), ""]
     lines.append(tr("key_strata"))
     eras = {r.era for r in dungeon.rooms}
     strata = [(0, pick(("Grotte naturali, più antiche di ogni costruzione", "Natural caves, older than any building")), "#"),
-              (1, pick(story["f_who"]) + " — " + pick(story["founders"]["built"]), "═║"),
+              (1, pick(story["f_who"]) + " — " + pick(story["built"]), "═║"),
               (2, pick(story["s_who"]), "─│"),
               (3, pick(("oggi: ", "today: ")) + pick(story["p_who"]), "#")]
     for era, text, walls in strata:
@@ -2368,11 +2897,12 @@ def write_key(dungeon, path, seed, title):
         if level.sub:
             d = int(level.depth)
             if d + 1 < len(mains):
-                lines.append(tr("key_sublevel", n=level.name, a=mains[d].name, b=mains[d + 1].name))
+                lines.append(tr("key_sublevel", n=level.name, a=mains[d].name, b=mains[d + 1].name)
+                             + " — " + type_name(level.kind).upper())
             else:
-                lines.append(tr("key_sublevel_one", n=level.name))
+                lines.append(tr("key_sublevel_one", n=level.name) + " — " + type_name(level.kind).upper())
         else:
-            lines.append(tr("key_level", n=level.name))
+            lines.append(tr("key_level", n=level.name) + " — " + type_name(level.kind).upper())
         if level.split is not None:
             lines += wrap(tr("key_divided"), width, "  ")
         for room in sorted(level.rooms, key=lambda r: r.number):
@@ -2517,6 +3047,47 @@ def ask_output(levels, per_level, pdf):
     return per_level, pdf
 
 
+def print_types(allowed):
+    for k, t in enumerate(TYPES, 1):
+        if t["id"] in allowed:
+            print(f"    {k:>2} = {pick(t['menu'])}")
+    print(tr("type_random"))
+
+
+def ask_type(allowed, rng):
+    """One type among the allowed ones; 0 = at random."""
+    print_types(allowed)
+    while True:
+        k = ask(tr("choice"), 0, int, 0, len(TYPES))
+        if k == 0:
+            return rng.choice(allowed)
+        if TYPES[k - 1]["id"] in allowed:
+            return TYPES[k - 1]["id"]
+        print(tr("type_not_allowed"))
+
+
+def ask_types(levels):
+    """The type of every level, top to bottom: the same for all, or one each
+    (only the types that can stand below the previous level are offered)."""
+    rng = random.Random()
+    every = [t["id"] for t in TYPES]
+    if levels > 1:
+        print(tr("types_same_intro"))
+        print(tr("types_same"))
+        print(tr("types_each"))
+        if ask(tr("choice"), 1, int, 1, 2) == 2:
+            types = []
+            for d in range(levels):
+                if types:
+                    print(tr("types_level_intro", n=d + 1, above=type_name(types[-1])))
+                else:
+                    print(tr("types_level_first"))
+                types.append(ask_type(TYPE[types[-1]]["below"] if types else every, rng))
+            return types
+    print(tr("types_intro"))
+    return [ask_type(every, rng)] * levels
+
+
 def ask_name():
     """None = a random name (the dungeon's own), "" = no name, else the user's."""
     print(tr("name_intro"))
@@ -2556,7 +3127,8 @@ def ask_settings():
         rooms = ask(tr("q_rooms"), max(DEFAULTS["rooms"], 2 * levels), int, max(3, 2 * levels), LIMITS["rooms"][1])
         entrances = ask(tr("q_entrances"), min(DEFAULTS["entrances"], rooms), int, 1, min(LIMITS["entrances"][1], rooms))
         hidden = ask(tr("q_secrets"), DEFAULTS["secrets"], int, *LIMITS["secrets"])
-        p.update({"levels": levels, "rooms": rooms, "entrances": entrances, "secrets": hidden,
+        types = ask_types(levels)
+        p.update({"levels": levels, "rooms": rooms, "entrances": entrances, "secrets": hidden, "types": types,
                   "number": new_number(), "randomized": False})
     else:
         p.update(random_params(new_number()))
@@ -2584,6 +3156,7 @@ def settings_from_options(argv):
     ap.add_argument(*names("colori", "colors"), dest="colors", type=int, choices=(1, 2, 3), default=1,
                     help=tr("h_colors"))
     ap.add_argument(*names("seme", "seed"), dest="seed", default=None, help=tr("h_seed"))
+    ap.add_argument(*names("tipo", "type"), dest="types", default=None, metavar="N[,N...]", help=tr("h_type"))
     ap.add_argument(*names("formato", "format"), dest="paper", type=str.upper, choices=list(PAPERS), default=None,
                     help=tr("h_format"))
     sheets = ap.add_mutually_exclusive_group()
@@ -2606,6 +3179,16 @@ def settings_from_options(argv):
          "colors": a.colors, "per_level": a.per_level, "pdf": a.pdf}
     fixed = {k: v for k, v in (("levels", a.levels), ("rooms", a.rooms), ("entrances", a.entrances),
                                ("secrets", a.secrets)) if v is not None}
+    if a.types:
+        try:
+            numbers = [int(x) for x in a.types.replace(" ", "").split(",")]
+        except ValueError:
+            numbers = [0]
+        if any(not 1 <= k <= len(TYPES) for k in numbers):
+            ap.error(tr("err_type_value", s=a.types, n=len(TYPES)))
+        fixed["types"] = [TYPES[k - 1]["id"] for k in numbers]
+        if len(numbers) > 1:
+            fixed.setdefault("levels", len(numbers))
     if a.seed:
         seed = read_seed(a.seed)
         if seed:
@@ -2640,6 +3223,7 @@ def main():
     log.info(tr("info_params", l=params["levels"], r=params["rooms"], e=params["entrances"], x=params["secrets"]))
     if params.get("randomized"):
         log.info(tr("info_random"))
+    log.info(tr("info_types", t=types_text(params["types"])))
     log.info(tr("info_colors", c=tr(f"color_name_{params['colors']}")))
     if params["title"] == "":
         log.info(tr("info_name_none"))

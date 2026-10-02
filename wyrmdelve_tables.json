@@ -2,36 +2,416 @@
   "name_syllables": [
     "kha", "zad", "mor", "goth", "ul", "dar", "vex", "ra", "thal", "in", "gor", "mund", "ash",
     "kar", "yr", "sel", "bal", "dur", "nek", "ro", "ish", "tar", "vol", "em", "drak", "un",
-    "zor", "il", "bri", "gan", "sha", "ost", "mel", "keth"
+    "zor", "il", "bri", "gan", "sha", "ost", "mel", "keth", "ar", "bel", "cor", "dra", "el",
+    "fen", "gal", "hel", "ith", "jor", "kel", "lor", "mar", "nor", "or", "pel", "quel", "rin",
+    "sar", "tor", "ur", "var", "wen", "xan", "yl", "zen", "ath", "brun", "cyr", "dol", "esk",
+    "far", "grim", "hal", "ivo", "lum", "myr", "nar", "oth"
   ],
-  "founders": [
+  "dungeon_types": [
     {
-      "who": {"it": "i nani del clan {n}", "en": "the dwarves of clan {n}"},
-      "built": {"it": "una roccaforte", "en": "a stronghold"},
-      "title": {"it": "Roccaforte di {n}", "en": "{n} Hold"},
+      "id": "palace",
+      "code": "A",
+      "menu": {"it": "Antico palazzo", "en": "Ancient palace"},
+      "name": {"it": "Palazzo", "en": "Palace"},
+      "surface": true,
+      "rank": 5,
+      "below": ["palace", "prison", "tomb", "temple", "wizard", "city", "underdark"],
+      "eras": [0, 0.6, 0.3, 0.1],
+      "pattern": "palace",
+      "loops": 0.35,
+      "portal": 0.3,
+      "builders": [
+        {"it": "i re della dinastia di {n}", "en": "the kings of the {n} dynasty"},
+        {"it": "la principessa {n} e la sua corte", "en": "Princess {n} and her court"},
+        {"it": "i satrapi di {n}", "en": "the satraps of {n}"},
+        {"it": "gli elfi della casata {n}", "en": "the elves of House {n}"},
+        {"it": "i principi mercanti di {n}", "en": "the merchant princes of {n}"},
+        {"it": "il visir {n} e i suoi architetti", "en": "Vizier {n} and their architects"}
+      ],
+      "built": [
+        {"it": "un palazzo", "en": "a palace"},
+        {"it": "una reggia", "en": "a royal residence"},
+        {"it": "un palazzo d'estate", "en": "a summer palace"}
+      ],
+      "titles": [
+        {"it": "Palazzo di {n}", "en": "{n} Palace"},
+        {"it": "Reggia di {n}", "en": "Court of {n}"},
+        {"it": "Le Sale di {n}", "en": "The Halls of {n}"},
+        {"it": "Palazzo d'Ambra di {n}", "en": "{n}'s Amber Palace"}
+      ],
       "rooms": [
-        {"it": "sala del trono", "en": "throne hall"},
-        {"it": "forgia", "en": "forge"},
-        {"it": "armeria", "en": "armoury"},
-        {"it": "birrificio", "en": "brewery"},
-        {"it": "caserma", "en": "barracks"},
-        {"it": "tesoreria", "en": "treasury"},
-        {"it": "tomba degli antenati", "en": "ancestors' tomb"},
-        {"it": "granaio", "en": "granary"},
-        {"it": "corpo di guardia", "en": "guardroom"},
-        {"it": "cisterna", "en": "cistern"},
-        {"it": "sala dei banchetti", "en": "feast hall"},
-        {"it": "officina delle rune", "en": "rune workshop"},
         {"it": "sala delle udienze", "en": "audience chamber"},
-        {"it": "dormitorio", "en": "dormitory"}
+        {"it": "sala da ballo", "en": "ballroom"},
+        {"it": "galleria dei ritratti", "en": "portrait gallery"},
+        {"it": "appartamenti reali", "en": "royal apartments"},
+        {"it": "camera della regina", "en": "queen's bedchamber"},
+        {"it": "studiolo", "en": "study"},
+        {"it": "biblioteca", "en": "library"},
+        {"it": "cappella palatina", "en": "palace chapel"},
+        {"it": "cucine", "en": "kitchens"},
+        {"it": "dispensa", "en": "pantry"},
+        {"it": "cantina dei vini", "en": "wine cellar"},
+        {"it": "bagni", "en": "baths"},
+        {"it": "giardino d'inverno", "en": "winter garden"},
+        {"it": "sala degli specchi", "en": "hall of mirrors"},
+        {"it": "sala del consiglio", "en": "council chamber"},
+        {"it": "archivio", "en": "archive"},
+        {"it": "guardaroba", "en": "wardrobe"},
+        {"it": "alloggi della servitù", "en": "servants' quarters"},
+        {"it": "sala d'armi", "en": "arms room"},
+        {"it": "tesoreria", "en": "treasury"},
+        {"it": "sala dei banchetti", "en": "banquet hall"},
+        {"it": "salotto", "en": "drawing room"},
+        {"it": "loggia", "en": "loggia"},
+        {"it": "sala della musica", "en": "music room"},
+        {"it": "camera degli ospiti", "en": "guest chamber"},
+        {"it": "sala delle mappe", "en": "map room"},
+        {"it": "serra", "en": "hothouse"},
+        {"it": "voliera", "en": "aviary"},
+        {"it": "sala dei giochi", "en": "games room"},
+        {"it": "anticamera", "en": "antechamber"},
+        {"it": "alloggi delle guardie", "en": "guards' quarters"}
+      ],
+      "special": {
+        "hall": [
+          {"it": "sala del trono", "en": "throne hall"},
+          {"it": "grande salone", "en": "great hall"},
+          {"it": "sala delle colonne", "en": "hall of columns"}
+        ],
+        "court": [
+          {"it": "cortile d'onore", "en": "court of honour"},
+          {"it": "giardino interno", "en": "inner garden"},
+          {"it": "chiostro delle fontane", "en": "fountain cloister"}
+        ]
+      },
+      "entrances": [
+        {"it": "portone d'onore", "en": "grand doorway"},
+        {"it": "scalone d'ingresso", "en": "grand staircase"},
+        {"it": "cancello dei giardini", "en": "garden gate"},
+        {"it": "porta di servizio", "en": "servants' door"},
+        {"it": "loggiato crollato", "en": "collapsed loggia"}
+      ],
+      "side_entrances": [
+        {"it": "finestra senza imposte", "en": "unshuttered window"},
+        {"it": "terrazza pensile", "en": "hanging terrace"},
+        {"it": "passaggio delle cucine", "en": "kitchen passage"},
+        {"it": "condotto del camino", "en": "chimney flue"},
+        {"it": "breccia nel muro", "en": "breach in the wall"}
       ]
     },
     {
-      "who": {"it": "i sacerdoti di {n}", "en": "the priests of {n}"},
-      "built": {"it": "un tempio sotterraneo", "en": "an underground temple"},
-      "title": {"it": "Tempio di {n}", "en": "Temple of {n}"},
+      "id": "prison",
+      "code": "B",
+      "menu": {"it": "Sotterraneo o prigione di creature intelligenti o arcane", "en": "Dungeon or prison built by intelligent or arcane creatures"},
+      "name": {"it": "Prigione", "en": "Prison"},
+      "surface": false,
+      "rank": 3,
+      "below": ["prison", "wizard", "tomb", "underdark"],
+      "eras": [0.05, 0.6, 0.25, 0.1],
+      "pattern": "prison",
+      "loops": 0.3,
+      "portal": 0.4,
+      "builders": [
+        {"it": "i signori della mente di {n}", "en": "the mind lords of {n}"},
+        {"it": "i carcerieri di {n}", "en": "the jailers of {n}"},
+        {"it": "gli inquisitori di {n}", "en": "the inquisitors of {n}"},
+        {"it": "i demoni al servizio di {n}", "en": "the demons serving {n}"},
+        {"it": "gli uomini serpente di {n}", "en": "the serpent folk of {n}"},
+        {"it": "i giganti di pietra di {n}", "en": "the stone giants of {n}"}
+      ],
+      "built": [
+        {"it": "una prigione sotterranea", "en": "an underground prison"},
+        {"it": "delle segrete", "en": "a warren of dungeon cells"},
+        {"it": "un carcere arcano", "en": "an arcane gaol"}
+      ],
+      "titles": [
+        {"it": "Segrete di {n}", "en": "Dungeons of {n}"},
+        {"it": "Prigione di {n}", "en": "{n}'s Prison"},
+        {"it": "Il Pozzo di {n}", "en": "The Pit of {n}"},
+        {"it": "Carcere di {n}", "en": "{n} Gaol"}
+      ],
       "rooms": [
-        {"it": "navata", "en": "nave"},
+        {"it": "sala di tortura", "en": "torture chamber"},
+        {"it": "stanza degli interrogatori", "en": "interrogation room"},
+        {"it": "alloggi dei carcerieri", "en": "jailers' quarters"},
+        {"it": "armeria", "en": "armoury"},
+        {"it": "deposito delle catene", "en": "chain store"},
+        {"it": "cucina della prigione", "en": "prison kitchen"},
+        {"it": "archivio dei prigionieri", "en": "prisoners' records"},
+        {"it": "infermeria", "en": "infirmary"},
+        {"it": "latrine", "en": "latrines"},
+        {"it": "sala delle gabbie", "en": "cage hall"},
+        {"it": "fossa delle bestie", "en": "beast pit"},
+        {"it": "cella di contenimento arcano", "en": "arcane containment cell"},
+        {"it": "laboratorio degli esperimenti", "en": "experiment laboratory"},
+        {"it": "sala dei sigilli", "en": "hall of seals"},
+        {"it": "stanza del boia", "en": "executioner's room"},
+        {"it": "deposito degli effetti personali", "en": "confiscated belongings"},
+        {"it": "sala delle visite", "en": "visiting room"},
+        {"it": "cella dei condannati", "en": "condemned cell"},
+        {"it": "cappella dei condannati", "en": "chapel of the condemned"},
+        {"it": "cisterna", "en": "cistern"},
+        {"it": "deposito delle razioni", "en": "ration store"},
+        {"it": "sala del giudizio", "en": "judgement hall"},
+        {"it": "magazzino", "en": "storeroom"},
+        {"it": "stanza delle chiavi", "en": "key room"},
+        {"it": "canile delle bestie da guardia", "en": "guard-beast kennels"},
+        {"it": "sala dei custodi arcani", "en": "arcane wardens' hall"},
+        {"it": "recinto degli schiavi", "en": "slave pen"},
+        {"it": "sala delle catene appese", "en": "hall of hanging chains"}
+      ],
+      "special": {
+        "cell": [
+          {"it": "cella", "en": "cell"},
+          {"it": "cella di isolamento", "en": "solitary cell"},
+          {"it": "cella comune", "en": "common cell"},
+          {"it": "gabbia di ferro", "en": "iron cage"},
+          {"it": "cella incatenata", "en": "chained cell"}
+        ],
+        "guard": [
+          {"it": "corpo di guardia", "en": "guardroom"},
+          {"it": "posto dei carcerieri", "en": "jailers' post"},
+          {"it": "sala del capoguardia", "en": "head jailer's room"}
+        ],
+        "pit": [
+          {"it": "pozzo dell'oblio", "en": "oubliette"},
+          {"it": "fossa centrale", "en": "central pit"},
+          {"it": "pozzo dei dannati", "en": "pit of the damned"}
+        ]
+      },
+      "entrances": [
+        {"it": "portone ferrato", "en": "iron-bound gate"},
+        {"it": "scala dei carcerieri", "en": "jailers' stair"},
+        {"it": "cancello delle carrette", "en": "cart gate"},
+        {"it": "grata nel cortile", "en": "grate in the yard"},
+        {"it": "porta dei condannati", "en": "door of the condemned"}
+      ],
+      "side_entrances": [
+        {"it": "canale di scolo", "en": "drainage channel"},
+        {"it": "galleria scavata dai prigionieri", "en": "tunnel dug by the prisoners"},
+        {"it": "pozzo di aerazione", "en": "air shaft"},
+        {"it": "botola del boia", "en": "hangman's trapdoor"},
+        {"it": "fenditura nella roccia", "en": "crack in the rock"}
+      ]
+    },
+    {
+      "id": "tower",
+      "code": "C",
+      "menu": {"it": "Torre", "en": "Tower"},
+      "name": {"it": "Torre", "en": "Tower"},
+      "surface": true,
+      "rank": 6,
+      "below": [
+        "tower", "castle", "palace", "fortress", "academy", "temple", "wizard", "prison", "tomb",
+        "city", "underdark"
+      ],
+      "eras": [0, 0.75, 0.25, 0],
+      "pattern": "tower",
+      "loops": 0.3,
+      "portal": 0.7,
+      "builders": [
+        {"it": "il mago {n} e i suoi apprendisti", "en": "the wizard {n} and their apprentices"},
+        {"it": "gli astrologi di {n}", "en": "the astrologers of {n}"},
+        {"it": "i guardiani del faro di {n}", "en": "the lighthouse keepers of {n}"},
+        {"it": "la strega {n} e la sua congrega", "en": "the witch {n} and her coven"},
+        {"it": "i signori della guerra di {n}", "en": "the warlords of {n}"},
+        {"it": "gli elfi grigi di {n}", "en": "the grey elves of {n}"}
+      ],
+      "built": [
+        {"it": "una torre", "en": "a tower"},
+        {"it": "una torre di guardia", "en": "a watchtower"},
+        {"it": "una torre degli stregoni", "en": "a sorcerers' tower"}
+      ],
+      "titles": [
+        {"it": "Torre di {n}", "en": "{n}'s Tower"},
+        {"it": "La Guglia di {n}", "en": "The Spire of {n}"},
+        {"it": "Torre Nera di {n}", "en": "Black Tower of {n}"},
+        {"it": "Osservatorio di {n}", "en": "{n} Observatory"}
+      ],
+      "rooms": [
+        {"it": "osservatorio", "en": "observatory"},
+        {"it": "studio", "en": "study"},
+        {"it": "biblioteca", "en": "library"},
+        {"it": "camera da letto", "en": "bedchamber"},
+        {"it": "laboratorio", "en": "laboratory"},
+        {"it": "sala delle mappe", "en": "map room"},
+        {"it": "armeria", "en": "armoury"},
+        {"it": "deposito", "en": "storeroom"},
+        {"it": "cucina", "en": "kitchen"},
+        {"it": "dispensa", "en": "pantry"},
+        {"it": "sala delle pozioni", "en": "potion room"},
+        {"it": "sala del telescopio", "en": "telescope room"},
+        {"it": "voliera", "en": "aviary"},
+        {"it": "piccionaia", "en": "dovecote"},
+        {"it": "sala di guardia", "en": "guard room"},
+        {"it": "camera degli ospiti", "en": "guest chamber"},
+        {"it": "sala delle campane", "en": "bell chamber"},
+        {"it": "sala degli specchi", "en": "hall of mirrors"},
+        {"it": "stanza delle reliquie", "en": "relic room"},
+        {"it": "sala degli orologi", "en": "clock room"},
+        {"it": "scrittoio", "en": "writing room"},
+        {"it": "sala delle bandiere", "en": "banner room"},
+        {"it": "alloggi dei servitori", "en": "servants' quarters"},
+        {"it": "legnaia", "en": "woodshed"},
+        {"it": "cisterna", "en": "cistern"},
+        {"it": "sala delle rune", "en": "rune chamber"},
+        {"it": "stanza dei venti", "en": "chamber of the winds"},
+        {"it": "sala del focolare", "en": "hearth room"},
+        {"it": "lanterna del faro", "en": "beacon lantern"},
+        {"it": "salotto", "en": "parlour"}
+      ],
+      "special": {
+        "core": [
+          {"it": "scala a chiocciola", "en": "spiral staircase"},
+          {"it": "pozzo centrale della torre", "en": "central well of the tower"},
+          {"it": "sala della colonna", "en": "chamber of the column"},
+          {"it": "atrio circolare", "en": "round hall"}
+        ]
+      },
+      "entrances": [
+        {"it": "portone della torre", "en": "tower door"},
+        {"it": "porta ad arco", "en": "arched door"},
+        {"it": "ponte di pietra", "en": "stone bridge"},
+        {"it": "cancello del recinto", "en": "enclosure gate"},
+        {"it": "scala esterna", "en": "outer stair"}
+      ],
+      "side_entrances": [
+        {"it": "finestra", "en": "window"},
+        {"it": "balcone", "en": "balcony"},
+        {"it": "terrazza sul tetto", "en": "roof terrace"},
+        {"it": "feritoia allargata", "en": "widened arrow slit"},
+        {"it": "piattaforma dei grifoni", "en": "griffon landing"}
+      ],
+      "shaft_entrance": {"it": "botola sul tetto", "en": "trapdoor in the roof"}
+    },
+    {
+      "id": "castle",
+      "code": "D",
+      "menu": {"it": "Castello", "en": "Castle"},
+      "name": {"it": "Castello", "en": "Castle"},
+      "surface": true,
+      "rank": 5,
+      "below": ["castle", "prison", "tomb", "temple", "wizard", "city", "underdark"],
+      "eras": [0, 0.6, 0.3, 0.1],
+      "pattern": "castle",
+      "loops": 0.35,
+      "portal": 0.25,
+      "builders": [
+        {"it": "il barone {n} e i suoi vassalli", "en": "Baron {n} and their vassals"},
+        {"it": "i cavalieri dell'ordine di {n}", "en": "the knights of the Order of {n}"},
+        {"it": "i conti di {n}", "en": "the counts of {n}"},
+        {"it": "il re {n} e i suoi costruttori", "en": "King {n} and their builders"},
+        {"it": "i nani del clan {n}", "en": "the dwarves of clan {n}"},
+        {"it": "i signori delle marche di {n}", "en": "the march lords of {n}"}
+      ],
+      "built": [
+        {"it": "un castello", "en": "a castle"},
+        {"it": "una rocca", "en": "a stronghold"},
+        {"it": "un maniero fortificato", "en": "a fortified manor"}
+      ],
+      "titles": [
+        {"it": "Castello di {n}", "en": "Castle {n}"},
+        {"it": "Rocca di {n}", "en": "{n} Keep"},
+        {"it": "Maniero di {n}", "en": "{n} Manor"},
+        {"it": "Castel {n}", "en": "{n} Castle"}
+      ],
+      "rooms": [
+        {"it": "sala d'armi", "en": "arms hall"},
+        {"it": "armeria", "en": "armoury"},
+        {"it": "caserma", "en": "barracks"},
+        {"it": "scuderie", "en": "stables"},
+        {"it": "fucina", "en": "smithy"},
+        {"it": "cucine", "en": "kitchens"},
+        {"it": "dispensa", "en": "larder"},
+        {"it": "cantina", "en": "cellar"},
+        {"it": "cappella", "en": "chapel"},
+        {"it": "alloggi del signore", "en": "lord's quarters"},
+        {"it": "camera della signora", "en": "lady's bedchamber"},
+        {"it": "sala delle udienze", "en": "audience hall"},
+        {"it": "prigione del castello", "en": "castle gaol"},
+        {"it": "corpo di guardia", "en": "guardroom"},
+        {"it": "magazzino", "en": "storeroom"},
+        {"it": "granaio", "en": "granary"},
+        {"it": "birreria", "en": "brewhouse"},
+        {"it": "panetteria", "en": "bakehouse"},
+        {"it": "falconeria", "en": "mews"},
+        {"it": "canile", "en": "kennels"},
+        {"it": "archivio", "en": "archive"},
+        {"it": "tesoreria", "en": "treasury"},
+        {"it": "sala dei banchetti", "en": "banquet hall"},
+        {"it": "alloggi dei cavalieri", "en": "knights' quarters"},
+        {"it": "sala dei trofei", "en": "trophy room"},
+        {"it": "guardaroba", "en": "wardrobe"},
+        {"it": "lavanderia", "en": "laundry"},
+        {"it": "sala del camino", "en": "fireplace room"},
+        {"it": "biblioteca", "en": "library"},
+        {"it": "stanza del cappellano", "en": "chaplain's room"},
+        {"it": "alloggi della servitù", "en": "servants' quarters"}
+      ],
+      "special": {
+        "court": [
+          {"it": "cortile", "en": "courtyard"},
+          {"it": "cortile interno", "en": "inner bailey"},
+          {"it": "piazza d'armi", "en": "parade ground"}
+        ],
+        "corner": [
+          {"it": "torre d'angolo", "en": "corner tower"},
+          {"it": "torrione", "en": "round tower"},
+          {"it": "torre di guardia", "en": "guard tower"}
+        ],
+        "keep": [
+          {"it": "mastio", "en": "keep"},
+          {"it": "grande sala", "en": "great hall"},
+          {"it": "sala del signore", "en": "lord's hall"}
+        ]
+      },
+      "entrances": [
+        {"it": "ponte levatoio", "en": "drawbridge"},
+        {"it": "porta del castello", "en": "castle gate"},
+        {"it": "postierla", "en": "postern"},
+        {"it": "porta della barbacane", "en": "barbican gate"},
+        {"it": "breccia nelle mura", "en": "breach in the walls"}
+      ],
+      "side_entrances": [
+        {"it": "finestra della torre", "en": "tower window"},
+        {"it": "scarico delle latrine", "en": "latrine chute"},
+        {"it": "cammino di ronda", "en": "wall walk"},
+        {"it": "scolo del fossato", "en": "moat drain"},
+        {"it": "passaggio segreto dal bosco", "en": "secret passage from the woods"}
+      ]
+    },
+    {
+      "id": "temple",
+      "code": "E",
+      "menu": {"it": "Tempio", "en": "Temple"},
+      "name": {"it": "Tempio", "en": "Temple"},
+      "surface": false,
+      "rank": 4,
+      "below": ["temple", "tomb", "prison", "wizard", "city", "underdark"],
+      "eras": [0.05, 0.65, 0.2, 0.1],
+      "pattern": "temple",
+      "loops": 0.3,
+      "portal": 0.35,
+      "builders": [
+        {"it": "i sacerdoti di {n}", "en": "the priests of {n}"},
+        {"it": "le sacerdotesse della luna di {n}", "en": "the moon priestesses of {n}"},
+        {"it": "i monaci guerrieri di {n}", "en": "the warrior monks of {n}"},
+        {"it": "gli adoratori del serpente {n}", "en": "the worshippers of the serpent {n}"},
+        {"it": "i profeti di {n}", "en": "the prophets of {n}"},
+        {"it": "i paladini di {n}", "en": "the paladins of {n}"}
+      ],
+      "built": [
+        {"it": "un tempio", "en": "a temple"},
+        {"it": "un santuario sotterraneo", "en": "an underground sanctuary"},
+        {"it": "una basilica sepolta", "en": "a buried basilica"}
+      ],
+      "titles": [
+        {"it": "Tempio di {n}", "en": "Temple of {n}"},
+        {"it": "Santuario di {n}", "en": "Sanctuary of {n}"},
+        {"it": "Basilica di {n}", "en": "Basilica of {n}"},
+        {"it": "Altare di {n}", "en": "Altar of {n}"}
+      ],
+      "rooms": [
         {"it": "sacrestia", "en": "vestry"},
         {"it": "cripta", "en": "crypt"},
         {"it": "celle dei monaci", "en": "monks' cells"},
@@ -39,20 +419,463 @@
         {"it": "biblioteca", "en": "library"},
         {"it": "refettorio", "en": "refectory"},
         {"it": "ossario", "en": "ossuary"},
-        {"it": "santuario", "en": "sanctum"},
         {"it": "sala delle offerte", "en": "offering hall"},
         {"it": "scriptorium", "en": "scriptorium"},
         {"it": "sala delle reliquie", "en": "reliquary"},
-        {"it": "cappella", "en": "chapel"}
+        {"it": "coro", "en": "choir"},
+        {"it": "battistero", "en": "baptistery"},
+        {"it": "sala del tesoro", "en": "treasure room"},
+        {"it": "oratorio", "en": "oratory"},
+        {"it": "sala capitolare", "en": "chapter house"},
+        {"it": "sala delle penitenze", "en": "penance hall"},
+        {"it": "deposito dei paramenti", "en": "vestment store"},
+        {"it": "dormitorio dei novizi", "en": "novices' dormitory"},
+        {"it": "sala dei pellegrini", "en": "pilgrims' hall"},
+        {"it": "cucina", "en": "kitchen"},
+        {"it": "sala degli oracoli", "en": "oracle chamber"},
+        {"it": "sala delle candele", "en": "candle room"},
+        {"it": "sala delle statue", "en": "statue hall"},
+        {"it": "cella campanaria", "en": "bell chamber"},
+        {"it": "sala delle preghiere", "en": "prayer hall"},
+        {"it": "archivio sacro", "en": "sacred archive"},
+        {"it": "infermeria", "en": "infirmary"},
+        {"it": "sala dei voti", "en": "hall of vows"},
+        {"it": "sala degli incensi", "en": "incense room"}
+      ],
+      "special": {
+        "nave": [
+          {"it": "navata", "en": "nave"},
+          {"it": "navata maggiore", "en": "great nave"},
+          {"it": "aula dei fedeli", "en": "hall of the faithful"}
+        ],
+        "apse": [
+          {"it": "abside", "en": "apse"},
+          {"it": "santuario interno", "en": "inner sanctum"},
+          {"it": "sancta sanctorum", "en": "holy of holies"}
+        ],
+        "chapel": [
+          {"it": "cappella laterale", "en": "side chapel"},
+          {"it": "cappella votiva", "en": "votive chapel"},
+          {"it": "cappella degli antenati", "en": "ancestors' chapel"}
+        ]
+      },
+      "entrances": [
+        {"it": "portale del tempio", "en": "temple portal"},
+        {"it": "scalinata dei pellegrini", "en": "pilgrims' stair"},
+        {"it": "porta dei sacerdoti", "en": "priests' door"},
+        {"it": "pronao crollato", "en": "collapsed portico"},
+        {"it": "porta di bronzo", "en": "bronze door"}
+      ],
+      "side_entrances": [
+        {"it": "rosone infranto", "en": "shattered rose window"},
+        {"it": "condotto dell'incenso", "en": "incense flue"},
+        {"it": "pozzo sacro", "en": "sacred well"},
+        {"it": "galleria delle processioni", "en": "processional gallery"},
+        {"it": "passaggio dei penitenti", "en": "penitents' passage"}
       ]
     },
     {
-      "who": {"it": "gli architetti dell'imperatore {n}", "en": "the architects of Emperor {n}"},
-      "built": {"it": "una tomba monumentale", "en": "a monumental tomb"},
-      "title": {"it": "Tomba di {n}", "en": "Tomb of {n}"},
+      "id": "city",
+      "code": "F",
+      "menu": {"it": "Città", "en": "City"},
+      "name": {"it": "Città", "en": "City"},
+      "surface": false,
+      "rank": 4,
+      "below": ["city", "tomb", "prison", "temple", "wizard", "underdark"],
+      "eras": [0.05, 0.55, 0.3, 0.1],
+      "pattern": "city",
+      "loops": 0.5,
+      "portal": 0.3,
+      "builders": [
+        {"it": "i nani del regno di {n}", "en": "the dwarves of the realm of {n}"},
+        {"it": "il popolo perduto di {n}", "en": "the lost people of {n}"},
+        {"it": "i mercanti della lega di {n}", "en": "the merchants of the {n} League"},
+        {"it": "gli gnomi di {n}", "en": "the gnomes of {n}"},
+        {"it": "gli uomini lucertola di {n}", "en": "the lizardfolk of {n}"},
+        {"it": "i coloni di {n}", "en": "the settlers of {n}"}
+      ],
+      "built": [
+        {"it": "una città sotterranea", "en": "an underground city"},
+        {"it": "una città sepolta", "en": "a buried city"},
+        {"it": "un borgo scavato nella roccia", "en": "a town carved into the rock"}
+      ],
+      "titles": [
+        {"it": "Città di {n}", "en": "City of {n}"},
+        {"it": "{n} Sepolta", "en": "Buried {n}"},
+        {"it": "Le Rovine di {n}", "en": "The Ruins of {n}"},
+        {"it": "Città Perduta di {n}", "en": "Lost City of {n}"}
+      ],
       "rooms": [
-        {"it": "camera funeraria", "en": "burial chamber"},
-        {"it": "anticamera", "en": "antechamber"},
+        {"it": "bottega del fabbro", "en": "smithy"},
+        {"it": "taverna", "en": "tavern"},
+        {"it": "locanda", "en": "inn"},
+        {"it": "mercato coperto", "en": "covered market"},
+        {"it": "forno", "en": "bakery"},
+        {"it": "macelleria", "en": "butcher's shop"},
+        {"it": "bottega del vasaio", "en": "potter's workshop"},
+        {"it": "conceria", "en": "tannery"},
+        {"it": "tessitoria", "en": "weaving shop"},
+        {"it": "casa del mercante", "en": "merchant's house"},
+        {"it": "casa del capo", "en": "headman's house"},
+        {"it": "bagni pubblici", "en": "public baths"},
+        {"it": "magazzino", "en": "warehouse"},
+        {"it": "granaio", "en": "granary"},
+        {"it": "cisterna", "en": "cistern"},
+        {"it": "stalla", "en": "stable"},
+        {"it": "scuola", "en": "school"},
+        {"it": "tribunale", "en": "courthouse"},
+        {"it": "prigione cittadina", "en": "town gaol"},
+        {"it": "sede della gilda", "en": "guildhouse"},
+        {"it": "banco dei cambiavalute", "en": "money changer's"},
+        {"it": "bottega dell'orafo", "en": "goldsmith's shop"},
+        {"it": "birrificio", "en": "brewery"},
+        {"it": "mulino", "en": "mill"},
+        {"it": "deposito del sale", "en": "salt store"},
+        {"it": "ospizio", "en": "hospice"},
+        {"it": "bottega dello speziale", "en": "apothecary"},
+        {"it": "casa del guaritore", "en": "healer's house"},
+        {"it": "corpo di guardia", "en": "watch house"},
+        {"it": "archivio cittadino", "en": "town archive"},
+        {"it": "case popolari", "en": "tenements"},
+        {"it": "bottega del cartografo", "en": "cartographer's shop"}
+      ],
+      "special": {
+        "plaza": [
+          {"it": "piazza del mercato", "en": "market square"},
+          {"it": "piazza grande", "en": "great square"},
+          {"it": "foro", "en": "forum"}
+        ],
+        "hall": [
+          {"it": "municipio", "en": "town hall"},
+          {"it": "sala del consiglio", "en": "council hall"},
+          {"it": "palazzo della gilda", "en": "guild palace"}
+        ]
+      },
+      "entrances": [
+        {"it": "porta della città", "en": "city gate"},
+        {"it": "strada maestra", "en": "high road"},
+        {"it": "porta del mercato", "en": "market gate"},
+        {"it": "ponte sul fiume sotterraneo", "en": "bridge over the underground river"},
+        {"it": "galleria dei carri", "en": "wagon tunnel"}
+      ],
+      "side_entrances": [
+        {"it": "fogna", "en": "sewer"},
+        {"it": "pozzo cittadino", "en": "town well"},
+        {"it": "galleria di miniera", "en": "mine gallery"},
+        {"it": "scala dei lavandai", "en": "washers' stair"},
+        {"it": "crepa nel soffitto", "en": "crack in the ceiling"}
+      ]
+    },
+    {
+      "id": "wizard",
+      "code": "G",
+      "menu": {"it": "Dungeon alchemico o arcano di un mago", "en": "A wizard's alchemical or arcane dungeon"},
+      "name": {"it": "Laboratorio arcano", "en": "Arcane laboratory"},
+      "surface": false,
+      "rank": 3,
+      "below": ["wizard", "prison", "tomb", "underdark"],
+      "eras": [0.05, 0.7, 0.2, 0.05],
+      "pattern": "wizard",
+      "loops": 0.35,
+      "portal": 1.0,
+      "builders": [
+        {"it": "il mago {n} e i suoi apprendisti", "en": "the wizard {n} and their apprentices"},
+        {"it": "l'alchimista {n} e i suoi assistenti", "en": "the alchemist {n} and their assistants"},
+        {"it": "il negromante {n} e i suoi servi", "en": "the necromancer {n} and their servants"},
+        {"it": "le streghe della congrega di {n}", "en": "the witches of the {n} coven"},
+        {"it": "l'arcimago {n} e i suoi famigli", "en": "the archmage {n} and their familiars"},
+        {"it": "gli illusionisti di {n}", "en": "the illusionists of {n}"}
+      ],
+      "built": [
+        {"it": "un laboratorio sotterraneo", "en": "an underground laboratory"},
+        {"it": "un sanctum segreto", "en": "a secret sanctum"},
+        {"it": "un dedalo alchemico", "en": "an alchemical maze"}
+      ],
+      "titles": [
+        {"it": "Sanctum di {n}", "en": "Sanctum of {n}"},
+        {"it": "Laboratorio di {n}", "en": "{n}'s Laboratory"},
+        {"it": "Il Labirinto di {n}", "en": "The Maze of {n}"},
+        {"it": "Officina Arcana di {n}", "en": "{n}'s Arcane Workshop"}
+      ],
+      "rooms": [
+        {"it": "laboratorio", "en": "laboratory"},
+        {"it": "distilleria", "en": "distillery"},
+        {"it": "sala degli alambicchi", "en": "alembic room"},
+        {"it": "biblioteca proibita", "en": "forbidden library"},
+        {"it": "studio", "en": "study"},
+        {"it": "serraglio", "en": "menagerie"},
+        {"it": "sala delle evocazioni", "en": "summoning hall"},
+        {"it": "deposito di reagenti", "en": "reagent store"},
+        {"it": "sala degli specchi", "en": "hall of mirrors"},
+        {"it": "serra dei funghi", "en": "fungus garden"},
+        {"it": "sala delle provette", "en": "vial room"},
+        {"it": "forno alchemico", "en": "alchemical furnace"},
+        {"it": "sala delle gabbie", "en": "cage room"},
+        {"it": "officina dei golem", "en": "golem workshop"},
+        {"it": "vasca delle mutazioni", "en": "mutation vat"},
+        {"it": "archivio delle formule", "en": "formula archive"},
+        {"it": "alloggi degli apprendisti", "en": "apprentices' quarters"},
+        {"it": "camera del mago", "en": "wizard's bedchamber"},
+        {"it": "sala dei cristalli", "en": "crystal chamber"},
+        {"it": "sala del vuoto", "en": "chamber of the void"},
+        {"it": "sala delle bilance", "en": "scales room"},
+        {"it": "essiccatoio di erbe", "en": "herb drying room"},
+        {"it": "ghiacciaia", "en": "icehouse"},
+        {"it": "sala delle pergamene", "en": "scroll room"},
+        {"it": "stanza dei famigli", "en": "familiars' room"},
+        {"it": "sala dei campioni conservati", "en": "specimen room"},
+        {"it": "sala del crogiolo", "en": "crucible room"},
+        {"it": "sala delle lenti", "en": "lens room"},
+        {"it": "sala del sangue", "en": "blood chamber"},
+        {"it": "sala del tempo", "en": "chamber of time"}
+      ],
+      "special": {
+        "circle": [
+          {"it": "cerchio di evocazione", "en": "summoning circle"},
+          {"it": "sala del pentacolo", "en": "pentacle chamber"},
+          {"it": "cerchio di protezione", "en": "warding circle"}
+        ],
+        "lab": [
+          {"it": "grande laboratorio", "en": "great laboratory"},
+          {"it": "sala dell'atanor", "en": "athanor chamber"},
+          {"it": "sala della trasmutazione", "en": "transmutation chamber"}
+        ]
+      },
+      "entrances": [
+        {"it": "porta sigillata", "en": "sealed door"},
+        {"it": "scala del mago", "en": "wizard's stair"},
+        {"it": "cancello runico", "en": "rune gate"},
+        {"it": "porta di servizio", "en": "service door"},
+        {"it": "ingresso illusorio", "en": "illusory entrance"}
+      ],
+      "side_entrances": [
+        {"it": "camino del forno alchemico", "en": "alchemical furnace chimney"},
+        {"it": "canale dei rifiuti alchemici", "en": "alchemical waste channel"},
+        {"it": "porta dimensionale", "en": "dimensional door"},
+        {"it": "pozzo di ventilazione", "en": "vent shaft"},
+        {"it": "galleria dei famigli", "en": "familiars' tunnel"}
+      ]
+    },
+    {
+      "id": "academy",
+      "code": "H",
+      "menu": {"it": "Accademia magica o religiosa", "en": "Magical or religious academy"},
+      "name": {"it": "Accademia", "en": "Academy"},
+      "surface": true,
+      "rank": 5,
+      "below": ["academy", "temple", "wizard", "tomb", "prison", "city", "underdark"],
+      "eras": [0, 0.7, 0.25, 0.05],
+      "pattern": "academy",
+      "loops": 0.4,
+      "portal": 0.6,
+      "builders": [
+        {"it": "i maestri dell'accademia di {n}", "en": "the masters of the {n} Academy"},
+        {"it": "i chierici dell'ordine di {n}", "en": "the clerics of the Order of {n}"},
+        {"it": "i saggi di {n}", "en": "the sages of {n}"},
+        {"it": "gli arcimaghi del circolo di {n}", "en": "the archmages of the {n} Circle"},
+        {"it": "le badesse di {n}", "en": "the abbesses of {n}"},
+        {"it": "i bardi del collegio di {n}", "en": "the bards of the {n} College"}
+      ],
+      "built": [
+        {"it": "un'accademia", "en": "an academy"},
+        {"it": "un collegio", "en": "a college"},
+        {"it": "un monastero-scuola", "en": "a teaching monastery"}
+      ],
+      "titles": [
+        {"it": "Accademia di {n}", "en": "{n} Academy"},
+        {"it": "Collegio di {n}", "en": "College of {n}"},
+        {"it": "Scuola di {n}", "en": "School of {n}"},
+        {"it": "Studio di {n}", "en": "Studium of {n}"}
+      ],
+      "rooms": [
+        {"it": "aula", "en": "classroom"},
+        {"it": "aula di alchimia", "en": "alchemy classroom"},
+        {"it": "aula di teologia", "en": "theology classroom"},
+        {"it": "sala di studio", "en": "study hall"},
+        {"it": "dormitorio degli studenti", "en": "students' dormitory"},
+        {"it": "alloggi dei maestri", "en": "masters' quarters"},
+        {"it": "refettorio", "en": "refectory"},
+        {"it": "cucina", "en": "kitchen"},
+        {"it": "scriptorium", "en": "scriptorium"},
+        {"it": "sala degli esami", "en": "examination hall"},
+        {"it": "sala delle esercitazioni", "en": "practice hall"},
+        {"it": "laboratorio", "en": "laboratory"},
+        {"it": "osservatorio", "en": "observatory"},
+        {"it": "cappella", "en": "chapel"},
+        {"it": "archivio", "en": "archive"},
+        {"it": "sala delle reliquie", "en": "relic room"},
+        {"it": "sala della musica", "en": "music room"},
+        {"it": "sala di scherma", "en": "fencing hall"},
+        {"it": "infermeria", "en": "infirmary"},
+        {"it": "studio del rettore", "en": "rector's study"},
+        {"it": "sala del consiglio dei maestri", "en": "masters' council room"},
+        {"it": "deposito dei libri", "en": "book store"},
+        {"it": "legatoria", "en": "bindery"},
+        {"it": "sala delle mappe", "en": "map room"},
+        {"it": "sala delle punizioni", "en": "punishment room"},
+        {"it": "giardino delle erbe", "en": "herb garden"},
+        {"it": "sala delle preghiere", "en": "prayer hall"},
+        {"it": "aula di retorica", "en": "rhetoric classroom"},
+        {"it": "aula di evocazione", "en": "summoning classroom"}
+      ],
+      "special": {
+        "cloister": [
+          {"it": "chiostro", "en": "cloister"},
+          {"it": "cortile del chiostro", "en": "cloister garth"},
+          {"it": "chiostro delle statue", "en": "cloister of statues"}
+        ],
+        "library": [
+          {"it": "grande biblioteca", "en": "great library"},
+          {"it": "biblioteca dei maestri", "en": "masters' library"},
+          {"it": "archivio dei libri proibiti", "en": "archive of forbidden books"}
+        ],
+        "hall": [
+          {"it": "aula magna", "en": "great lecture hall"},
+          {"it": "sala delle lauree", "en": "graduation hall"},
+          {"it": "auditorium", "en": "auditorium"}
+        ]
+      },
+      "entrances": [
+        {"it": "portone dell'accademia", "en": "academy gate"},
+        {"it": "porta degli studenti", "en": "students' door"},
+        {"it": "cancello del giardino", "en": "garden gate"},
+        {"it": "scalinata del collegio", "en": "college steps"},
+        {"it": "porta dei maestri", "en": "masters' door"}
+      ],
+      "side_entrances": [
+        {"it": "finestra del dormitorio", "en": "dormitory window"},
+        {"it": "abbaino", "en": "dormer window"},
+        {"it": "scivolo dei libri", "en": "book chute"},
+        {"it": "tetto del chiostro", "en": "cloister roof"},
+        {"it": "passaggio dei novizi", "en": "novices' passage"}
+      ]
+    },
+    {
+      "id": "fortress",
+      "code": "I",
+      "menu": {"it": "Fortezza di confine", "en": "Border fortress"},
+      "name": {"it": "Fortezza di confine", "en": "Border fortress"},
+      "surface": true,
+      "rank": 5,
+      "below": ["fortress", "prison", "tomb", "temple", "underdark"],
+      "eras": [0, 0.6, 0.25, 0.15],
+      "pattern": "fortress",
+      "loops": 0.3,
+      "portal": 0.2,
+      "builders": [
+        {"it": "i legionari di {n}", "en": "the legionaries of {n}"},
+        {"it": "le guardie di frontiera di {n}", "en": "the border wardens of {n}"},
+        {"it": "i nani del clan {n}", "en": "the dwarves of clan {n}"},
+        {"it": "i cavalieri della marca di {n}", "en": "the knights of the {n} March"},
+        {"it": "i mercenari di {n}", "en": "{n}'s mercenaries"},
+        {"it": "gli ingegneri dell'imperatore {n}", "en": "the engineers of Emperor {n}"}
+      ],
+      "built": [
+        {"it": "una fortezza di confine", "en": "a border fortress"},
+        {"it": "un forte", "en": "a fort"},
+        {"it": "un baluardo", "en": "a bulwark"}
+      ],
+      "titles": [
+        {"it": "Fortezza di {n}", "en": "Fortress of {n}"},
+        {"it": "Forte {n}", "en": "Fort {n}"},
+        {"it": "Baluardo di {n}", "en": "{n} Bulwark"},
+        {"it": "Presidio di {n}", "en": "{n} Garrison"}
+      ],
+      "rooms": [
+        {"it": "caserma", "en": "barracks"},
+        {"it": "armeria", "en": "armoury"},
+        {"it": "prigioni", "en": "cells"},
+        {"it": "magazzino", "en": "storeroom"},
+        {"it": "mensa", "en": "mess hall"},
+        {"it": "alloggio del comandante", "en": "commander's quarters"},
+        {"it": "sala di tortura", "en": "torture chamber"},
+        {"it": "cisterna", "en": "cistern"},
+        {"it": "sala d'armi", "en": "training hall"},
+        {"it": "scuderia", "en": "stables"},
+        {"it": "cappella della guarnigione", "en": "garrison chapel"},
+        {"it": "deposito delle frecce", "en": "arrow store"},
+        {"it": "fucina", "en": "forge"},
+        {"it": "infermeria", "en": "infirmary"},
+        {"it": "sala delle mappe", "en": "map room"},
+        {"it": "alloggi degli ufficiali", "en": "officers' quarters"},
+        {"it": "sala dei segnali", "en": "signal room"},
+        {"it": "granaio", "en": "granary"},
+        {"it": "cucina", "en": "kitchen"},
+        {"it": "deposito delle macchine d'assedio", "en": "siege engine store"},
+        {"it": "stanza del pagatore", "en": "paymaster's room"},
+        {"it": "latrine", "en": "latrines"},
+        {"it": "alloggi degli esploratori", "en": "scouts' quarters"},
+        {"it": "canile", "en": "kennels"},
+        {"it": "sala delle bandiere", "en": "banner hall"},
+        {"it": "deposito delle razioni", "en": "ration store"},
+        {"it": "pozzo", "en": "well room"},
+        {"it": "sala del consiglio di guerra", "en": "war council chamber"},
+        {"it": "alloggi dei mercenari", "en": "mercenaries' quarters"}
+      ],
+      "special": {
+        "keep": [
+          {"it": "mastio", "en": "keep"},
+          {"it": "torrione centrale", "en": "central tower"},
+          {"it": "sala del comando", "en": "command hall"}
+        ],
+        "gate": [
+          {"it": "androne della porta", "en": "gate passage"},
+          {"it": "corpo di guardia della porta", "en": "gatehouse"},
+          {"it": "casamatta", "en": "casemate"}
+        ],
+        "bastion": [
+          {"it": "bastione", "en": "bastion"},
+          {"it": "torre di vedetta", "en": "lookout tower"},
+          {"it": "ridotto", "en": "redoubt"}
+        ]
+      },
+      "entrances": [
+        {"it": "porta principale del forte", "en": "fort main gate"},
+        {"it": "porta del fossato", "en": "moat gate"},
+        {"it": "porta di sortita", "en": "sally port"},
+        {"it": "rampa dei carri", "en": "wagon ramp"},
+        {"it": "varco nella palizzata", "en": "gap in the palisade"}
+      ],
+      "side_entrances": [
+        {"it": "feritoia", "en": "arrow slit"},
+        {"it": "cammino di ronda", "en": "wall walk"},
+        {"it": "scarico delle latrine", "en": "latrine chute"},
+        {"it": "galleria di contromina", "en": "countermine tunnel"},
+        {"it": "scala della torre di segnalazione", "en": "signal tower ladder"}
+      ]
+    },
+    {
+      "id": "tomb",
+      "code": "J",
+      "menu": {"it": "Tomba o cripta", "en": "Tomb or crypt"},
+      "name": {"it": "Tomba", "en": "Tomb"},
+      "surface": false,
+      "rank": 2,
+      "below": ["tomb", "underdark"],
+      "eras": [0.05, 0.7, 0.15, 0.1],
+      "pattern": "tomb",
+      "loops": 0.25,
+      "portal": 0.2,
+      "builders": [
+        {"it": "gli architetti dell'imperatore {n}", "en": "the architects of Emperor {n}"},
+        {"it": "i sacerdoti funerari di {n}", "en": "the funerary priests of {n}"},
+        {"it": "i nani del clan {n}", "en": "the dwarves of clan {n}"},
+        {"it": "gli adoratori della morte di {n}", "en": "the death cultists of {n}"},
+        {"it": "i signori della dinastia di {n}", "en": "the lords of the {n} dynasty"},
+        {"it": "i re delle paludi di {n}", "en": "the marsh kings of {n}"}
+      ],
+      "built": [
+        {"it": "una tomba monumentale", "en": "a monumental tomb"},
+        {"it": "una cripta", "en": "a crypt"},
+        {"it": "una necropoli sotterranea", "en": "an underground necropolis"}
+      ],
+      "titles": [
+        {"it": "Tomba di {n}", "en": "Tomb of {n}"},
+        {"it": "Cripta di {n}", "en": "Crypt of {n}"},
+        {"it": "Mausoleo di {n}", "en": "Mausoleum of {n}"},
+        {"it": "Sepolcro di {n}", "en": "Sepulchre of {n}"}
+      ],
+      "rooms": [
         {"it": "galleria delle statue", "en": "statue gallery"},
         {"it": "sala dei sarcofagi", "en": "sarcophagus hall"},
         {"it": "sala dei canopi", "en": "canopic chamber"},
@@ -61,46 +884,137 @@
         {"it": "camera del tesoro", "en": "treasure chamber"},
         {"it": "sala delle trappole", "en": "trapped hall"},
         {"it": "sala degli affreschi", "en": "fresco hall"},
-        {"it": "camera degli imbalsamatori", "en": "embalmers' room"}
+        {"it": "camera degli imbalsamatori", "en": "embalmers' room"},
+        {"it": "ossario", "en": "ossuary"},
+        {"it": "colombario", "en": "columbarium"},
+        {"it": "sala delle offerte funebri", "en": "hall of grave offerings"},
+        {"it": "sala delle maschere mortuarie", "en": "hall of death masks"},
+        {"it": "sala delle stele", "en": "stele hall"},
+        {"it": "sala del giudizio dei morti", "en": "hall of the judgement of the dead"},
+        {"it": "camera dei servitori sepolti", "en": "chamber of the buried servants"},
+        {"it": "sala delle urne", "en": "urn room"},
+        {"it": "deposito del corredo funebre", "en": "grave goods store"},
+        {"it": "sala delle lamentazioni", "en": "hall of lamentations"},
+        {"it": "sala del sonno eterno", "en": "hall of eternal sleep"},
+        {"it": "camera del cane guardiano", "en": "guardian hound's chamber"},
+        {"it": "sala dei carri funebri", "en": "funeral chariot hall"},
+        {"it": "sala della barca funeraria", "en": "funeral barge hall"},
+        {"it": "catacomba", "en": "catacomb"},
+        {"it": "sala delle lapidi", "en": "tombstone hall"},
+        {"it": "sala degli epitaffi", "en": "hall of epitaphs"},
+        {"it": "sala delle lampade eterne", "en": "hall of everlasting lamps"},
+        {"it": "sala dei vasi", "en": "vase room"},
+        {"it": "camera sigillata", "en": "sealed chamber"},
+        {"it": "sala del pozzo", "en": "well chamber"}
+      ],
+      "special": {
+        "antechamber": [
+          {"it": "anticamera", "en": "antechamber"},
+          {"it": "vestibolo dei morti", "en": "vestibule of the dead"},
+          {"it": "sala d'ingresso", "en": "entrance hall"}
+        ],
+        "burial": [
+          {"it": "camera funeraria", "en": "burial chamber"},
+          {"it": "sala del sarcofago reale", "en": "royal sarcophagus hall"},
+          {"it": "camera del re", "en": "king's chamber"}
+        ],
+        "niche": [
+          {"it": "nicchia funeraria", "en": "burial niche"},
+          {"it": "loculo", "en": "loculus"},
+          {"it": "nicchia delle offerte", "en": "offering niche"}
+        ]
+      },
+      "entrances": [
+        {"it": "portale sigillato", "en": "sealed portal"},
+        {"it": "scalinata funebre", "en": "funeral stair"},
+        {"it": "porta della tomba", "en": "tomb door"},
+        {"it": "breccia dei tombaroli", "en": "grave robbers' breach"},
+        {"it": "ingresso del mausoleo", "en": "mausoleum entrance"}
+      ],
+      "side_entrances": [
+        {"it": "cunicolo dei tombaroli", "en": "grave robbers' tunnel"},
+        {"it": "pozzo delle anime", "en": "well of souls"},
+        {"it": "condotto d'aria", "en": "air duct"},
+        {"it": "crollo nel soffitto", "en": "collapsed ceiling"},
+        {"it": "passaggio dei sacerdoti", "en": "priests' passage"}
       ]
     },
     {
-      "who": {"it": "il mago {n} e i suoi apprendisti", "en": "the wizard {n} and their apprentices"},
-      "built": {"it": "un sanctum segreto", "en": "a secret sanctum"},
-      "title": {"it": "Sanctum di {n}", "en": "Sanctum of {n}"},
-      "wizard": true,
+      "id": "underdark",
+      "code": "K",
+      "menu": {"it": "Underdark o grotte sotterranee", "en": "Underdark or underground caves"},
+      "name": {"it": "Underdark", "en": "Underdark"},
+      "surface": false,
+      "rank": 1,
+      "below": ["underdark"],
+      "eras": [0.75, 0.1, 0.1, 0.05],
+      "pattern": "underdark",
+      "loops": 0.4,
+      "portal": 0.3,
+      "builders": [
+        {"it": "i nani esiliati del clan {n}", "en": "the exiled dwarves of clan {n}"},
+        {"it": "gli elfi oscuri della casata {n}", "en": "the dark elves of House {n}"},
+        {"it": "i minatori di {n}", "en": "the miners of {n}"},
+        {"it": "gli uomini fungo di {n}", "en": "the fungus folk of {n}"},
+        {"it": "i duergar di {n}", "en": "the duergar of {n}"},
+        {"it": "i cercatori d'oro di {n}", "en": "the prospectors of {n}"}
+      ],
+      "built": [
+        {"it": "un avamposto tra le grotte", "en": "an outpost among the caves"},
+        {"it": "una miniera", "en": "a mine"},
+        {"it": "un rifugio sotterraneo", "en": "an underground refuge"}
+      ],
+      "titles": [
+        {"it": "Grotte di {n}", "en": "Caves of {n}"},
+        {"it": "Abisso di {n}", "en": "Abyss of {n}"},
+        {"it": "Le Profondità di {n}", "en": "The Depths of {n}"},
+        {"it": "Caverne di {n}", "en": "Caverns of {n}"}
+      ],
       "rooms": [
-        {"it": "laboratorio", "en": "laboratory"},
-        {"it": "biblioteca", "en": "library"},
-        {"it": "sala delle evocazioni", "en": "summoning hall"},
-        {"it": "serraglio", "en": "menagerie"},
-        {"it": "distilleria", "en": "distillery"},
-        {"it": "studio", "en": "study"},
-        {"it": "sala degli specchi", "en": "hall of mirrors"},
-        {"it": "cerchio di protezione", "en": "warding circle"},
-        {"it": "deposito di reagenti", "en": "reagent store"},
-        {"it": "alloggi degli apprendisti", "en": "apprentices' quarters"},
-        {"it": "camera del mago", "en": "wizard's bedchamber"},
-        {"it": "serra dei funghi", "en": "fungus garden"}
-      ]
-    },
-    {
-      "who": {"it": "i legionari di {n}", "en": "the legionaries of {n}"},
-      "built": {"it": "una fortezza sotterranea", "en": "an underground fortress"},
-      "title": {"it": "Fortezza di {n}", "en": "Fortress of {n}"},
-      "rooms": [
-        {"it": "caserma", "en": "barracks"},
-        {"it": "armeria", "en": "armoury"},
-        {"it": "prigioni", "en": "cells"},
-        {"it": "corpo di guardia", "en": "guardroom"},
+        {"it": "avamposto", "en": "outpost"},
+        {"it": "galleria di miniera", "en": "mine gallery"},
+        {"it": "deposito dei minatori", "en": "miners' store"},
+        {"it": "forgia sotterranea", "en": "underground forge"},
+        {"it": "alloggi dei minatori", "en": "miners' quarters"},
+        {"it": "posto di guardia", "en": "guard post"},
+        {"it": "sala dei carrelli", "en": "cart hall"},
         {"it": "magazzino", "en": "storeroom"},
-        {"it": "mensa", "en": "mess hall"},
-        {"it": "alloggio del comandante", "en": "commander's quarters"},
-        {"it": "sala di tortura", "en": "torture chamber"},
-        {"it": "cisterna", "en": "cistern"},
-        {"it": "sala d'armi", "en": "training hall"},
-        {"it": "scuderia", "en": "stables"},
-        {"it": "cappella della guarnigione", "en": "garrison chapel"}
+        {"it": "cappella scavata", "en": "rock-cut chapel"},
+        {"it": "pozzo di estrazione", "en": "hoist shaft room"},
+        {"it": "sala delle lanterne", "en": "lantern room"},
+        {"it": "deposito degli attrezzi", "en": "tool store"},
+        {"it": "sala del sovrintendente", "en": "overseer's room"},
+        {"it": "camera delle mappe", "en": "map chamber"},
+        {"it": "dormitorio", "en": "dormitory"},
+        {"it": "cucina", "en": "kitchen"},
+        {"it": "sala del culto", "en": "shrine"},
+        {"it": "fonderia", "en": "foundry"},
+        {"it": "mercato sotterraneo", "en": "underground market"},
+        {"it": "recinto delle lucertole", "en": "lizard pen"},
+        {"it": "deposito dei funghi", "en": "mushroom store"},
+        {"it": "sala della ruota", "en": "wheel room"}
+      ],
+      "special": {
+        "grotto": [
+          {"it": "grande caverna", "en": "great cavern"},
+          {"it": "caverna cattedrale", "en": "cathedral cavern"},
+          {"it": "lago sotterraneo", "en": "underground lake"},
+          {"it": "voragine", "en": "chasm"}
+        ]
+      },
+      "entrances": [
+        {"it": "imbocco di grotta", "en": "cave mouth"},
+        {"it": "dolina", "en": "sinkhole"},
+        {"it": "pozzo naturale", "en": "natural shaft"},
+        {"it": "galleria di miniera", "en": "mine adit"},
+        {"it": "letto di un fiume sotterraneo", "en": "underground riverbed"}
+      ],
+      "side_entrances": [
+        {"it": "camino naturale", "en": "natural chimney"},
+        {"it": "sifone allagato", "en": "flooded sump"},
+        {"it": "fenditura", "en": "fissure"},
+        {"it": "tana di un verme gigante", "en": "giant worm burrow"},
+        {"it": "cascata sotterranea", "en": "underground waterfall"}
       ]
     }
   ],
@@ -113,7 +1027,9 @@
         {"it": "dormitorio dei cultisti", "en": "cultists' dormitory"},
         {"it": "celle dei prigionieri", "en": "prisoners' cells"},
         {"it": "sala delle maschere", "en": "hall of masks"},
-        {"it": "fossa dei sacrifici", "en": "sacrificial pit"}
+        {"it": "fossa dei sacrifici", "en": "sacrificial pit"},
+        {"it": "sala delle candele nere", "en": "black candle room"},
+        {"it": "archivio delle profezie", "en": "archive of prophecies"}
       ]
     },
     {
@@ -124,7 +1040,9 @@
         {"it": "bisca", "en": "gambling den"},
         {"it": "dormitorio", "en": "bunkroom"},
         {"it": "deposito dei barili", "en": "barrel store"},
-        {"it": "stanza del capo", "en": "boss's room"}
+        {"it": "stanza del capo", "en": "boss's room"},
+        {"it": "sala dei conti", "en": "counting room"},
+        {"it": "nascondiglio delle merci", "en": "goods cache"}
       ]
     },
     {
@@ -135,7 +1053,9 @@
         {"it": "camera di rianimazione", "en": "reanimation chamber"},
         {"it": "deposito di cadaveri", "en": "corpse store"},
         {"it": "biblioteca proibita", "en": "forbidden library"},
-        {"it": "cella degli accoliti", "en": "acolytes' cell"}
+        {"it": "cella degli accoliti", "en": "acolytes' cell"},
+        {"it": "sala dei filatteri", "en": "phylactery room"},
+        {"it": "recinto degli scheletri", "en": "skeleton pen"}
       ]
     },
     {
@@ -146,7 +1066,9 @@
         {"it": "fossa dei rifiuti", "en": "refuse pit"},
         {"it": "sala del capo", "en": "chieftain's hall"},
         {"it": "allevamento di ratti giganti", "en": "giant rat pens"},
-        {"it": "sala del totem", "en": "totem hall"}
+        {"it": "sala del totem", "en": "totem hall"},
+        {"it": "deposito del bottino", "en": "loot pile"},
+        {"it": "cucina fumosa", "en": "smoky kitchen"}
       ]
     },
     {
@@ -157,7 +1079,139 @@
         {"it": "scriptorium", "en": "scriptorium"},
         {"it": "refettorio", "en": "refectory"},
         {"it": "oratorio", "en": "oratory"},
-        {"it": "sala delle campane", "en": "bell room"}
+        {"it": "sala delle campane", "en": "bell room"},
+        {"it": "sala del silenzio", "en": "hall of silence"},
+        {"it": "biblioteca dei monaci", "en": "monks' library"}
+      ]
+    },
+    {
+      "who": {"it": "i briganti di {n}", "en": "the brigands of {n}"},
+      "rooms": [
+        {"it": "rifugio dei briganti", "en": "brigands' hideout"},
+        {"it": "deposito del bottino", "en": "plunder store"},
+        {"it": "sala delle bevute", "en": "drinking hall"},
+        {"it": "recinto dei cavalli rubati", "en": "stolen horse pen"},
+        {"it": "stanza degli ostaggi", "en": "hostage room"},
+        {"it": "dormitorio", "en": "bunkroom"},
+        {"it": "posto di vedetta", "en": "lookout post"},
+        {"it": "stanza del capobanda", "en": "band leader's room"}
+      ]
+    },
+    {
+      "who": {"it": "gli schiavisti di {n}", "en": "the slavers of {n}"},
+      "rooms": [
+        {"it": "recinto degli schiavi", "en": "slave pen"},
+        {"it": "sala delle aste", "en": "auction hall"},
+        {"it": "deposito delle catene", "en": "chain store"},
+        {"it": "alloggi dei sorveglianti", "en": "overseers' quarters"},
+        {"it": "stanza delle fruste", "en": "whip room"},
+        {"it": "cucina", "en": "kitchen"},
+        {"it": "ufficio del mercante", "en": "trader's office"},
+        {"it": "cella di punizione", "en": "punishment cell"}
+      ]
+    },
+    {
+      "who": {"it": "i ladri della gilda di {n}", "en": "the thieves of the {n} guild"},
+      "rooms": [
+        {"it": "sala della gilda", "en": "guild hall"},
+        {"it": "palestra di scasso", "en": "lockpicking school"},
+        {"it": "deposito della refurtiva", "en": "loot store"},
+        {"it": "stanza del ricettatore", "en": "fence's room"},
+        {"it": "sala delle trappole di prova", "en": "trap practice room"},
+        {"it": "dormitorio", "en": "bunkroom"},
+        {"it": "ufficio del maestro ladro", "en": "guildmaster's office"},
+        {"it": "sala delle mappe dei colpi", "en": "heist map room"}
+      ]
+    },
+    {
+      "who": {"it": "i profughi di {n}", "en": "the refugees of {n}"},
+      "rooms": [
+        {"it": "accampamento", "en": "camp"},
+        {"it": "cucina comune", "en": "common kitchen"},
+        {"it": "infermeria improvvisata", "en": "makeshift infirmary"},
+        {"it": "deposito delle scorte", "en": "supply store"},
+        {"it": "sala delle riunioni", "en": "meeting hall"},
+        {"it": "dormitorio", "en": "dormitory"},
+        {"it": "orto sotterraneo", "en": "underground garden"},
+        {"it": "santuario improvvisato", "en": "makeshift shrine"}
+      ]
+    },
+    {
+      "who": {"it": "gli eretici di {n}", "en": "the heretics of {n}"},
+      "rooms": [
+        {"it": "cappella eretica", "en": "heretical chapel"},
+        {"it": "sala delle confessioni", "en": "confession room"},
+        {"it": "scriptorium segreto", "en": "secret scriptorium"},
+        {"it": "sala dei roghi", "en": "pyre hall"},
+        {"it": "dormitorio dei fedeli", "en": "believers' dormitory"},
+        {"it": "deposito dei libri bruciati", "en": "burnt book store"},
+        {"it": "sala del profeta", "en": "prophet's room"},
+        {"it": "nascondiglio", "en": "hiding place"}
+      ]
+    },
+    {
+      "who": {"it": "i minatori nani di {n}", "en": "the dwarf miners of {n}"},
+      "rooms": [
+        {"it": "galleria di scavo", "en": "digging gallery"},
+        {"it": "deposito del minerale", "en": "ore store"},
+        {"it": "fucina", "en": "forge"},
+        {"it": "birreria", "en": "brewhouse"},
+        {"it": "sala dei carrelli", "en": "cart room"},
+        {"it": "dormitorio dei minatori", "en": "miners' dormitory"},
+        {"it": "sala del capocantiere", "en": "foreman's room"},
+        {"it": "cappella degli antenati", "en": "ancestors' shrine"}
+      ]
+    },
+    {
+      "who": {"it": "la legione hobgoblin di {n}", "en": "the hobgoblin legion of {n}"},
+      "rooms": [
+        {"it": "caserma", "en": "barracks"},
+        {"it": "piazza d'armi", "en": "drill hall"},
+        {"it": "armeria", "en": "armoury"},
+        {"it": "tenda del comando", "en": "command post"},
+        {"it": "prigione dei disertori", "en": "deserters' cell"},
+        {"it": "fucina", "en": "forge"},
+        {"it": "mensa", "en": "mess hall"},
+        {"it": "sala dei tamburi", "en": "drum room"}
+      ]
+    },
+    {
+      "who": {"it": "le streghe della congrega di {n}", "en": "the witches of the {n} coven"},
+      "rooms": [
+        {"it": "sala del calderone", "en": "cauldron room"},
+        {"it": "erbario", "en": "herbarium"},
+        {"it": "sala del sabba", "en": "sabbath hall"},
+        {"it": "gabbia dei famigli", "en": "familiars' cage"},
+        {"it": "sala delle bambole", "en": "doll room"},
+        {"it": "dispensa delle pozioni", "en": "potion pantry"},
+        {"it": "camera della strega anziana", "en": "elder witch's room"},
+        {"it": "sala degli specchi neri", "en": "black mirror room"}
+      ]
+    },
+    {
+      "who": {"it": "il vampiro {n} e i suoi servi", "en": "the vampire {n} and their thralls"},
+      "rooms": [
+        {"it": "sala delle bare", "en": "coffin room"},
+        {"it": "cantina del sangue", "en": "blood cellar"},
+        {"it": "sala da ballo in rovina", "en": "ruined ballroom"},
+        {"it": "alloggi dei servi", "en": "thralls' quarters"},
+        {"it": "galleria dei ritratti", "en": "portrait gallery"},
+        {"it": "cella delle vittime", "en": "victims' cell"},
+        {"it": "sala del pipistrello", "en": "bat roost"},
+        {"it": "camera del vampiro", "en": "vampire's chamber"}
+      ]
+    },
+    {
+      "who": {"it": "i cacciatori di tesori di {n}", "en": "the treasure hunters of {n}"},
+      "rooms": [
+        {"it": "campo base", "en": "base camp"},
+        {"it": "deposito degli attrezzi", "en": "equipment store"},
+        {"it": "sala delle mappe", "en": "map room"},
+        {"it": "deposito dei reperti", "en": "finds store"},
+        {"it": "dormitorio", "en": "bunkroom"},
+        {"it": "infermeria", "en": "infirmary"},
+        {"it": "sala delle corde", "en": "rope room"},
+        {"it": "stanza del capo spedizione", "en": "expedition leader's room"}
       ]
     }
   ],
@@ -170,18 +1224,22 @@
         {"it": "dispensa", "en": "larder"},
         {"it": "recinto dei prigionieri", "en": "prisoners' pen"},
         {"it": "mucchio di ossa", "en": "bone heap"},
-        {"it": "cuccia dei coboldi", "en": "kobold warren"}
+        {"it": "cuccia dei coboldi", "en": "kobold warren"},
+        {"it": "trappola dei coboldi", "en": "kobold trap room"},
+        {"it": "sala del tesoro dell'orco", "en": "ogre's treasure pile"}
       ]
     },
     {
-      "who": {"it": "una banda di orchetti guidata da {n}", "en": "a band of orcs led by {n}"},
+      "who": {"it": "una banda di orchi guidata da {n}", "en": "a band of orcs led by {n}"},
       "rooms": [
         {"it": "accampamento", "en": "camp"},
         {"it": "sala del bottino", "en": "loot room"},
         {"it": "posto di guardia", "en": "watch post"},
         {"it": "fossa dei lupi", "en": "wolf pit"},
         {"it": "forgia improvvisata", "en": "makeshift forge"},
-        {"it": "tana del capo", "en": "chief's den"}
+        {"it": "tana del capo", "en": "chief's den"},
+        {"it": "sala dei trofei", "en": "trophy room"},
+        {"it": "recinto dei prigionieri", "en": "prisoners' pen"}
       ]
     },
     {
@@ -191,7 +1249,10 @@
         {"it": "ossario profanato", "en": "desecrated ossuary"},
         {"it": "tomba aperta", "en": "open grave"},
         {"it": "camera fredda", "en": "cold chamber"},
-        {"it": "nido degli spettri", "en": "wraiths' nest"}
+        {"it": "nido degli spettri", "en": "wraiths' nest"},
+        {"it": "sala dei lamenti", "en": "hall of wailing"},
+        {"it": "cripta dei ghoul", "en": "ghoul crypt"},
+        {"it": "sala delle catene", "en": "hall of chains"}
       ]
     },
     {
@@ -201,7 +1262,9 @@
         {"it": "dispensa di bozzoli", "en": "cocoon larder"},
         {"it": "covata", "en": "brood chamber"},
         {"it": "tunnel di seta", "en": "silk tunnel"},
-        {"it": "trappola di seta", "en": "silk snare"}
+        {"it": "trappola di seta", "en": "silk snare"},
+        {"it": "tana della regina", "en": "queen's lair"},
+        {"it": "sala delle prede", "en": "prey hall"}
       ]
     },
     {
@@ -211,7 +1274,126 @@
         {"it": "altare di pietra", "en": "stone altar"},
         {"it": "fossa dei rifiuti", "en": "refuse pit"},
         {"it": "tana delle uova", "en": "egg chamber"},
-        {"it": "sala del re", "en": "king's hall"}
+        {"it": "sala del re", "en": "king's hall"},
+        {"it": "deposito delle lance", "en": "spear store"},
+        {"it": "pozza fangosa", "en": "mud pool"}
+      ]
+    },
+    {
+      "who": {"it": "il drago {n} e i suoi coboldi adoratori", "en": "the dragon {n} and their kobold worshippers"},
+      "rooms": [
+        {"it": "tana del drago", "en": "dragon's lair"},
+        {"it": "mucchio del tesoro", "en": "treasure hoard"},
+        {"it": "tempio dei coboldi", "en": "kobold temple"},
+        {"it": "cuccia dei coboldi", "en": "kobold warren"},
+        {"it": "sala delle uova", "en": "egg room"},
+        {"it": "dispensa di carcasse", "en": "carcass larder"},
+        {"it": "sala delle offerte", "en": "offering hall"}
+      ]
+    },
+    {
+      "who": {"it": "i bugbear di {n}", "en": "the bugbears of {n}"},
+      "rooms": [
+        {"it": "tana dei bugbear", "en": "bugbear den"},
+        {"it": "sala degli agguati", "en": "ambush room"},
+        {"it": "deposito del bottino", "en": "loot store"},
+        {"it": "sala del capo", "en": "chief's hall"},
+        {"it": "recinto degli schiavi goblin", "en": "goblin slave pen"},
+        {"it": "dispensa", "en": "larder"},
+        {"it": "sala delle trappole", "en": "trap room"}
+      ]
+    },
+    {
+      "who": {"it": "lo sciame di uomini ratto di {n}", "en": "the ratfolk swarm of {n}"},
+      "rooms": [
+        {"it": "nido degli uomini ratto", "en": "ratfolk nest"},
+        {"it": "deposito della spazzatura", "en": "junk store"},
+        {"it": "sala della peste", "en": "plague room"},
+        {"it": "tana del re dei ratti", "en": "rat king's den"},
+        {"it": "galleria dei rosicchiatori", "en": "gnawers' gallery"},
+        {"it": "dispensa", "en": "larder"},
+        {"it": "altare della malattia", "en": "altar of sickness"}
+      ]
+    },
+    {
+      "who": {"it": "gli gnoll del branco di {n}", "en": "the gnolls of the {n} pack"},
+      "rooms": [
+        {"it": "tana del branco", "en": "pack den"},
+        {"it": "fossa delle ossa", "en": "bone pit"},
+        {"it": "sala del banchetto", "en": "feast hall"},
+        {"it": "recinto delle iene", "en": "hyena pen"},
+        {"it": "altare del demone", "en": "demon altar"},
+        {"it": "deposito delle pelli", "en": "hide store"},
+        {"it": "sala del capobranco", "en": "packlord's hall"}
+      ]
+    },
+    {
+      "who": {"it": "il lich {n} e i suoi servitori non morti", "en": "the lich {n} and their undead servants"},
+      "rooms": [
+        {"it": "sala del filatterio", "en": "phylactery chamber"},
+        {"it": "biblioteca dei morti", "en": "library of the dead"},
+        {"it": "sala delle mummie", "en": "mummy hall"},
+        {"it": "laboratorio necromantico", "en": "necromantic laboratory"},
+        {"it": "sala del trono d'osso", "en": "bone throne hall"},
+        {"it": "corpo di guardia scheletrico", "en": "skeleton guardroom"},
+        {"it": "sala del freddo eterno", "en": "hall of endless cold"}
+      ]
+    },
+    {
+      "who": {"it": "gli uomini fungo di {n}", "en": "the fungus folk of {n}"},
+      "rooms": [
+        {"it": "giardino di funghi", "en": "fungus garden"},
+        {"it": "sala delle spore", "en": "spore chamber"},
+        {"it": "camera della fusione", "en": "melding chamber"},
+        {"it": "deposito del compost", "en": "compost store"},
+        {"it": "sala del sovrano fungo", "en": "fungus sovereign's hall"},
+        {"it": "vivaio", "en": "nursery"},
+        {"it": "pozza di muffa", "en": "mould pool"}
+      ]
+    },
+    {
+      "who": {"it": "una banda di avventurieri rivali guidata da {n}", "en": "a band of rival adventurers led by {n}"},
+      "rooms": [
+        {"it": "accampamento degli avventurieri", "en": "adventurers' camp"},
+        {"it": "deposito del bottino", "en": "loot store"},
+        {"it": "infermeria improvvisata", "en": "makeshift infirmary"},
+        {"it": "stanza delle mappe", "en": "map room"},
+        {"it": "trappola riarmata", "en": "reset trap room"},
+        {"it": "posto di vedetta", "en": "lookout post"},
+        {"it": "cella dei prigionieri", "en": "prisoners' cell"}
+      ]
+    },
+    {
+      "who": {"it": "le arpie di {n}", "en": "the harpies of {n}"},
+      "rooms": [
+        {"it": "nido delle arpie", "en": "harpy roost"},
+        {"it": "mucchio di ossa", "en": "bone heap"},
+        {"it": "sala del canto", "en": "singing hall"},
+        {"it": "deposito dei gioielli rubati", "en": "stolen jewel store"},
+        {"it": "pozzo dei cadaveri", "en": "corpse shaft"},
+        {"it": "posatoio alto", "en": "high perch"}
+      ]
+    },
+    {
+      "who": {"it": "il beholder {n} e i suoi schiavi", "en": "the beholder {n} and its slaves"},
+      "rooms": [
+        {"it": "sala del beholder", "en": "beholder's hall"},
+        {"it": "recinto degli schiavi", "en": "slave pen"},
+        {"it": "sala pietrificata", "en": "petrified hall"},
+        {"it": "deposito del tesoro", "en": "treasure store"},
+        {"it": "galleria scavata dai raggi", "en": "ray-carved gallery"},
+        {"it": "dormitorio degli schiavi", "en": "slaves' dormitory"}
+      ]
+    },
+    {
+      "who": {"it": "gli uomini lucertola della tribù {n}", "en": "the lizardfolk of the {n} tribe"},
+      "rooms": [
+        {"it": "grotta delle uova", "en": "egg grotto"},
+        {"it": "pozza calda", "en": "warm pool"},
+        {"it": "sala del capo", "en": "chief's hall"},
+        {"it": "altare del coccodrillo", "en": "crocodile altar"},
+        {"it": "dispensa di pesce", "en": "fish larder"},
+        {"it": "sala dei tamburi", "en": "drum room"}
       ]
     }
   ],
@@ -224,7 +1406,28 @@
     {"it": "galleria di cristalli", "en": "crystal gallery"},
     {"it": "caverna del fiume", "en": "river cavern"},
     {"it": "grotta dell'eco", "en": "echo cave"},
-    {"it": "caverna dei licheni luminosi", "en": "glowing lichen cavern"}
+    {"it": "caverna dei licheni luminosi", "en": "glowing lichen cavern"},
+    {"it": "caverna delle colonne di pietra", "en": "cavern of stone columns"},
+    {"it": "grotta del vento", "en": "wind cave"},
+    {"it": "caverna delle sorgenti calde", "en": "hot spring cavern"},
+    {"it": "grotta di ghiaccio", "en": "ice cave"},
+    {"it": "caverna dei vermi luminosi", "en": "glow-worm cavern"},
+    {"it": "cunicolo di lava solidificata", "en": "lava tube"},
+    {"it": "grotta del lago nero", "en": "black lake cave"},
+    {"it": "caverna delle ossa fossili", "en": "fossil bone cavern"},
+    {"it": "grotta delle stalagmiti", "en": "stalagmite cave"},
+    {"it": "grotta del muschio", "en": "moss cave"},
+    {"it": "caverna delle radici", "en": "root cavern"},
+    {"it": "grotta di sale", "en": "salt cave"},
+    {"it": "caverna delle cascate", "en": "waterfall cavern"},
+    {"it": "grotta delle gocce", "en": "dripping cave"},
+    {"it": "caverna dello zolfo", "en": "sulphur cavern"},
+    {"it": "grotta del fango", "en": "mud cave"},
+    {"it": "caverna dei geodi", "en": "geode cavern"},
+    {"it": "grotta dei nidi", "en": "nesting cave"},
+    {"it": "caverna del ponte naturale", "en": "natural bridge cavern"},
+    {"it": "grotta delle pitture antiche", "en": "cave of ancient paintings"},
+    {"it": "caverna delle nebbie", "en": "misty cavern"}
   ],
   "events": [
     {"it": "una guerra contro i giganti", "en": "a war with the giants"},
@@ -233,31 +1436,69 @@
     {"it": "una maledizione", "en": "a curse"},
     {"it": "un'inondazione", "en": "a flood"},
     {"it": "una faida tra fazioni", "en": "a feud between factions"},
-    {"it": "un'invasione dal sottosuolo", "en": "an invasion from the deep"}
+    {"it": "un'invasione dal sottosuolo", "en": "an invasion from the deep"},
+    {"it": "un incendio", "en": "a great fire"},
+    {"it": "una carestia", "en": "a famine"},
+    {"it": "un assedio durato anni", "en": "a siege that lasted years"},
+    {"it": "la morte dell'ultimo erede", "en": "the death of the last heir"},
+    {"it": "un rituale finito male", "en": "a ritual gone wrong"},
+    {"it": "il risveglio di un antico male", "en": "the awakening of an ancient evil"},
+    {"it": "una rivolta degli schiavi", "en": "a slave revolt"},
+    {"it": "l'eruzione di un vulcano", "en": "a volcanic eruption"},
+    {"it": "un inverno senza fine", "en": "an endless winter"},
+    {"it": "il tradimento di un generale", "en": "a general's betrayal"},
+    {"it": "la caduta di una stella", "en": "a falling star"},
+    {"it": "un'epidemia di licantropia", "en": "an outbreak of lycanthropy"},
+    {"it": "la scomparsa del dio protettore", "en": "the vanishing of the patron god"},
+    {"it": "una guerra di successione", "en": "a war of succession"},
+    {"it": "un'orda di non morti", "en": "a horde of the undead"},
+    {"it": "la fuga di un demone evocato", "en": "the escape of a summoned demon"},
+    {"it": "un esodo verso sud", "en": "an exodus to the south"},
+    {"it": "una frana", "en": "a landslide"}
   ],
-  "areas": [
-    {"it": "sotto le colline", "en": "beneath the hills"},
-    {"it": "nel ventre di una montagna", "en": "in the belly of a mountain"},
-    {"it": "sotto una palude", "en": "beneath a marsh"},
-    {"it": "sotto le rovine di una città", "en": "beneath the ruins of a city"},
-    {"it": "dietro una cascata", "en": "behind a waterfall"},
-    {"it": "sotto una foresta antica", "en": "beneath an ancient forest"}
-  ],
-  "main_entrances": [
-    {"it": "portale principale", "en": "main gate"},
-    {"it": "scalinata in rovina", "en": "ruined stairway"},
-    {"it": "porta nascosta tra i rovi", "en": "door hidden in the brambles"},
-    {"it": "grotta naturale", "en": "natural cave mouth"},
-    {"it": "pozzo asciutto", "en": "dry well"},
-    {"it": "breccia in un muro crollato", "en": "breach in a fallen wall"}
-  ],
+  "areas": {
+    "surface": [
+      {"it": "su una collina battuta dal vento", "en": "on a windswept hill"},
+      {"it": "ai margini di una foresta antica", "en": "at the edge of an ancient forest"},
+      {"it": "su uno sperone di roccia", "en": "on a rocky spur"},
+      {"it": "in riva a un lago scuro", "en": "on the shore of a dark lake"},
+      {"it": "a guardia di un passo di montagna", "en": "guarding a mountain pass"},
+      {"it": "in mezzo alla palude", "en": "in the middle of the marsh"},
+      {"it": "su un'isola del fiume", "en": "on a river island"},
+      {"it": "ai confini del regno", "en": "at the edge of the realm"},
+      {"it": "sulla scogliera", "en": "on the sea cliffs"},
+      {"it": "nella valle delle nebbie", "en": "in the valley of mists"},
+      {"it": "tra le dune del deserto", "en": "among the desert dunes"},
+      {"it": "sulla vetta di una montagna", "en": "on a mountain peak"},
+      {"it": "nel cuore della brughiera", "en": "in the heart of the moor"},
+      {"it": "accanto a un'antica strada", "en": "beside an ancient road"},
+      {"it": "sulle rovine di un insediamento più antico", "en": "on the ruins of an older settlement"}
+    ],
+    "underground": [
+      {"it": "sotto le colline", "en": "beneath the hills"},
+      {"it": "nel ventre di una montagna", "en": "in the belly of a mountain"},
+      {"it": "sotto una palude", "en": "beneath a marsh"},
+      {"it": "sotto le rovine di una città", "en": "beneath the ruins of a city"},
+      {"it": "dietro una cascata", "en": "behind a waterfall"},
+      {"it": "sotto una foresta antica", "en": "beneath an ancient forest"},
+      {"it": "sotto il letto di un fiume", "en": "beneath a riverbed"},
+      {"it": "sotto un cimitero", "en": "beneath a graveyard"},
+      {"it": "nelle profondità di una miniera abbandonata", "en": "in the depths of an abandoned mine"},
+      {"it": "sotto un vulcano spento", "en": "beneath an extinct volcano"},
+      {"it": "sotto il deserto", "en": "beneath the desert"},
+      {"it": "sotto una città ancora viva", "en": "beneath a city that still thrives"},
+      {"it": "sotto un ghiacciaio", "en": "beneath a glacier"},
+      {"it": "sotto il fondo di un lago", "en": "beneath the bed of a lake"},
+      {"it": "nella roccia di una scogliera", "en": "in the rock of a sea cliff"}
+    ]
+  },
   "surface_shaft": {"it": "pozzo dalla superficie", "en": "shaft from the surface"},
-  "midpoint_entrances": [
-    {"it": "imbocco di grotta sul fianco della collina", "en": "cave mouth on the hillside"},
-    {"it": "sbocco di una fogna", "en": "sewer outlet"},
-    {"it": "dolina", "en": "sinkhole"},
-    {"it": "galleria di miniera crollata", "en": "collapsed mine adit"},
-    {"it": "uscita di un fiume sotterraneo", "en": "underground river outlet"}
-  ],
-  "history": {"it": "In un'epoca remota {f} scavarono {built} {area}, allargando le grotte naturali che già si aprivano nella roccia. Dopo {e1} il luogo fu abbandonato; più tardi {s} se ne impadronirono, riadattarono le vecchie sale e scavarono nuovi passaggi, alcuni dei quali tenuti segreti. Poi {e2} segnò la fine anche di questa epoca, e alcune gallerie crollarono. Gli attuali abitanti sono {p}. I cunicoli più grezzi e gli ingressi più recenti risalgono a quest'ultima epoca.", "en": "Long ago {f} dug {built} {area}, widening the natural caves that already opened in the rock. After {e1} the place was abandoned; later {s} took it over, refitted the old halls and dug new passages, some of them kept secret. Then {e2} ended that age too, and some galleries collapsed. Its current dwellers are {p}. The roughest tunnels and the newest entrances date from this last age."}
+  "history": {
+    "founded": {"it": "In un'epoca remota {f} costruirono {built} {area}.", "en": "Long ago {f} built {built} {area}."},
+    "caves": {"it": "Sfruttarono le grotte naturali che già si aprivano nella roccia, allargandole e collegandole alle loro sale.", "en": "They made use of the natural caves that already opened in the rock, widening them and joining them to their halls."},
+    "second": {"it": "Dopo {e1} il luogo fu abbandonato; più tardi {s} se ne impadronirono, riadattarono le vecchie sale e aprirono nuovi passaggi, alcuni dei quali tenuti segreti.", "en": "After {e1} the place was abandoned; later {s} took it over, refitted the old halls and opened new passages, some of them kept secret."},
+    "fall": {"it": "Poi {e2} segnò la fine anche di questa epoca, e alcuni passaggi crollarono.", "en": "Then {e2} ended that age too, and some passages collapsed."},
+    "present": {"it": "Gli attuali abitanti sono {p}.", "en": "Its current dwellers are {p}."},
+    "crude": {"it": "I cunicoli più grezzi e gli ingressi più recenti risalgono a quest'ultima epoca.", "en": "The roughest tunnels and the newest entrances date from this last age."}
+  }
 }
