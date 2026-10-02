@@ -46,7 +46,9 @@ Usage. Every option has an Italian and an English name, use whichever:
   python wyrmdelve.py --help
 Parameters you leave out are chosen at random.
 
-Code and comments are in English, the UI is Italian or English.
+Code and comments are in English, the UI is Italian or English. The words
+the dungeons are made of (names, founders, occupants, rooms, events,
+entrances, history) are data, not code: they live in wyrmdelve_tables.json.
 """
 
 import argparse
@@ -561,129 +563,57 @@ def random_params(number, fixed=None):
     return p
 
 
-# --- story tables: everything is (Italian, English) ---
-NAME_SYLLABLES = ["kha", "zad", "mor", "goth", "ul", "dar", "vex", "ra", "thal", "in", "gor", "mund", "ash",
-                  "kar", "yr", "sel", "bal", "dur", "nek", "ro", "ish", "tar", "vol", "em", "drak", "un", "zor",
-                  "il", "bri", "gan", "sha", "ost", "mel", "keth"]
+# --- story tables ---
+# The words the dungeons are made of (names, founders, later occupants, rooms,
+# events, entrances, the history) live in wyrmdelve_tables.json, next to this
+# file. Every text there is {"it": ..., "en": ...}; here it becomes (it, en).
+TABLES_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "wyrmdelve_tables.json")
 
-FOUNDERS = [
-    {"who": ("i nani del clan {n}", "the dwarves of clan {n}"),
-     "built": ("una roccaforte", "a stronghold"),
-     "title": ("Roccaforte di {n}", "{n} Hold"),
-     "rooms": [("sala del trono", "throne hall"), ("forgia", "forge"), ("armeria", "armoury"),
-               ("birrificio", "brewery"), ("caserma", "barracks"), ("tesoreria", "treasury"),
-               ("tomba degli antenati", "ancestors' tomb"), ("granaio", "granary"), ("corpo di guardia", "guardroom"),
-               ("cisterna", "cistern"), ("sala dei banchetti", "feast hall"), ("officina delle rune", "rune workshop"),
-               ("sala delle udienze", "audience chamber"), ("dormitorio", "dormitory")]},
-    {"who": ("i sacerdoti di {n}", "the priests of {n}"),
-     "built": ("un tempio sotterraneo", "an underground temple"),
-     "title": ("Tempio di {n}", "Temple of {n}"),
-     "rooms": [("navata", "nave"), ("sacrestia", "vestry"), ("cripta", "crypt"), ("celle dei monaci", "monks' cells"),
-               ("sala delle abluzioni", "ablution hall"), ("biblioteca", "library"), ("refettorio", "refectory"),
-               ("ossario", "ossuary"), ("santuario", "sanctum"), ("sala delle offerte", "offering hall"),
-               ("scriptorium", "scriptorium"), ("sala delle reliquie", "reliquary"), ("cappella", "chapel")]},
-    {"who": ("gli architetti dell'imperatore {n}", "the architects of Emperor {n}"),
-     "built": ("una tomba monumentale", "a monumental tomb"),
-     "title": ("Tomba di {n}", "Tomb of {n}"),
-     "rooms": [("camera funeraria", "burial chamber"), ("anticamera", "antechamber"),
-               ("galleria delle statue", "statue gallery"), ("sala dei sarcofagi", "sarcophagus hall"),
-               ("sala dei canopi", "canopic chamber"), ("cappella funebre", "funeral chapel"),
-               ("sala dei guardiani", "guardians' hall"), ("camera del tesoro", "treasure chamber"),
-               ("sala delle trappole", "trapped hall"), ("sala degli affreschi", "fresco hall"),
-               ("camera degli imbalsamatori", "embalmers' room")]},
-    {"who": ("il mago {n} e i suoi apprendisti", "the wizard {n} and their apprentices"),
-     "built": ("un sanctum segreto", "a secret sanctum"),
-     "title": ("Sanctum di {n}", "Sanctum of {n}"),
-     "wizard": True,
-     "rooms": [("laboratorio", "laboratory"), ("biblioteca", "library"), ("sala delle evocazioni", "summoning hall"),
-               ("serraglio", "menagerie"), ("distilleria", "distillery"), ("studio", "study"),
-               ("sala degli specchi", "hall of mirrors"), ("cerchio di protezione", "warding circle"),
-               ("deposito di reagenti", "reagent store"), ("alloggi degli apprendisti", "apprentices' quarters"),
-               ("camera del mago", "wizard's bedchamber"), ("serra dei funghi", "fungus garden")]},
-    {"who": ("i legionari di {n}", "the legionaries of {n}"),
-     "built": ("una fortezza sotterranea", "an underground fortress"),
-     "title": ("Fortezza di {n}", "Fortress of {n}"),
-     "rooms": [("caserma", "barracks"), ("armeria", "armoury"), ("prigioni", "cells"), ("corpo di guardia", "guardroom"),
-               ("magazzino", "storeroom"), ("mensa", "mess hall"), ("alloggio del comandante", "commander's quarters"),
-               ("sala di tortura", "torture chamber"), ("cisterna", "cistern"), ("sala d'armi", "training hall"),
-               ("scuderia", "stables"), ("cappella della guarnigione", "garrison chapel")]},
-]
 
-SECOND = [
-    {"who": ("i cultisti di {n}", "the cultists of {n}"),
-     "rooms": [("altare blasfemo", "blasphemous altar"), ("sala dei rituali", "ritual hall"),
-               ("dormitorio dei cultisti", "cultists' dormitory"), ("celle dei prigionieri", "prisoners' cells"),
-               ("sala delle maschere", "hall of masks"), ("fossa dei sacrifici", "sacrificial pit")]},
-    {"who": ("i contrabbandieri di {n}", "{n}'s smugglers"),
-     "rooms": [("deposito del contrabbando", "contraband store"), ("covo", "hideout"), ("bisca", "gambling den"),
-               ("dormitorio", "bunkroom"), ("deposito dei barili", "barrel store"), ("stanza del capo", "boss's room")]},
-    {"who": ("il negromante {n} e i suoi accoliti", "the necromancer {n} and their acolytes"),
-     "rooms": [("sala delle ossa", "bone hall"), ("laboratorio di imbalsamazione", "embalming lab"),
-               ("camera di rianimazione", "reanimation chamber"), ("deposito di cadaveri", "corpse store"),
-               ("biblioteca proibita", "forbidden library"), ("cella degli accoliti", "acolytes' cell")]},
-    {"who": ("i goblin della tribù {n}", "the goblins of the {n} tribe"),
-     "rooms": [("tana", "den"), ("dispensa", "larder"), ("fossa dei rifiuti", "refuse pit"),
-               ("sala del capo", "chieftain's hall"), ("allevamento di ratti giganti", "giant rat pens"),
-               ("sala del totem", "totem hall")]},
-    {"who": ("i monaci eremiti di {n}", "the hermit monks of {n}"),
-     "rooms": [("cella di meditazione", "meditation cell"), ("orto di funghi", "mushroom garden"),
-               ("scriptorium", "scriptorium"), ("refettorio", "refectory"), ("oratorio", "oratory"),
-               ("sala delle campane", "bell room")]},
-]
+def from_json(value):
+    if isinstance(value, dict) and set(value) == {"it", "en"}:
+        return value["it"], value["en"]
+    if isinstance(value, dict):
+        return {k: from_json(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [from_json(v) for v in value]
+    return value
 
-PRESENT = [
-    {"who": ("l'orco {n} e i suoi servi coboldi", "the ogre {n} and their kobold servants"),
-     "rooms": [("tana dell'orco", "ogre's lair"), ("cucina", "kitchen"), ("dispensa", "larder"),
-               ("recinto dei prigionieri", "prisoners' pen"), ("mucchio di ossa", "bone heap"),
-               ("cuccia dei coboldi", "kobold warren")]},
-    {"who": ("una banda di orchetti guidata da {n}", "a band of orcs led by {n}"),
-     "rooms": [("accampamento", "camp"), ("sala del bottino", "loot room"), ("posto di guardia", "watch post"),
-               ("fossa dei lupi", "wolf pit"), ("forgia improvvisata", "makeshift forge"), ("tana del capo", "chief's den")]},
-    {"who": ("i morti inquieti, risvegliati da {n}", "the restless dead, woken by {n}"),
-     "rooms": [("sala dei morti", "hall of the dead"), ("ossario profanato", "desecrated ossuary"),
-               ("tomba aperta", "open grave"), ("camera fredda", "cold chamber"), ("nido degli spettri", "wraiths' nest")]},
-    {"who": ("i ragni giganti della regina {n}", "the giant spiders of Queen {n}"),
-     "rooms": [("nido di ragnatele", "web nest"), ("dispensa di bozzoli", "cocoon larder"), ("covata", "brood chamber"),
-               ("tunnel di seta", "silk tunnel"), ("trappola di seta", "silk snare")]},
-    {"who": ("i trogloditi del re {n}", "the troglodytes of King {n}"),
-     "rooms": [("grotta comune", "common cave"), ("altare di pietra", "stone altar"), ("fossa dei rifiuti", "refuse pit"),
-               ("tana delle uova", "egg chamber"), ("sala del re", "king's hall")]},
-]
 
-NATURAL_ROOMS = [("grotta", "cave"), ("caverna dei funghi", "fungus cavern"), ("pozza sotterranea", "underground pool"),
-                 ("caverna delle stalattiti", "stalactite cavern"), ("grotta dei pipistrelli", "bat cave"),
-                 ("galleria di cristalli", "crystal gallery"), ("caverna del fiume", "river cavern"),
-                 ("grotta dell'eco", "echo cave"), ("caverna dei licheni luminosi", "glowing lichen cavern")]
+TABLE_KEYS = ("name_syllables", "founders", "second_age", "present_day", "natural_rooms", "events", "areas",
+              "main_entrances", "surface_shaft", "midpoint_entrances", "history")
 
-EVENTS = [("una guerra contro i giganti", "a war with the giants"), ("un terremoto", "an earthquake"),
-          ("una pestilenza", "a plague"), ("una maledizione", "a curse"), ("un'inondazione", "a flood"),
-          ("una faida tra fazioni", "a feud between factions"), ("un'invasione dal sottosuolo", "an invasion from the deep")]
 
-AREAS = [("sotto le colline", "beneath the hills"), ("nel ventre di una montagna", "in the belly of a mountain"),
-         ("sotto una palude", "beneath a marsh"), ("sotto le rovine di una città", "beneath the ruins of a city"),
-         ("dietro una cascata", "behind a waterfall"), ("sotto una foresta antica", "beneath an ancient forest")]
+def load_tables(path=TABLES_FILE):
+    name = os.path.basename(path)
+    try:
+        with open(path, encoding="utf-8") as f:
+            tables = from_json(json.load(f))
+    except OSError:
+        sys.exit(f"Manca il file {name}: mettilo nella stessa cartella di wyrmdelve.py.\n"
+                 f"{name} is missing: put it in the same folder as wyrmdelve.py.")
+    except ValueError as e:
+        sys.exit(f"C'è un errore nel file {name} / There is a mistake in {name}:\n  {e}")
+    missing = [k for k in TABLE_KEYS if k not in tables]
+    if missing:
+        sys.exit(f"Nel file {name} mancano / {name} lacks: {', '.join(missing)}")
+    return tables
 
-MAIN_ENTRANCES = [("portale principale", "main gate"), ("scalinata in rovina", "ruined stairway"),
-                  ("porta nascosta tra i rovi", "door hidden in the brambles"), ("grotta naturale", "natural cave mouth"),
-                  ("pozzo asciutto", "dry well"), ("breccia in un muro crollato", "breach in a fallen wall")]
-SURFACE_SHAFT = ("pozzo dalla superficie", "shaft from the surface")
-MIDPOINT_ENTRANCES = [("imbocco di grotta sul fianco della collina", "cave mouth on the hillside"),
-                      ("sbocco di una fogna", "sewer outlet"), ("dolina", "sinkhole"),
-                      ("galleria di miniera crollata", "collapsed mine adit"),
-                      ("uscita di un fiume sotterraneo", "underground river outlet")]
+
+TABLES = load_tables()
+NAME_SYLLABLES = TABLES["name_syllables"]
+FOUNDERS = TABLES["founders"]
+SECOND = TABLES["second_age"]
+PRESENT = TABLES["present_day"]
+NATURAL_ROOMS = TABLES["natural_rooms"]
+EVENTS = TABLES["events"]
+AREAS = TABLES["areas"]
+MAIN_ENTRANCES = TABLES["main_entrances"]
+SURFACE_SHAFT = TABLES["surface_shaft"]
+MIDPOINT_ENTRANCES = TABLES["midpoint_entrances"]
+HISTORY = TABLES["history"]
 
 ERA_TAGS = {0: "N", 1: "I", 2: "II", 3: "III"}
-
-HISTORY = (
-    "In un'epoca remota {f} scavarono {built} {area}, allargando le grotte naturali che già si aprivano nella roccia. "
-    "Dopo {e1} il luogo fu abbandonato; più tardi {s} se ne impadronirono, riadattarono le vecchie sale e scavarono "
-    "nuovi passaggi, alcuni dei quali tenuti segreti. Poi {e2} segnò la fine anche di questa epoca, e alcune gallerie "
-    "crollarono. Gli attuali abitanti sono {p}. I cunicoli più grezzi e gli ingressi più recenti risalgono a "
-    "quest'ultima epoca.",
-    "Long ago {f} dug {built} {area}, widening the natural caves that already opened in the rock. After {e1} the "
-    "place was abandoned; later {s} took it over, refitted the old halls and dug new passages, some of them kept "
-    "secret. Then {e2} ended that age too, and some galleries collapsed. Its current dwellers are {p}. The "
-    "roughest tunnels and the newest entrances date from this last age.")
 
 
 def fmt(pair, **values):
