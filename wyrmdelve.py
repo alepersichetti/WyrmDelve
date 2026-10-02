@@ -40,6 +40,7 @@ Usage. Every option has an Italian and an English name, use whichever:
   python wyrmdelve.py --un-foglio                   / --one-sheet  (all levels on one sheet)
   python wyrmdelve.py --pdf                         / --png
   python wyrmdelve.py --titolo "La Tana dell'Orco"  / --title "The Ogre's Lair"
+  python wyrmdelve.py --senza-titolo                / --no-title  (map without a name)
   python wyrmdelve.py --solo-ascii                  / --ascii-only
   python wyrmdelve.py --lingua en                   / --language en  (default: Italian)
   python wyrmdelve.py --help
@@ -150,6 +151,14 @@ TEXTS = {
     "color_2": ("    2 = simboli bianchi su sfondo celeste", "    2 = white symbols on light blue"),
     "color_3": ("    3 = simboli bianchi su sfondo nero", "    3 = white symbols on black"),
     "choice": ("Scelta", "Choice"),
+    "name_intro": ("\n  Vuoi un nome per la mappa del dungeon?", "\n  Do you want a name on the dungeon map?"),
+    "name_yes": ("    1 = sì", "    1 = yes"),
+    "name_no": ("    2 = no, mappa senza nome", "    2 = no, a map without a name"),
+    "name_how": ("\n  Come scegliere il nome?", "\n  How should the name be chosen?"),
+    "name_random": ("    1 = generato a caso", "    1 = randomly generated"),
+    "name_mine": ("    2 = lo scelgo io", "    2 = I'll choose it"),
+    "q_name": ("  Nome della mappa: ", "  Map name: "),
+    "name_empty": ("    Scrivi un nome.", "    Type a name."),
     # parameter names and checks
     "name_levels": ("livelli", "levels"),
     "name_rooms": ("stanze", "rooms"),
@@ -174,6 +183,8 @@ TEXTS = {
                     "{l} levels, {r} rooms, {e} entrances, {x} secret doors/passages"),
     "info_random": ("Parametri scelti a caso", "Parameters chosen at random"),
     "info_colors": ("Colori: {c}", "Colours: {c}"),
+    "info_name_mine": ("Nome della mappa: «{t}»", "Map name: “{t}”"),
+    "info_name_none": ("Mappa senza nome", "Map without a name"),
     "info_folder": ("Cartella: {folder}", "Folder: {folder}"),
     "info_font": ("Font: {name}{fake}, cella {a:.2f} volte più alta che larga",
                   "Font: {name}{fake}, letter cell {a:.2f} times taller than wide"),
@@ -256,6 +267,7 @@ TEXTS = {
     "subtitle_one": ("Seme {seed} · 1 livello · {r} stanze · {e} ingressi",
                      "Seed {seed} · 1 level · {r} rooms · {e} entrances"),
     "players_title": ("{t} — mappa dei giocatori", "{t} — players' map"),
+    "players_title_plain": ("Mappa dei giocatori", "Players' map"),
     # legend
     "lg_floor": ("pavimento", "floor"),
     "lg_door": ("porta", "door"),
@@ -359,6 +371,7 @@ TEXTS = {
     "h_pdf": ("salva le mappe in PDF (un solo file anche con più fogli)", "save the maps as PDF (one file even with many sheets)"),
     "h_png": ("salva le mappe in PNG (un file per foglio)", "save the maps as PNG (one file per sheet)"),
     "h_title": ("titolo della mappa (default: il nome del dungeon)", "map title (default: the dungeon's name)"),
+    "h_no_title": ("mappa senza nome", "map without a name"),
     "h_ascii": ("solo caratteri base della tastiera", "only basic keyboard characters"),
     "h_font": ("file .ttf monospazio da usare", "monospaced .ttf font file to use"),
     "h_output": ("cartella in cui salvare (default: dungeons_generated accanto allo script)",
@@ -2013,7 +2026,8 @@ class Layout:
         self.title, self.subtitle = title, subtitle
         self.grid_w, self.grid_h = grid_w, grid_h
         self.cols = inner + 4
-        self.rows = 5 + grid_h + 1 + len(self.legend) + 1
+        self.top = 4 if title else 3            # no name: the subtitle moves up a row
+        self.rows = self.top + 1 + grid_h + 1 + len(self.legend) + 1
 
 
 def page_layouts(dungeon, panels, legend, title, subtitle):
@@ -2029,9 +2043,10 @@ def page_layouts(dungeon, panels, legend, title, subtitle):
 def compose_page(layout):
     page = Canvas(layout.cols, layout.rows)
     t, s = layout.title, layout.subtitle
-    page.write((layout.cols - len(t)) // 2, 1, t, "b")
-    page.write((layout.cols - len(s)) // 2, 2, s)
-    x0, y0 = (layout.cols - layout.grid_w) // 2, 4
+    if t:
+        page.write((layout.cols - len(t)) // 2, 1, t, "b")
+    page.write((layout.cols - len(s)) // 2, layout.top - 2, s)
+    x0, y0 = (layout.cols - layout.grid_w) // 2, layout.top
     for k, panel in enumerate(layout.panels):
         r, c = divmod(k, layout.pc)
         px = x0 + c * (layout.panel_w + GAP_X) + (layout.panel_w - panel.width) // 2
@@ -2395,7 +2410,7 @@ def room_exits(dungeon, room):
 def write_key(dungeon, path, seed, title):
     story = dungeon.story
     width = 100
-    lines = [f"WyrmDelve v{VERSION} — {title}", f"{tr('key_seed')}: {seed}", ""]
+    lines = [f"WyrmDelve v{VERSION}" + (f" — {title}" if title else ""), f"{tr('key_seed')}: {seed}", ""]
     lines += [tr("key_history"), *wrap(pick(story["history"]), width, "  "), ""]
     lines.append(tr("key_strata"))
     eras = {r.era for r in dungeon.rooms}
@@ -2572,6 +2587,25 @@ def ask_output(levels, per_level, pdf):
     return per_level, pdf
 
 
+def ask_name():
+    """None = a random name (the dungeon's own), "" = no name, else the user's."""
+    print(tr("name_intro"))
+    print(tr("name_yes"))
+    print(tr("name_no"))
+    if ask(tr("choice"), 1, int, 1, 2) == 2:
+        return ""
+    print(tr("name_how"))
+    print(tr("name_random"))
+    print(tr("name_mine"))
+    if ask(tr("choice"), 1, int, 1, 2) == 1:
+        return None
+    while True:
+        name = input(tr("q_name")).strip()
+        if name:
+            return name
+        print(tr("name_empty"))
+
+
 def ask_settings():
     ask_language()
     mode = show_welcome()
@@ -2598,6 +2632,7 @@ def ask_settings():
         p.update(random_params(new_number()))
         p["randomized"] = True
     p["colors"] = ask_colors()
+    p["title"] = ask_name()
     p["ask_paper"] = sys.stdin.isatty()
     return p
 
@@ -2629,7 +2664,10 @@ def settings_from_options(argv):
     files = ap.add_mutually_exclusive_group()
     files.add_argument("--pdf", dest="pdf", action="store_const", const=True, default=None, help=tr("h_pdf"))
     files.add_argument("--png", dest="pdf", action="store_const", const=False, help=tr("h_png"))
-    ap.add_argument(*names("titolo", "title"), dest="title", default=None, help=tr("h_title"))
+    naming = ap.add_mutually_exclusive_group()
+    naming.add_argument(*names("titolo", "title"), dest="title", default=None, help=tr("h_title"))
+    naming.add_argument(*names("senza-titolo", "no-title"), dest="title", action="store_const", const="",
+                        help=tr("h_no_title"))
     ap.add_argument(*names("solo-ascii", "ascii-only"), dest="ascii_only", action="store_true", help=tr("h_ascii"))
     ap.add_argument("--font", default=None, metavar="FILE", help=tr("h_font"))
     ap.add_argument(*names("uscita", "output"), dest="output", default=OUTPUT_FOLDER, help=tr("h_output"))
@@ -2673,6 +2711,10 @@ def main():
     if params.get("randomized"):
         log.info(tr("info_random"))
     log.info(tr("info_colors", c=tr(f"color_name_{params['colors']}")))
+    if params["title"] == "":
+        log.info(tr("info_name_none"))
+    elif params["title"]:
+        log.info(tr("info_name_mine", t=params["title"]))
     folder = os.path.join(params["output"], seed)
     os.makedirs(folder, exist_ok=True)
     log.info(tr("info_folder", folder=short_path(folder)))
@@ -2705,7 +2747,7 @@ def main():
     # 8: paper
     log.step(tr("step_paper"))
     G = Glyphs(open_font(font_spec, 40), params["ascii_only"])
-    title = params["title"] or pick(dungeon.story["title"])
+    title = pick(dungeon.story["title"]) if params["title"] is None else params["title"]
     L = len(dungeon.mains())
     subtitle = (tr("subtitle", seed=seed, l=L, r=len(dungeon.rooms), e=len(dungeon.entrances)) if L > 1 else
                 tr("subtitle_one", seed=seed, r=len(dungeon.rooms), e=len(dungeon.entrances)))
@@ -2758,7 +2800,7 @@ def main():
     pl_pages = []
     for group, (layout, char_mm, orientation), suffix in zip(groups, picks, suffixes):
         pl_layout = Layout(dungeon, [pl_panels[k] for k in group], layout.pc, pl_legend,
-                           tr("players_title", t=title), subtitle)
+                           tr("players_title", t=title) if title else tr("players_title_plain"), subtitle)
         pl_pages.append((compose_page(pl_layout), pixel_layout(pl_layout, paper, orientation, char_mm, fonts), suffix))
     save_map(pl_pages, os.path.join(folder, f"{seed}_players"), pdf, params["colors"], settings, log)
     key_path = os.path.join(folder, f"{seed}_key.txt")

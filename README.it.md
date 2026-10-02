@@ -81,13 +81,14 @@ python wyrmdelve.py
    1. simboli neri su sfondo bianco (default)
    2. simboli bianchi su sfondo celeste
    3. simboli bianchi su sfondo nero
-5. Il programma costruisce il dungeon e ti chiede come impaginare i livelli:
+5. Vuoi un **nome** per la mappa? Se no, la mappa esce senza titolo. Se sì, scegli se **generarlo a caso** (es. *Tomba di Zordur*, default) o **scriverlo tu**.
+6. Il programma costruisce il dungeon e ti chiede come impaginare i livelli:
    1. tutti i livelli in **un solo foglio** (default)
    2. **un livello per foglio**, su file separati
 
    (con un solo livello la domanda non compare).
-6. Poi ti chiede che file vuoi: un'immagine **PNG** (una per foglio) oppure un **PDF** (con un livello per foglio, un solo PDF con tutti i fogli).
-7. Infine ti mostra una tabella con **A4, A3, A2 e A1**: per ogni formato la grandezza dei caratteri e se sono leggibili. Ti consiglia il foglio più piccolo su cui la mappa si legge bene; premi Invio per accettarlo o scrivi un altro formato. L'immagine esce sempre a **600 dpi** e il foglio si gira da solo in verticale o in orizzontale.
+7. Poi ti chiede che file vuoi: un'immagine **PNG** (una per foglio) oppure un **PDF** (con un livello per foglio, un solo PDF con tutti i fogli).
+8. Infine ti mostra una tabella con **A4, A3, A2 e A1**: per ogni formato la grandezza dei caratteri e se sono leggibili. Ti consiglia il foglio più piccolo su cui la mappa si legge bene; premi Invio per accettarlo o scrivi un altro formato. L'immagine esce sempre a **600 dpi** e il foglio si gira da solo in verticale o in orizzontale.
 
 ## 3. Cosa ottieni
 
@@ -126,6 +127,7 @@ python wyrmdelve.py --formato A2                 salta la domanda sul formato
 python wyrmdelve.py --per-livello                un livello per foglio (--un-foglio: tutti in uno)
 python wyrmdelve.py --pdf                        salva in PDF (--png: in PNG)
 python wyrmdelve.py --titolo "La Tana dell'Orco"
+python wyrmdelve.py --senza-titolo               mappa senza nome
 python wyrmdelve.py --solo-ascii                 solo caratteri della tastiera (# ~ = o)
 python wyrmdelve.py --font MioFont.ttf
 python wyrmdelve.py --lingua en
