@@ -665,7 +665,11 @@ def load_tables(path=TABLES_FILE):
 
 
 TABLES = load_tables()
-NAME_SYLLABLES = TABLES["name_syllables"]
+NAMES = TABLES["name_syllables"]
+if isinstance(NAMES, list):                     # older files: just a list of syllables
+    NAMES = {"syllables": NAMES, "endings": {}}
+NAME_SYLLABLES = NAMES["syllables"]
+NAME_ENDINGS = {k: v for k, v in NAMES.get("endings", {}).items() if v}   # language -> endings
 TYPES = TABLES["dungeon_types"]                 # in menu order
 TYPE = {t["id"]: t for t in TYPES}
 TYPE_BY_CODE = {t["code"]: t["id"] for t in TYPES}
@@ -755,9 +759,18 @@ def join_pairs(pairs):
 
 
 def make_name(rng, used):
+    """2-3 syllables, or 1-2 syllables and the ending of one language
+    (Arabic, Danish, Old French, Persian, Greek, Latin, German, Russian,
+    Tolkien-ish...)."""
+    languages = sorted(NAME_ENDINGS)
     while True:
-        name = "".join(rng.choice(NAME_SYLLABLES) for _ in range(rng.choice((2, 2, 3)))).capitalize()
-        if name not in used and len(name) <= 10:
+        if languages and rng.random() < 0.6:
+            endings = NAME_ENDINGS[rng.choice(languages)]
+            name = "".join(rng.choice(NAME_SYLLABLES) for _ in range(rng.choice((1, 1, 2)))) + rng.choice(endings)
+        else:
+            name = "".join(rng.choice(NAME_SYLLABLES) for _ in range(rng.choice((2, 2, 3))))
+        name = name.capitalize()
+        if name not in used and 3 <= len(name) <= 12:
             used.add(name)
             return name
 

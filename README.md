@@ -255,11 +255,12 @@ The pictures already have the exact size of the paper you chose, at 600 dpi: the
 
 ## 7. Changing the words of the dungeons
 
-The program's logic is in `wyrmdelve.py`; the **words** it draws at random are in `wyrmdelve_tables.json`, **in the same folder as `wyrmdelve.py`**: a text file you can open and change with any text editor (Notepad, TextEdit…). It holds about 3,000 entries (rooms, builders, occupants, caves, events, places, entrances, name syllables), which combine into billions of different stories:
+The program's logic is in `wyrmdelve.py`; the **words** it draws at random are in `wyrmdelve_tables.json`, **in the same folder as `wyrmdelve.py`**: a text file you can open and change with any text editor (Notepad, TextEdit…). It holds about 3,400 entries (rooms, builders, occupants, caves, events, places, entrances, name syllables), which combine into billions of different stories:
 
 | Section | What it holds |
 |---|---|
-| `name_syllables` | the syllables names are made of (*Zordur*, *Ishem*…) |
+| `credits` | where the entries come from (leave it as it is) |
+| `name_syllables` | `syllables`: the syllables names are made of; `endings`: name endings by language (Arabic, Danish, Old French, Persian, Greek, Latin, German, Russian, Tolkien-ish). A name is 2–3 syllables, or 1–2 syllables plus the ending of one language (*Drakberg*, *Rosslav*, *Phelias*, *Kaelhil*…). You can add a language: a new name with its list of endings |
 | `dungeon_types` | the 11 types (stratum I): their names, how they stack, their floor plan, who built them, the map's name, their rooms and their entrances (see below) |
 | `second_age` | who came next (stratum II) and their rooms |
 | `present_day` | today's dwellers (stratum III) and their rooms |
@@ -408,3 +409,5 @@ Press **Ctrl+C**. Nothing breaks: just start it again.
 ## Sources
 
 - Justin Alexander, [Xandering the Dungeon](https://thealexandrian.net/wordpress/13085/roleplaying-games/xandering-the-dungeon) (parts 1–5) and [Xandering on the Small Scale](https://thealexandrian.net/wordpress/34950/roleplaying-games/thought-of-the-day-xandering-on-the-small-scale)
+- Some entries of `wyrmdelve_tables.json` (room features, caves, places, site names, threats, settlement troubles) are translated and adapted from *Ironsworn* and *Ironsworn: Delve* by Shawn Tomkin ([ironswornrpg.com](https://ironswornrpg.com)), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); the data was read from [Datasworn](https://github.com/rsek/datasworn). Syllables from Ironsworn's names come from the same source.
+- The Tolkien-style syllables and endings are frequency statistics derived from the name list of [Angband](https://github.com/angband/angband) (`lib/gamedata/names.txt`); the list itself is not copied.

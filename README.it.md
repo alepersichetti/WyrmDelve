@@ -255,11 +255,12 @@ Le immagini hanno già la misura esatta del foglio scelto, a 600 dpi: si stampan
 
 ## 7. Cambiare le parole dei dungeon
 
-La logica del programma sta in `wyrmdelve.py`; le **parole** che pesca a caso stanno in `wyrmdelve_tables.json`, **nella stessa cartella di `wyrmdelve.py`**: un file di testo che puoi aprire e modificare con qualsiasi editor (Blocco note, TextEdit…). Contiene circa 3.000 voci (stanze, costruttori, occupanti, grotte, eventi, luoghi, ingressi, sillabe per i nomi), che si combinano in miliardi di storie diverse:
+La logica del programma sta in `wyrmdelve.py`; le **parole** che pesca a caso stanno in `wyrmdelve_tables.json`, **nella stessa cartella di `wyrmdelve.py`**: un file di testo che puoi aprire e modificare con qualsiasi editor (Blocco note, TextEdit…). Contiene circa 3.400 voci (stanze, costruttori, occupanti, grotte, eventi, luoghi, ingressi, sillabe per i nomi), che si combinano in miliardi di storie diverse:
 
 | Sezione | Cosa contiene |
 |---|---|
-| `name_syllables` | le sillabe con cui si formano i nomi (*Zordur*, *Ishem*…) |
+| `credits` | da dove vengono le voci (lascialo com'è) |
+| `name_syllables` | `syllables`: le sillabe con cui si formano i nomi; `endings`: le desinenze dei nomi per lingua (arabo, danese, francese antico, persiano, greco, latino, tedesco, russo, stile Tolkien). Un nome è fatto di 2–3 sillabe, oppure di 1–2 sillabe più la desinenza di una lingua (*Drakberg*, *Rosslav*, *Phelias*, *Kaelhil*…). Puoi aggiungere una lingua: un nome nuovo con il suo elenco di desinenze |
 | `dungeon_types` | gli 11 tipi (strato I): i loro nomi, come si impilano, la pianta, chi li costruì, il nome della mappa, le stanze e gli ingressi (vedi sotto) |
 | `second_age` | chi venne dopo (strato II) e le sue stanze |
 | `present_day` | gli abitanti di oggi (strato III) e le loro stanze |
@@ -408,3 +409,5 @@ Premi **Ctrl+C**. Non si rompe niente: basta riavviarlo.
 ## Fonti
 
 - Justin Alexander, [Xandering the Dungeon](https://thealexandrian.net/wordpress/13085/roleplaying-games/xandering-the-dungeon) (parti 1–5) e [Xandering on the Small Scale](https://thealexandrian.net/wordpress/34950/roleplaying-games/thought-of-the-day-xandering-on-the-small-scale)
+- Alcune voci di `wyrmdelve_tables.json` (caratteristiche delle stanze, grotte, luoghi, nomi dei siti, minacce, guai degli insediamenti) sono tradotte e adattate da *Ironsworn* e *Ironsworn: Delve* di Shawn Tomkin ([ironswornrpg.com](https://ironswornrpg.com)), con licenza [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); i dati sono stati letti da [Datasworn](https://github.com/rsek/datasworn). Dalla stessa fonte vengono le sillabe dei nomi di Ironsworn.
+- Le sillabe e le desinenze in stile Tolkien sono statistiche di frequenza ricavate dalla lista di nomi di [Angband](https://github.com/angband/angband) (`lib/gamedata/names.txt`); la lista non è copiata.
