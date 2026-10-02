@@ -42,11 +42,29 @@ Ogni dungeon ha una **storia a strati**, e si vede dai muri:
 | Muri | Strato |
 |---|---|
 | `#` (grotte irregolari) | **N** — grotte naturali, più antiche di ogni costruzione |
-| `═║╔╗` | **I** — i fondatori (nani, sacerdoti, un mago, una legione, una tomba imperiale) |
+| `═║╔╗` | **I** — i fondatori (re, cavalieri, sacerdoti, maghi, legioni, nani…) |
 | `─│┌┐` | **II** — chi venne dopo (cultisti, contrabbandieri, un negromante, goblin, monaci) |
 | `#` (stanze sbozzate) | **III** — gli abitanti di oggi (un orco, orchetti, non morti, ragni, trogloditi) |
 
 Le stanze sono numerate **livello-stanza**: `1-01`, `2-07`, e `1a-01` per un sottolivello. La chiave del dungeon racconta per ogni stanza a cosa serviva in ogni epoca (es. *Sala del trono; II: bisca; III: tana dell'orco*).
+
+Ogni livello è di uno di **11 tipi di dungeon**, ognuno con la sua pianta, le sue stanze, i suoi costruttori e i suoi ingressi:
+
+| N. | Tipo | Pianta |
+|---|---|---|
+| 1 | Antico palazzo | simmetrica rispetto a un asse, la sala del trono al centro, le ali in coppie speculari |
+| 2 | Sotterraneo o prigione di creature intelligenti o arcane | file di piccole celle, corpi di guardia alle estremità, una fossa al centro |
+| 3 | Torre | stanze rotonde strette attorno a una scala centrale |
+| 4 | Castello | edifici attorno a un cortile, torri rotonde agli angoli, il mastio |
+| 5 | Tempio | una lunga navata sull'asse con l'abside in testa, cappelle laterali a coppie |
+| 6 | Città | edifici fitti, strade tra l'uno e l'altro, una piazza al centro |
+| 7 | Dungeon alchemico o arcano di un mago | stanze rotonde e ottagonali attorno a un cerchio di evocazione |
+| 8 | Accademia magica o religiosa | aule tutte uguali attorno a un chiostro, una biblioteca e un'aula magna |
+| 9 | Fortezza di confine | una lunga linea fortificata, bastioni alle estremità, il mastio al centro, la porta |
+| 10 | Tomba o cripta | un asse processionale dall'anticamera alla camera funeraria, nicchie a coppie |
+| 11 | Underdark o grotte sotterranee | caverne naturali sparse, una grande caverna |
+
+I livelli sono **impilati in modo coerente**: una torre può stare sopra un castello ma mai sotto una grotta, una cripta sta sotto un tempio e mai sopra un castello, e l'Underdark è sempre in fondo. L'ingresso principale è al piano terra (l'edificio più basso sopra il suolo, oppure il livello più in alto se è tutto sotterraneo).
 
 La pianta segue **sempre** i principi di Jennell Jaquays, come li descrive Justin Alexander in *Xandering the Dungeon*: ingressi multipli, anelli, collegamenti multipli e discontinui tra i livelli, percorsi segreti e insoliti (porte e passaggi segreti, scale nascoste, passaggi allagati, crolli, portali), sottolivelli, livelli divisi, dislivelli interni, ingressi a metà dungeon, dungeon annidati. A fine generazione il programma verifica che ogni stanza sia raggiungibile e stampa quali principi ha applicato.
 
@@ -152,7 +170,9 @@ Il programma ti fa alcune domande. **Ogni domanda ha una risposta già pronta tr
 
 1. **Lingua:** scrivi `1` per l'italiano o `2` per l'inglese (con Invio resta l'italiano). Da qui in poi domande, messaggi e testi sulla mappa sono nella lingua scelta.
 2. **Compare l'orco nel suo dungeon.** Premi **Invio** per un dungeon tutto casuale, scrivi **P** per scegliere tu i parametri, oppure **R** per rifare un dungeon che hai già creato (vedi il capitolo 4).
-3. Con **P** scegli: numero di livelli, numero di stanze (almeno 2 per livello), numero di ingressi/uscite dall'area, numero di porte e passaggi segreti.
+3. Con **P** scegli: numero di livelli, numero di stanze (almeno 2 per livello), numero di ingressi/uscite dall'area, numero di porte e passaggi segreti. Poi il **tipo di dungeon** (vedi la tabella in alto; `0` = a caso). Con più di un livello, il programma prima ti chiede se **i livelli sono tutti dello stesso tipo** o se **ogni livello ha il suo tipo**: in questo caso li scegli uno per uno dall'alto, e per ogni livello l'elenco mostra solo i tipi che possono stare sotto quello di sopra.
+
+   Con **Invio** (dungeon tutto casuale) i tipi li sceglie il programma, sempre in un ordine coerente.
 4. **Colori:**
    1. simboli neri su sfondo bianco (la risposta già pronta, la migliore per stampare)
    2. simboli bianchi su sfondo celeste
@@ -190,7 +210,7 @@ Alla fine il programma ti dice dove ha salvato i file e `Completato in ... s`.
 
 ## 4. Rifare un dungeon già creato
 
-Ogni dungeon ha un **seme**, un codice come `3-24-2-5-K7Q2MB` (livelli-stanze-ingressi-segreti-codice). È stampato sotto il titolo della mappa ed è anche il nome della cartella del dungeon dentro `dungeons_generated`. **Lo stesso seme dà sempre lo stesso dungeon.**
+Ogni dungeon ha un **seme**, un codice come `3-24-2-5-CDK-K7Q2MB` (livelli-stanze-ingressi-segreti-tipi-codice). I tipi sono una lettera per livello dall'alto, da `A` a `K` nell'ordine della tabella in alto (`CDK` = torre, castello, Underdark); una lettera sola vuol dire che tutti i livelli sono di quel tipo. I semi delle versioni precedenti, senza i tipi, funzionano ancora. È stampato sotto il titolo della mappa ed è anche il nome della cartella del dungeon dentro `dungeons_generated`. **Lo stesso seme dà sempre lo stesso dungeon.**
 
 Per rifarlo (per esempio su un altro formato o con altri colori), avvia il programma, scrivi **R** nella schermata dell'orco e scrivi il seme. Maiuscole e minuscole non contano, e O e 0, oppure I, L e 1, valgono come lo stesso carattere.
 
@@ -240,14 +260,31 @@ La logica del programma sta in `wyrmdelve.py`; le **parole** che pesca a caso st
 | Sezione | Cosa contiene |
 |---|---|
 | `name_syllables` | le sillabe con cui si formano i nomi (*Zordur*, *Ishem*…) |
-| `founders` | chi scavò il dungeon (strato I): chi erano, cosa costruirono, il nome della mappa e le loro stanze |
+| `dungeon_types` | gli 11 tipi (strato I): i loro nomi, come si impilano, la pianta, chi li costruì, il nome della mappa, le stanze e gli ingressi (vedi sotto) |
 | `second_age` | chi venne dopo (strato II) e le sue stanze |
 | `present_day` | gli abitanti di oggi (strato III) e le loro stanze |
 | `natural_rooms` | le grotte naturali (strato N) |
 | `events` | cosa chiuse ogni epoca |
-| `areas` | dove si trova il dungeon |
-| `main_entrances`, `surface_shaft`, `midpoint_entrances` | i tipi di ingresso |
-| `history` | la storia in cima alla chiave |
+| `areas` | dove si trova il dungeon: `surface` per gli edifici sopra il suolo, `underground` per gli altri |
+| `surface_shaft` | l'ingresso usato quando nessuna parete del livello può ospitarne uno |
+| `history` | le frasi della storia in cima alla chiave |
+
+Ogni tipo in `dungeon_types` ha:
+
+| Campo | Cosa vuol dire |
+|---|---|
+| `id`, `code` | il nome interno e la lettera usata nel seme |
+| `menu`, `name` | il nome nella domanda sul tipo e il nome breve sulla mappa |
+| `surface` | `true` se sta sopra il suolo (torre, castello…) |
+| `below` | **i tipi che possono stargli direttamente sotto**: è questo che tiene coerenti i livelli |
+| `eras` | quanto è probabile ogni strato nelle sue stanze: grotte naturali, fondatori, seconda epoca, oggi |
+| `pattern` | la sua pianta (una delle 11 piante della tabella in alto) |
+| `loops`, `portal` | quanti corridoi chiudono un anello, quanto è probabile un portale magico |
+| `builders`, `built`, `titles` | chi lo costruì, cosa costruirono, il nome della mappa |
+| `rooms` | le sue stanze |
+| `special` | i nomi delle sue stanze chiave (la sala del trono, l'abside, il chiostro…) |
+| `entrances`, `side_entrances` | gli ingressi principali, e quelli sugli altri livelli |
+| `shaft_entrance` | (facoltativo) il suo ingresso per quando nessuna parete può ospitarne uno |
 
 Ogni testo è scritto nelle due lingue, così:
 
@@ -255,7 +292,7 @@ Ogni testo è scritto nelle due lingue, così:
 {"it": "sala del trono", "en": "throne hall"},
 ```
 
-Puoi cambiare le parole o aggiungere righe nuove copiandone una esistente. `{n}` è il punto in cui il programma mette un nome casuale; in `history`, `{f}`, `{built}`, `{area}`, `{e1}`, `{s}`, `{e2}` e `{p}` sono i fondatori, cosa costruirono, il luogo, il primo evento, la seconda epoca, il secondo evento e gli abitanti di oggi.
+Puoi cambiare le parole o aggiungere righe nuove copiandone una esistente. I costruttori vanno scritti al plurale (*i conti di {n}*, *il barone {n} e i suoi vassalli*), perché la storia dice "{f} costruirono…". `{n}` è il punto in cui il programma mette un nome casuale; in `history`, `{f}`, `{built}`, `{area}`, `{e1}`, `{s}`, `{e2}` e `{p}` sono i fondatori, cosa costruirono, il luogo, il primo evento, la seconda epoca, il secondo evento e gli abitanti di oggi.
 
 Fai una **copia** del file prima di modificarlo. Lascia le virgolette `"`, le virgole tra le righe e le parentesi esattamente come sono: se qualcosa è fuori posto, il programma ti dice quale riga controllare (vedi il capitolo 9). Cambiare il file cambia i dungeon: lo stesso seme può dare una storia diversa da prima.
 
@@ -267,7 +304,8 @@ Invece di rispondere alle domande, puoi scrivere tutto su una riga. Quello che n
 
 ```
 python wyrmdelve.py --livelli 3 --stanze 24 --ingressi 2 --segreti 5
-python wyrmdelve.py --seme 3-24-2-5-K7Q2MB --formato A3 --pdf
+python wyrmdelve.py --seme 3-24-2-5-CDK-K7Q2MB --formato A3 --pdf
+python wyrmdelve.py --tipo 3,4,11 --stanze 24
 python wyrmdelve.py --per-livello --pdf --titolo "La Tana dell'Orco"
 ```
 
@@ -280,7 +318,8 @@ Ogni opzione ha anche un nome inglese (dopo la barra `/`), e puoi mescolarli com
 | `--stanze` / `--rooms` | Numero di stanze, da 3 a 200 (almeno 2 per livello) | `--stanze 24` |
 | `--ingressi` / `--entrances` | Ingressi/uscite dall'area, da 1 a 9 | `--ingressi 2` |
 | `--segreti` / `--secrets` | Porte e passaggi segreti, da 0 a 60 | `--segreti 5` |
-| `--seme` / `--seed` | Rifà il dungeon di quel seme | `--seme 3-24-2-5-K7Q2MB` |
+| `--tipo` / `--type` | Tipo di dungeon, da 1 a 11 come nella tabella in alto: un numero per tutti i livelli, oppure uno per livello dall'alto, separati da virgole (i livelli devono stare in un ordine coerente) | `--tipo 4` o `--tipo 3,4,11` |
+| `--seme` / `--seed` | Rifà il dungeon di quel seme | `--seme 3-24-2-5-CDK-K7Q2MB` |
 | `--colori` / `--colors` | 1 nero su bianco, 2 bianco su celeste, 3 bianco su nero | `--colori 2` |
 | `--formato` / `--format` | Foglio: `A4`, `A3`, `A2` o `A1`; senza, il programma lo chiede | `--formato A2` |
 | `--per-livello` / `--per-level` | Un livello per foglio | `--per-livello` |
@@ -341,7 +380,10 @@ Il file con le parole dei dungeon non è nella cartella. Mettilo accanto a `wyrm
 Dopo che hai modificato il file, qualcosa è fuori posto: il messaggio dice a che riga e colonna (`line 12 column 5`). Di solito è una virgola mancante tra due righe, una virgola in più dopo l'ultima riga di un elenco, o delle virgolette `"` mancanti. Correggi, oppure rimetti la copia che avevi fatto prima di modificarlo.
 
 **"Questo seme non è valido".**
-Uno dei caratteri del seme è sbagliato o manca. Confrontalo con il nome della cartella del dungeon o con la riga sotto il titolo della mappa. Deve avere cinque parti separate da trattini, come `3-24-2-5-K7Q2MB`.
+Uno dei caratteri del seme è sbagliato o manca. Confrontalo con il nome della cartella del dungeon o con la riga sotto il titolo della mappa. Deve avere sei parti separate da trattini, come `3-24-2-5-CDK-K7Q2MB` (cinque per i semi delle versioni precedenti).
+
+**"Il livello 1 (Castello) non può stare sopra il livello 2 (Torre)".**
+I tipi che hai indicato con `--tipo` non si impilano in modo coerente. Cambia l'ordine o scegli altri tipi: quelli più alti vanno per primi (una torre sopra un castello, un castello sopra una cripta, l'Underdark per ultimo).
 
 **Il programma dice "Caratteri molto piccoli".**
 Il dungeon è troppo grande per il formato scelto: la mappa si stampa, ma si legge a fatica. Scegli un formato più grande (quello consigliato), oppure metti un livello per foglio.
