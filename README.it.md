@@ -76,6 +76,7 @@ Metti questi file nella **stessa cartella**, per esempio una cartella `dungeon` 
 
 - `wyrmdelve.py` (il programma)
 - `wyrmdelve_tables.json` (le parole di cui sono fatti i dungeon: nomi, stanze, storia; vedi il capitolo 7)
+- la cartella `fonts` (i font delle mappe e del PDF della storia: il programma usa solo questi, così non dipende dal tuo sistema)
 - `requirements.txt` (l'elenco di quello che serve al programma)
 - `README.md` (la stessa guida in inglese) e `README.it.md` (questa guida)
 
@@ -138,7 +139,7 @@ Da questo momento la riga in cui scrivi comincia con `(.venv)`: è così che cap
 
 ### Passo 5 — Installa le librerie
 
-Con l'ambiente virtuale attivo, scarica **Pillow**, la libreria che crea le immagini. Il comando è uguale su tutti i sistemi:
+Con l'ambiente virtuale attivo, scarica **Pillow**, la libreria che crea le immagini, e **fpdf2**, quella che scrive il PDF della storia. Il comando è uguale su tutti i sistemi:
 
 ```
 pip install -r requirements.txt
@@ -178,6 +179,7 @@ Il programma ti fa alcune domande. **Ogni domanda ha una risposta già pronta tr
    2. simboli bianchi su sfondo celeste
    3. simboli bianchi su sfondo nero
 5. **Vuoi un nome per la mappa?** Se no, la mappa esce senza titolo. Se sì, scegli se **generarlo a caso** (es. *Tomba di Zordur*, la risposta già pronta) o **scriverlo tu**.
+6. **Vuoi anche la storia del dungeon?** `1` = mappe e storia (la risposta già pronta: la chiave in `.txt` e in PDF), `2` = solo le mappe. Il programma lo chiede ogni volta, anche per un dungeon tutto casuale.
 
 A questo punto il programma costruisce il dungeon. Mostra ogni passaggio con una barra che si riempie:
 
@@ -187,13 +189,13 @@ A questo punto il programma costruisce il dungeon. Mostra ogni passaggio con una
 
 Poi fa le ultime tre domande:
 
-6. **Come impaginare i livelli:**
+7. **Come impaginare i livelli:**
    1. tutti i livelli in **un solo foglio** (la risposta già pronta)
    2. **un livello per foglio**, su file separati
 
    Con un solo livello questa domanda non compare.
-7. **Che file vuoi:** un'immagine **PNG** (una per foglio) oppure un **PDF** (con un livello per foglio, un solo PDF con tutti i fogli: comodo per stampare tutto in una volta).
-8. **Formato di stampa:** il programma mostra una tabella con **A4, A3, A2 e A1**: per ognuno, quanto saranno grandi i caratteri e se si leggono bene. La risposta già pronta tra parentesi è il **formato consigliato**, il foglio più piccolo su cui la mappa si legge bene. Premi Invio per accettarlo o scrivi un altro formato, per esempio `A3`. Ad esempio:
+8. **Che file vuoi:** un'immagine **PNG** (una per foglio) oppure un **PDF** (con un livello per foglio, un solo PDF con tutti i fogli: comodo per stampare tutto in una volta).
+9. **Formato di stampa:** il programma mostra una tabella con **A4, A3, A2 e A1**: per ognuno, quanto saranno grandi i caratteri e se si leggono bene. La risposta già pronta tra parentesi è il **formato consigliato**, il foglio più piccolo su cui la mappa si legge bene. Premi Invio per accettarlo o scrivi un altro formato, per esempio `A3`. Ad esempio:
 
    ```
    · A4  orizzontale  livelli 2x2   caratteri da 1.29 mm   piccolo
@@ -225,7 +227,12 @@ Tutto va in `dungeons_generated/<seme>/`, una cartella per ogni dungeon:
 | `<seme>_gm.png` | la **mappa del master**: numeri delle stanze, porte `S` e passaggi `░` segreti |
 | `<seme>_players.png` | la **mappa dei giocatori**: la stessa mappa senza numeri e senza segreti |
 | `<seme>_key.txt` | la **chiave del dungeon**: storia, strati, ingressi, collegamenti tra livelli, cosa c'è in ogni stanza, verifica dei principi di Jaquays |
+| `<seme>_story.pdf` | la **storia**: la stessa chiave come un libro su pagine A4, con i titoli in gotico e il testo in Crimson Text, pronta da stampare o da leggere sul tablet |
 | `.txt` accanto a ogni mappa | la stessa mappa come testo semplice, da aprire con qualsiasi editor di testo |
+
+Se scegli **solo le mappe**, la chiave e il PDF della storia non vengono creati.
+
+I titoli della storia usano **Sebaldus-Gotisch** se metti il file `Sebaldus-Gotisch.ttf` nella cartella `fonts` (non è incluso: vedi `fonts/README.md`); altrimenti usano UnifrakturMaguntia, un gotico simile che viene con il programma.
 
 Con **un livello per foglio** i nomi dei PNG contengono il livello: `<seme>_gm_L1.png`, `<seme>_gm_L2a.png`… Tutti i fogli usano caratteri della stessa grandezza, così i livelli restano in scala. Con il **PDF** ottieni invece `<seme>_gm.pdf` e `<seme>_players.pdf` (una pagina per foglio, 600 dpi, senza perdita di qualità), ognuno con il suo `.txt`.
 
@@ -328,6 +335,7 @@ Ogni opzione ha anche un nome inglese (dopo la barra `/`), e puoi mescolarli com
 | `--pdf` / `--png` | Salva in PDF o in PNG | `--pdf` |
 | `--titolo` / `--title` | Nome sulla mappa (default: uno casuale) | `--titolo "La Tana dell'Orco"` |
 | `--senza-titolo` / `--no-title` | Mappa senza nome | `--senza-titolo` |
+| `--senza-storia` / `--no-story` | Solo le mappe: niente chiave né PDF della storia | `--senza-storia` |
 | `--solo-ascii` / `--ascii-only` | Solo i caratteri della tastiera (`# ~ = o`) | `--solo-ascii` |
 | `--font` | Un file di font a tua scelta (tutte le lettere devono avere la stessa larghezza) | `--font consola.ttf` |
 | `--uscita` / `--output` | Cartella in cui salvare al posto di `dungeons_generated` | `--uscita mie_mappe` |
@@ -393,7 +401,10 @@ Il dungeon è troppo grande per il formato scelto: la mappa si stampa, ma si leg
 Il font installato sul tuo computer non ha quei simboli. Il programma li sostituisce da solo e te lo dice. Puoi scegliere un altro font con `--font`, per esempio `--font DejaVuSansMono.ttf`, se è installato.
 
 **"Nessun font monospazio trovato".**
-Il programma cerca un font con tutte le lettere larghe uguali (Consolas su Windows, Menlo su macOS, DejaVu Sans Mono su Linux). Se non ce n'è nessuno, installa DejaVu Sans Mono (gratuito) e indicalo con `--font DejaVuSansMono.ttf`.
+La cartella `fonts` non è accanto a `wyrmdelve.py`. Rimettila al suo posto (viene con il programma): le mappe usano il DejaVu Sans Mono che c'è dentro. In alternativa puoi indicare un altro font con tutte le lettere larghe uguali con `--font`, per esempio `--font consola.ttf`.
+
+**"Manca la libreria fpdf2, quindi niente PDF della storia".**
+Le mappe e la chiave `.txt` vengono create, il PDF della storia no. Con l'ambiente virtuale attivo, ripeti `pip install -r requirements.txt` (passo 5).
 
 **La mappa stampata è più piccola del foglio, o non è centrata.**
 Nelle opzioni di stampa scegli "Dimensioni effettive" o "100%", non "Adatta alla pagina".
@@ -414,4 +425,4 @@ Premi **Ctrl+C**. Non si rompe niente: basta riavviarlo.
 
 ## Licenza
 
-WyrmDelve è software libero con licenza [GNU General Public License v3.0](LICENSE). Le parti di `wyrmdelve_tables.json` adattate da Ironsworn mantengono la loro attribuzione CC BY 4.0 (vedi Fonti qui sopra).
+WyrmDelve è software libero con licenza [GNU General Public License v3.0](LICENSE). Le parti di `wyrmdelve_tables.json` adattate da Ironsworn mantengono la loro attribuzione CC BY 4.0 (vedi Fonti qui sopra). I font della cartella `fonts/` mantengono le loro licenze libere (SIL Open Font License per Crimson Text e UnifrakturMaguntia, la licenza DejaVu per DejaVu): vedi `fonts/README.md`.

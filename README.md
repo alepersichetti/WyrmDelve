@@ -76,6 +76,7 @@ Put these files in the **same folder**, for example a folder called `dungeons` o
 
 - `wyrmdelve.py` (the program)
 - `wyrmdelve_tables.json` (the words the dungeons are made of: names, rooms, history; see chapter 7)
+- the `fonts` folder (the fonts of the maps and of the story PDF: the program uses only these, so it doesn't depend on your system)
 - `requirements.txt` (the list of what the program needs)
 - `README.md` (this guide) and `README.it.md` (the same guide in Italian)
 
@@ -138,7 +139,7 @@ From now on, the line where you type starts with `(.venv)`: that's how you know 
 
 ### Step 5 — Install the libraries
 
-With the virtual environment active, download **Pillow**, the library that creates the pictures. The command is the same on every system:
+With the virtual environment active, download **Pillow**, the library that creates the pictures, and **fpdf2**, the one that writes the story PDF. The command is the same on every system:
 
 ```
 pip install -r requirements.txt
@@ -178,6 +179,7 @@ The program asks you a few questions. **Every question has a ready-made answer i
    2. white symbols on light blue
    3. white symbols on black
 5. **Do you want a name on the map?** If not, the map has no title. If so, choose whether it's **randomly generated** (e.g. *Tomb of Zordur*, the ready-made answer) or whether **you type it**.
+6. **Do you also want the dungeon's story?** `1` = maps and story (the ready-made answer: the key as `.txt` and as a PDF), `2` = only the maps. The program asks this every time, also for a fully random dungeon.
 
 Now the program builds the dungeon. It shows each step with a bar that fills up:
 
@@ -187,13 +189,13 @@ Now the program builds the dungeon. It shows each step with a bar that fills up:
 
 Then it asks the last three questions:
 
-6. **How to lay out the levels:**
+7. **How to lay out the levels:**
    1. all levels on **one sheet** (the ready-made answer)
    2. **one level per sheet**, in separate files
 
    With a single level this question is skipped.
-7. **Which files you want:** a **PNG** image (one per sheet) or a **PDF** (with one level per sheet, a single PDF holding every sheet: handy for printing everything at once).
-8. **Print format:** the program shows a table with **A4, A3, A2 and A1**: for each, how big the letters will be and whether they're easy to read. The ready-made answer in brackets is the **suggested format**, the smallest sheet where the map reads well. Press Enter to accept it or type another format, for example `A3`. For example:
+8. **Which files you want:** a **PNG** image (one per sheet) or a **PDF** (with one level per sheet, a single PDF holding every sheet: handy for printing everything at once).
+9. **Print format:** the program shows a table with **A4, A3, A2 and A1**: for each, how big the letters will be and whether they're easy to read. The ready-made answer in brackets is the **suggested format**, the smallest sheet where the map reads well. Press Enter to accept it or type another format, for example `A3`. For example:
 
    ```
    · A4  landscape  levels 2x2   1.29 mm letters   small
@@ -225,7 +227,12 @@ Everything goes in `dungeons_generated/<seed>/`, one folder per dungeon:
 | `<seed>_gm.png` | the **game master's map**: room numbers, secret doors `S` and secret passages `░` |
 | `<seed>_players.png` | the **players' map**: same map, without numbers and secrets |
 | `<seed>_key.txt` | the **dungeon key**: history, strata, entrances, level connections, what's in each room, Jaquays check |
+| `<seed>_story.pdf` | the **story**: the same key as a book on A4 pages, with blackletter headings and the text in Crimson Text, ready to print or read on a tablet |
 | `.txt` next to each map | the same map as plain text, to open with any text editor |
+
+If you choose **only the maps**, the key and the story PDF are not made.
+
+The headings of the story use **Sebaldus-Gotisch** if you put the file `Sebaldus-Gotisch.ttf` in the `fonts` folder (it isn't included: see `fonts/README.md`); otherwise they use UnifrakturMaguntia, a similar blackletter that comes with the program.
 
 With **one level per sheet** the PNG names get the level: `<seed>_gm_L1.png`, `<seed>_gm_L2a.png`… All sheets use the same letter size, so the levels keep the same scale. With **PDF** you get `<seed>_gm.pdf` and `<seed>_players.pdf` instead (one page per sheet, 600 dpi, no loss of quality), each with its `.txt`.
 
@@ -328,6 +335,7 @@ Without `--language en` the messages and the texts on the map are in Italian. Ev
 | `--pdf` / `--png` | Save as PDF or as PNG | `--pdf` |
 | `--title` / `--titolo` | Name on the map (default: a random one) | `--title "The Ogre's Lair"` |
 | `--no-title` / `--senza-titolo` | Map without a name | `--no-title` |
+| `--no-story` / `--senza-storia` | Only the maps: no key and no story PDF | `--no-story` |
 | `--ascii-only` / `--solo-ascii` | Only plain keyboard characters (`# ~ = o`) | `--ascii-only` |
 | `--font` | A font file of your choice (all its letters must be the same width) | `--font consola.ttf` |
 | `--output` / `--uscita` | Folder to save in instead of `dungeons_generated` | `--output my_maps` |
@@ -393,7 +401,10 @@ The dungeon is too big for the format you chose: the map will print, but it'll b
 The font installed on your computer doesn't have those symbols. The program swaps them by itself and tells you. You can pick another font with `--font`, for example `--font DejaVuSansMono.ttf`, if it's installed.
 
 **"No monospaced font found".**
-The program looks for a font whose letters are all the same width (Consolas on Windows, Menlo on macOS, DejaVu Sans Mono on Linux). If none is there, install DejaVu Sans Mono (free) and give it with `--font DejaVuSansMono.ttf`.
+The `fonts` folder isn't next to `wyrmdelve.py`. Put it back (it comes with the program): the maps use the DejaVu Sans Mono inside it. As a last resort you can give another font whose letters are all the same width with `--font`, for example `--font consola.ttf`.
+
+**"The fpdf2 library is missing, so no story PDF".**
+The maps and the `.txt` key are made, but not the story PDF. With the virtual environment active, run `pip install -r requirements.txt` again (step 5).
 
 **The printed map is smaller than the sheet, or off-center.**
 In the print options choose "Actual size" or "100%", not "Fit to page".
@@ -414,4 +425,4 @@ Press **Ctrl+C**. Nothing breaks: just start it again.
 
 ## License
 
-WyrmDelve is free software under the [GNU General Public License v3.0](LICENSE). The parts of `wyrmdelve_tables.json` adapted from Ironsworn keep their CC BY 4.0 attribution (see Sources above).
+WyrmDelve is free software under the [GNU General Public License v3.0](LICENSE). The parts of `wyrmdelve_tables.json` adapted from Ironsworn keep their CC BY 4.0 attribution (see Sources above). The fonts in `fonts/` keep their own free licenses (SIL Open Font License for Crimson Text and UnifrakturMaguntia, the DejaVu license for DejaVu): see `fonts/README.md`.
