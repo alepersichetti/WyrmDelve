@@ -1,0 +1,2577 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+WyrmDelve v0.0.1 - random dungeons and labyrinths for OSR games, all in ASCII.
+
+WyrmHex's sibling. It looks like an old roguelike (NetHack, Angband, ADOM,
+Brogue, Caves of Qud, Dwarf Fortress). Every dungeon has a layered history
+(natural caves, the founders, later occupants, today's inhabitants) that
+shows in its walls: ═║ founders, ─│ second age, # caves and crude tunnels.
+Rooms are numbered level-room: 1-01, 2-07, and 1a-01 on a sub-level.
+
+The layout always follows Jennell Jaquays' principles as described by Justin
+Alexander ("Xandering the Dungeon"): multiple entrances, loops, multiple and
+discontinuous level connections, secret and unusual paths, sub-levels,
+divided levels, minor elevation shifts, midpoint entries, nested complexes.
+
+Prints on A4, A3, A2 or A1 at 600 dpi; the best paper is suggested. Three
+colour schemes: black on white, white on light blue, white on black.
+
+Output goes to dungeons_generated/<seed>/ next to this file (or --output):
+  <seed>_gm.png/.txt        game master map: room numbers and secrets
+  <seed>_players.png/.txt   same map without numbers and secrets
+  <seed>_key.txt            history, room key, level connections, Jaquays check
+
+The seed (e.g. 3-24-2-5-K7Q2MB = levels-rooms-entrances-secrets-code) holds
+the whole dungeon: the same seed always gives the same dungeon.
+
+Usage. Every option has an Italian and an English name, use whichever:
+  python wyrmdelve.py                                interactive
+  python wyrmdelve.py --livelli 3 --stanze 24       / --levels 3 --rooms 24
+  python wyrmdelve.py --ingressi 3 --segreti 6      / --entrances 3 --secrets 6
+  python wyrmdelve.py --colori 2                    / --colors 2
+      (1 black on white, 2 white on light blue, 3 white on black)
+  python wyrmdelve.py --seme 3-24-2-5-K7Q2MB        / --seed 3-24-2-5-K7Q2MB
+  python wyrmdelve.py --formato A2                  / --format A2
+  python wyrmdelve.py --titolo "La Tana dell'Orco"  / --title "The Ogre's Lair"
+  python wyrmdelve.py --solo-ascii                  / --ascii-only
+  python wyrmdelve.py --lingua en                   / --language en  (default: Italian)
+  python wyrmdelve.py --help
+Parameters you leave out are chosen at random.
+
+Code and comments are in English, the UI is Italian or English.
+"""
+
+import argparse
+import heapq
+import json
+import math
+import os
+import random
+import sys
+import time
+from collections import Counter, deque
+
+try:
+    from PIL import Image, ImageDraw, ImageFont
+    from PIL.PngImagePlugin import PngInfo
+except ImportError:
+    sys.exit("Manca la libreria Pillow. Installala con:  pip install -r requirements.txt\n"
+             "Pillow is missing. Install it with:   pip install -r requirements.txt")
+
+# A1 at 600 dpi is ~279 Mpx, way over Pillow's decompression bomb limit.
+# They're our own maps, so just turn the check off.
+Image.MAX_IMAGE_PIXELS = None
+
+
+# --- settings ---
+
+VERSION = "0.0.1"
+DPI = 600
+MARGIN_MM = 10.0
+MAX_CHAR_MM = 3.2           # cap on A4; bigger sheets scale it up
+GOOD_CHAR_MM = 1.3          # readable
+SMALL_CHAR_MM = 1.1         # too small below this
+PAPERS = {"A4": (210, 297), "A3": (297, 420), "A2": (420, 594), "A1": (594, 841)}
+SETTINGS_KEY = "wyrmdelve-settings"
+
+# (ink, paper) in RGB. Change the light blue here if your printer wants another shade.
+COLOR_SCHEMES = {
+    1: ((0, 0, 0), (255, 255, 255)),          # black symbols on white
+    2: ((255, 255, 255), (72, 156, 214)),     # white symbols on light blue
+    3: ((255, 255, 255), (0, 0, 0)),          # white symbols on black
+}
+
+LIMITS = {"levels": (1, 10), "rooms": (3, 200), "entrances": (1, 9), "secrets": (0, 60)}
+DEFAULTS = {"levels": 3, "rooms": 20, "entrances": 2, "secrets": 4}
+
+# Each level is a grid of slots; a slot holds at most one room. Letters are
+# about twice as tall as wide, so 24 x 11 letters is roughly square on paper.
+SLOT_W, SLOT_H = 24, 11
+ASPECT_GUESS = 2.0          # used while generating, so the dungeon never depends on the font
+PANEL_MX = 4                # letters left and right of a level, room for the [A] entrance tags
+GAP_X, GAP_Y = 3, 1         # between level panels on the page
+
+MONO_FONTS = [
+    ("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",
+     "/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf"),
+    (("/System/Library/Fonts/Menlo.ttc", 0), ("/System/Library/Fonts/Menlo.ttc", 1)),   # macOS
+    ("/System/Library/Fonts/Supplemental/Courier New.ttf",                    # macOS
+     "/System/Library/Fonts/Supplemental/Courier New Bold.ttf"),
+    ("C:/Windows/Fonts/consola.ttf", "C:/Windows/Fonts/consolab.ttf"),       # Windows
+    ("/usr/share/fonts/truetype/liberation/LiberationMono-Regular.ttf",
+     "/usr/share/fonts/truetype/liberation/LiberationMono-Bold.ttf"),
+]
+
+
+def mm(value):
+    return value / 25.4 * DPI
+
+
+# --- language ---
+# Everything the user reads is (it, en). LANG is set once at startup,
+# from the first question or from --lingua/--language.
+LANGUAGES = ("it", "en")
+LANG = "it"
+
+TEXTS = {
+    # console: general
+    "done": ("Completato in {s:.1f} s.", "Done in {s:.1f} s."),
+    "interrupted": ("\n\nInterrotto.", "\n\nStopped."),
+    "invalid_value": ("    Valore non valido, riprova.", "    Invalid value, try again."),
+    "value_range": ("    Il valore deve essere tra {lo} e {hi}.", "    The value must be between {lo} and {hi}."),
+    # welcome
+    "welcome_subtitle": ("generatore di dungeon e labirinti per campagne OSR",
+                         "dungeon and labyrinth generator for OSR campaigns"),
+    "press_enter": ("  INVIO = dungeon casuale   ·   P = scelgo io i parametri   ·   R = rifaccio un dungeon dal seme: ",
+                    "  ENTER = random dungeon   ·   P = I'll choose the parameters   ·   R = rebuild a dungeon from its seed: "),
+    "letter_params": ("p", "p"),
+    "letter_rebuild": ("r", "r"),
+    "orc_says": ("L'orco apre la porta del dungeon...", "The ogre opens the dungeon door..."),
+    "enter_accepts": ("  Premi Invio per accettare il valore tra parentesi\n",
+                      "  Press Enter to accept the value in brackets\n"),
+    "q_levels": ("Numero di livelli del dungeon", "Number of dungeon levels"),
+    "q_rooms": ("Numero di stanze (almeno 2 per livello)", "Number of rooms (at least 2 per level)"),
+    "q_entrances": ("Numero di ingressi/uscite dall'area", "Number of entrances/exits to the area"),
+    "q_secrets": ("Numero di porte e passaggi segreti", "Number of secret doors and passages"),
+    "ask_seed": ("  Seme del dungeon da rifare (è anche il nome della sua cartella, es. {example}): ",
+                 "  Seed of the dungeon to rebuild (it is also the name of its folder, e.g. {example}): "),
+    "seed_invalid": ("    Questo seme non è valido: controlla di averlo scritto bene (es. {example}).",
+                     "    This seed is not valid: check that you typed it correctly (e.g. {example})."),
+    "colors_intro": ("\n  Combinazione di colori:", "\n  Colour scheme:"),
+    "color_1": ("    1 = simboli neri su sfondo bianco", "    1 = black symbols on white"),
+    "color_2": ("    2 = simboli bianchi su sfondo celeste", "    2 = white symbols on light blue"),
+    "color_3": ("    3 = simboli bianchi su sfondo nero", "    3 = white symbols on black"),
+    "choice": ("Scelta", "Choice"),
+    # parameter names and checks
+    "name_levels": ("livelli", "levels"),
+    "name_rooms": ("stanze", "rooms"),
+    "name_entrances": ("ingressi", "entrances"),
+    "name_secrets": ("segreti", "secrets"),
+    "err_range": ("Il numero di {what} deve essere tra {lo} e {hi}.", "The number of {what} must be between {lo} and {hi}."),
+    "err_rooms_levels": ("Con {l} livelli servono almeno {n} stanze (2 per livello).",
+                         "{l} levels need at least {n} rooms (2 per level)."),
+    "err_entrances": ("Gli ingressi non possono essere più delle stanze.",
+                      "There can't be more entrances than rooms."),
+    "err_seed": ("Seme non valido: {s}", "Invalid seed: {s}"),
+    "err_no_font": ("Nessun font monospazio trovato. Indica un file .ttf con --font (es. DejaVuSansMono.ttf).",
+                    "No monospaced font found. Give a .ttf file with --font (e.g. DejaVuSansMono.ttf)."),
+    "err_size": ("{path}: {size} non è un foglio A4, A3, A2 o A1 a 600 dpi",
+                 "{path}: {size} is not an A4, A3, A2 or A1 sheet at 600 dpi"),
+    "err_build": ("Non riesco a costruire un dungeon con questi parametri, prova con un altro seme.",
+                  "Cannot build a dungeon with these settings, try another seed."),
+    # steps
+    "step_settings": ("Impostazioni", "Settings"),
+    "info_seed": ("Seme: {s}", "Seed: {s}"),
+    "info_params": ("{l} livelli, {r} stanze, {e} ingressi, {x} porte/passaggi segreti",
+                    "{l} levels, {r} rooms, {e} entrances, {x} secret doors/passages"),
+    "info_random": ("Parametri scelti a caso", "Parameters chosen at random"),
+    "info_colors": ("Colori: {c}", "Colours: {c}"),
+    "info_folder": ("Cartella: {folder}", "Folder: {folder}"),
+    "info_font": ("Font: {name}{fake}, cella {a:.2f} volte più alta che larga",
+                  "Font: {name}{fake}, letter cell {a:.2f} times taller than wide"),
+    "fake_bold": (" (grassetto simulato)", " (fake bold)"),
+    "step_story": ("Storia a strati", "Layered history"),
+    "info_title": ("«{t}»", "“{t}”"),
+    "step_rooms": ("Stanze e strati", "Rooms and strata"),
+    "info_level_rooms": ("Livello {n}: {r} stanze{extra}", "Level {n}: {r} rooms{extra}"),
+    "info_divided": (" (diviso in due)", " (divided in two)"),
+    "info_sub": (" (sottolivello)", " (sub-level)"),
+    "step_corridors": ("Corridoi e anelli", "Corridors and loops"),
+    "info_corridors": ("{c} corridoi, di cui {l} chiudono un anello", "{c} corridors, {l} of them close a loop"),
+    "step_links": ("Collegamenti tra livelli e ingressi", "Level connections and entrances"),
+    "info_links": ("{s} scale, {p} pozzi, {g} portali; {e} ingressi", "{s} stairs, {p} shafts, {g} portals; {e} entrances"),
+    "step_secrets": ("Passaggi segreti e insoliti", "Secret and unusual paths"),
+    "info_secrets": ("{d} porte segrete, {p} passaggi segreti, {h} scale/pozzi nascosti, {w} allagati, {r} crolli, "
+                     "{s} dislivelli",
+                     "{d} secret doors, {p} secret passages, {h} hidden stairs/shafts, {w} flooded, {r} cave-ins, "
+                     "{s} elevation shifts"),
+    "warn_secrets": ("Solo {n} segreti possibili su {want} richiesti: mancano corridoi adatti.",
+                     "Only {n} secrets possible out of {want}: not enough suitable corridors."),
+    "step_check": ("Verifica dei principi di Jaquays", "Checking Jaquays' principles"),
+    "info_reach": ("Tutte le {n} stanze sono raggiungibili", "All {n} rooms can be reached"),
+    "info_retry": ("Tentativo {n} non riuscito, ricostruisco", "Attempt {n} failed, building again"),
+    "step_paper": ("Formato di stampa", "Print format"),
+    "info_paper_intro": ("Il dungeon occupa {nc} x {nr} caratteri. Formati possibili:",
+                         "The dungeon takes {nc} x {nr} letters. Possible formats:"),
+    "info_paper_option": ("{paper}  {o:<11}  livelli {pc}x{pr}   caratteri da {mm:.2f} mm   {v}{note}",
+                          "{paper}  {o:<9}  levels {pc}x{pr}   {mm:.2f} mm letters   {v}{note}"),
+    "v_good": ("leggibile", "readable"),
+    "v_small": ("piccolo", "small"),
+    "v_too_small": ("troppo piccolo", "too small"),
+    "suggested": ("   <- consigliato", "   <- suggested"),
+    "paper_choice": ("  Scegli il formato (premi Invio per quello consigliato).",
+                     "  Choose the format (press Enter for the suggested one)."),
+    "q_paper": ("  Formato di stampa (A4, A3, A2, A1) [{default}]: ", "  Print format (A4, A3, A2, A1) [{default}]: "),
+    "paper_retry": ("    Scrivi A4, A3, A2 oppure A1.", "    Type A4, A3, A2 or A1."),
+    "info_sheet": ("Foglio {paper} {o} ({w} x {h} px a {dpi} dpi), caratteri da {mm:.2f} mm",
+                   "{paper} sheet, {o} ({w} x {h} px at {dpi} dpi), {mm:.2f} mm letters"),
+    "warn_tiny": ("Caratteri molto piccoli: scegli un formato più grande se puoi.",
+                  "Very small letters: choose a bigger format if you can."),
+    "step_gm": ("Mappa del master ({paper}, {dpi} dpi, PNG + TXT)", "Game master map ({paper}, {dpi} dpi, PNG + TXT)"),
+    "step_players": ("Mappa dei giocatori e chiave del dungeon", "Players' map and dungeon key"),
+    "saved": ("Salvate: {a}  +  {b}", "Saved: {a}  +  {b}"),
+    "saved_key": ("Chiave: {a}", "Key: {a}"),
+    "warn_missing_glyphs": ("Il font non ha questi glifi, sostituiti con ASCII: {g}",
+                            "The font lacks these symbols, replaced with ASCII: {g}"),
+    "pb_drawing": ("disegno", "drawing"),
+    "pb_saving": ("salvataggio", "saving"),
+    "pb_done": ("fatto", "done"),
+    "orientation_portrait": ("verticale", "portrait"),
+    "orientation_landscape": ("orizzontale", "landscape"),
+    "color_name_1": ("nero su bianco", "black on white"),
+    "color_name_2": ("bianco su celeste", "white on light blue"),
+    "color_name_3": ("bianco su nero", "white on black"),
+    # page
+    "level_header": ("LIVELLO {n}", "LEVEL {n}"),
+    "sub_header": ("SOTTOLIVELLO {n}", "SUB-LEVEL {n}"),
+    "divided_header": (" · diviso", " · divided"),
+    "subtitle": ("Seme {seed} · {l} livelli · {r} stanze · {e} ingressi",
+                 "Seed {seed} · {l} levels · {r} rooms · {e} entrances"),
+    "subtitle_one": ("Seme {seed} · 1 livello · {r} stanze · {e} ingressi",
+                     "Seed {seed} · 1 level · {r} rooms · {e} entrances"),
+    "players_title": ("{t} — mappa dei giocatori", "{t} — players' map"),
+    # legend
+    "lg_floor": ("pavimento", "floor"),
+    "lg_door": ("porta", "door"),
+    "lg_secret_door": ("porta segreta", "secret door"),
+    "lg_hidden": ("passaggio segreto", "secret passage"),
+    "lg_stairs": ("scale su/giù", "stairs up/down"),
+    "lg_steps": ("gradini (stesso livello)", "steps (same level)"),
+    "lg_shaft": ("pozzo/camino tra livelli", "shaft/chimney between levels"),
+    "lg_portal": ("portale magico", "magic portal"),
+    "lg_water": ("acqua", "water"),
+    "lg_rubble": ("crollo", "cave-in"),
+    "lg_pillar": ("colonna", "pillar"),
+    "lg_entrance": ("ingresso", "entrance"),
+    "lg_room": ("stanza (livello-numero)", "room (level-number)"),
+    "lg_era1": ("mura dei fondatori (I)", "founders' walls (I)"),
+    "lg_era2": ("mura della II epoca", "second-age walls (II)"),
+    "lg_era0": ("grotte e cunicoli (N, III)", "caves and tunnels (N, III)"),
+    # key file
+    "key_seed": ("Seme", "Seed"),
+    "key_history": ("STORIA", "HISTORY"),
+    "key_strata": ("STRATI (dal più antico)", "STRATA (oldest first)"),
+    "key_entrances": ("INGRESSI E USCITE", "ENTRANCES AND EXITS"),
+    "key_links": ("COLLEGAMENTI TRA LIVELLI", "LEVEL CONNECTIONS"),
+    "key_level": ("LIVELLO {n}", "LEVEL {n}"),
+    "key_sublevel": ("SOTTOLIVELLO {n} (tra il livello {a} e il livello {b})",
+                     "SUB-LEVEL {n} (between level {a} and level {b})"),
+    "key_sublevel_one": ("SOTTOLIVELLO {n} (sotto il livello 1)", "SUB-LEVEL {n} (below level 1)"),
+    "key_divided": ("Livello diviso: la parte ovest e la parte est non sono collegate su questo livello; "
+                    "si passa dall'una all'altra solo attraverso altri livelli.",
+                    "Divided level: the west and east parts are not connected on this level; "
+                    "you can only cross through other levels."),
+    "key_exits": ("uscite", "exits"),
+    "key_entrance_line": ("{l}  {kind} (livello {lv}{mid}) → {room}",
+                          "{l}  {kind} (level {lv}{mid}) → {room}"),
+    "key_midpoint": (", ingresso a metà dungeon", ", midpoint entry"),
+    "key_jaquays": ("PRINCIPI DI JAQUAYS (Xandering the Dungeon)", "JAQUAYS' PRINCIPLES (Xandering the Dungeon)"),
+    "ex_door": ("porta", "door"),
+    "ex_open": ("apertura", "opening"),
+    "ex_secret": ("porta segreta", "secret door"),
+    "ex_hidden": ("passaggio segreto", "secret passage"),
+    "ex_water": ("allagato", "flooded"),
+    "ex_rubble": ("crollo", "cave-in"),
+    "ex_steps": ("gradini", "steps"),
+    "ex_down": ("> scale giù", "> stairs down"),
+    "ex_up": ("< scale su", "< stairs up"),
+    "ex_shaft": ("○ pozzo", "○ shaft"),
+    "ex_portal": ("Ω portale", "Ω portal"),
+    "ex_entrance": ("ingresso {l}", "entrance {l}"),
+    "ex_skips": (", salta {n} livelli", ", skips {n} levels"),
+    "ex_skips_one": (", salta un livello", ", skips one level"),
+    "link_stairs": ("scale", "stairs"),
+    "link_shaft": ("pozzo/camino", "shaft/chimney"),
+    "link_portal": ("portale magico", "magic portal"),
+    # Jaquays report
+    "jq_entrances": ("Ingressi multipli: {n}", "Multiple entrances: {n}"),
+    "jq_entrances_one": ("Ingressi multipli: uno solo, come richiesto (gli anelli e i livelli compensano)",
+                         "Multiple entrances: just one, as asked (loops and levels make up for it)"),
+    "jq_midpoint": ("Ingresso a metà dungeon: {n}", "Midpoint entry: {n}"),
+    "jq_loops": ("Anelli (numero ciclomatico del dungeon): {n}", "Loops (cyclomatic number of the dungeon): {n}"),
+    "jq_multi": ("Collegamenti multipli tra livelli: {d}", "Multiple level connections: {d}"),
+    "jq_disc": ("Collegamenti discontinui (saltano livelli): {n}", "Discontinuous level connections (skip levels): {n}"),
+    "jq_secret": ("Percorsi segreti e insoliti: {d} porte segrete, {p} passaggi segreti, {h} scale/pozzi nascosti, "
+                  "{w} allagati, {r} crolli, {g} portali",
+                  "Secret and unusual paths: {d} secret doors, {p} secret passages, {h} hidden stairs/shafts, "
+                  "{w} flooded, {r} cave-ins, {g} portals"),
+    "ex_hidden_link": (" (nascosto)", " (hidden)"),
+    "jq_sub": ("Sottolivelli: {n}", "Sub-levels: {n}"),
+    "jq_divided": ("Livelli divisi: {n}", "Divided levels: {n}"),
+    "jq_shifts": ("Dislivelli interni (gradini nello stesso livello): {n}", "Minor elevation shifts (steps on the same level): {n}"),
+    "jq_nested": ("Dungeon annidati: grotte naturali e complesso costruito collegati in {n} punti",
+                  "Nested dungeons: natural caves and built complex linked at {n} points"),
+    "jq_na": ("{what}: non applicabile ({why})", "{what}: not applicable ({why})"),
+    "jq_why_one": ("un solo livello", "a single level"),
+    "jq_why_two": ("servono almeno 3 livelli", "needs at least 3 levels"),
+    "jq_why_entr": ("serve più di un ingresso", "needs more than one entrance"),
+    "jq_why_small": ("troppe poche stanze per livello", "too few rooms per level"),
+    "jq_why_caves": ("nessuna grotta naturale", "no natural caves"),
+    "jq_t_multi": ("Collegamenti multipli tra livelli", "Multiple level connections"),
+    "jq_t_disc": ("Collegamenti discontinui", "Discontinuous level connections"),
+    "jq_t_mid": ("Ingresso a metà dungeon", "Midpoint entry"),
+    "jq_t_sub": ("Sottolivelli", "Sub-levels"),
+    "jq_t_div": ("Livelli divisi", "Divided levels"),
+    "jq_t_nest": ("Dungeon annidati", "Nested dungeons"),
+    # help
+    "h_description": ("WyrmDelve: genera dungeon casuali per giochi OSR in stile ASCII roguelike, "
+                      "seguendo i principi di Jennell Jaquays. PNG a 600 dpi (A4, A3, A2, A1) + TXT.",
+                      "WyrmDelve: makes random dungeons for OSR games in ASCII roguelike style, "
+                      "following Jennell Jaquays' principles. 600 dpi PNG (A4, A3, A2, A1) + TXT."),
+    "h_epilog": ("Senza opzioni parte la modalità interattiva. I parametri non indicati sono scelti a caso.",
+                 "Without options the interactive mode starts. Parameters you leave out are chosen at random."),
+    "h_levels": ("numero di livelli (1-10)", "number of levels (1-10)"),
+    "h_rooms": ("numero di stanze (3-200, almeno 2 per livello)", "number of rooms (3-200, at least 2 per level)"),
+    "h_entrances": ("ingressi/uscite dall'area (1-9)", "entrances/exits to the area (1-9)"),
+    "h_secrets": ("porte e passaggi segreti (0-60)", "secret doors and passages (0-60)"),
+    "h_colors": ("1 nero su bianco (default), 2 bianco su celeste, 3 bianco su nero",
+                 "1 black on white (default), 2 white on light blue, 3 white on black"),
+    "h_seed": ("seme completo (es. 3-24-2-5-K7Q2MB) per rifare un dungeon", "full seed (e.g. 3-24-2-5-K7Q2MB) to rebuild a dungeon"),
+    "h_format": ("formato di stampa; senza, viene suggerito e chiesto", "print format; without it, it is suggested and asked"),
+    "h_title": ("titolo della mappa (default: il nome del dungeon)", "map title (default: the dungeon's name)"),
+    "h_ascii": ("solo caratteri base della tastiera", "only basic keyboard characters"),
+    "h_font": ("file .ttf monospazio da usare", "monospaced .ttf font file to use"),
+    "h_output": ("cartella in cui salvare (default: dungeons_generated accanto allo script)",
+                 "folder to save into (default: dungeons_generated next to the script)"),
+    "h_language": ("lingua dei testi: it (italiano) o en (inglese)", "language of the texts: it (Italian) or en (English)"),
+}
+
+
+def tr(key, **values):
+    text = TEXTS[key][LANGUAGES.index(LANG)]
+    return text.format(**values) if values else text
+
+
+def pick(pair):
+    return pair[LANGUAGES.index(LANG)]
+
+
+def normalize_language(value):
+    """Map "1", "it", "italiano"... to "it" (same for "en"). None if unknown."""
+    value = (value or "").strip().lower()
+    if value in ("1", "it", "ita", "italiano", "italian"):
+        return "it"
+    if value in ("2", "en", "eng", "english", "inglese"):
+        return "en"
+    return None
+
+
+def ask_language():
+    global LANG
+    print("\n  Lingua / Language:")
+    print("    1 = Italiano")
+    print("    2 = English")
+    while True:
+        choice = normalize_language(input("  Scelta / Choice [1]: ") or "1")
+        if choice:
+            LANG = choice
+            return
+        print("    1 / 2")
+
+
+def language_from_options(argv):
+    """Peek at --lingua/--language before argparse runs, so that --help
+    comes out in the right language too."""
+    global LANG
+    for i, arg in enumerate(argv):
+        for name in ("--lingua", "--language"):
+            if arg == name and i + 1 < len(argv):
+                LANG = normalize_language(argv[i + 1]) or LANG
+            elif arg.startswith(name + "="):
+                LANG = normalize_language(arg.split("=", 1)[1]) or LANG
+
+
+# --- console output ---
+def bar(fraction, cells):
+    full = round(max(0.0, min(1.0, fraction)) * cells)
+    return "[" + "█" * full + "░" * (cells - full) + "]"
+
+
+class LiveBar:
+    """Progress bar that keeps redrawing the same line. Silent when stdout isn't a tty."""
+
+    def __init__(self):
+        self.live = sys.stdout.isatty()
+        self.shown = None
+
+    def update(self, fraction, label):
+        percent = int(fraction * 100)
+        if self.live and (percent, label) != self.shown:
+            self.shown = (percent, label)
+            print(f"\r        {bar(fraction, 30)} {percent:>3}%  {label:<14}", end="", flush=True)
+
+    def finish(self):
+        if self.live:
+            print(f"\r        {bar(1, 30)} 100%  {tr('pb_done'):<14}")
+
+
+class Log:
+
+    def __init__(self, total_steps):
+        self.total_steps, self.step_number, self.start_time = total_steps, 0, time.perf_counter()
+
+    def step(self, message):
+        self.step_number += 1
+        progress = bar(self.step_number / self.total_steps, self.total_steps)
+        print(f"\n{progress} {self.step_number:>2}/{self.total_steps}  {message}")
+
+    def info(self, message):
+        print(f"        · {message}")
+
+    def warn(self, message):
+        print(f"        ! {message}")
+
+    def done(self):
+        print("\n" + tr("done", s=time.perf_counter() - self.start_time))
+
+
+class QuietLog:
+
+    def info(self, message):
+        pass
+
+    def warn(self, message):
+        pass
+
+
+# --- seed ---
+# levels-rooms-entrances-secrets-CODE, CODE = 6 symbols, 30 random bits.
+SEED_SYMBOLS = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"   # no I, L, O, U: too easy to misread
+CODE_LENGTH = 6
+
+
+def new_number():
+    return int.from_bytes(os.urandom(4), "big") % (len(SEED_SYMBOLS) ** CODE_LENGTH)
+
+
+def to_code(number):
+    out = []
+    for _ in range(CODE_LENGTH):
+        number, r = divmod(number, len(SEED_SYMBOLS))
+        out.append(SEED_SYMBOLS[r])
+    return "".join(reversed(out))
+
+
+def from_code(text):
+    text = text.strip().upper().replace("O", "0").replace("I", "1").replace("L", "1")
+    if len(text) != CODE_LENGTH or any(c not in SEED_SYMBOLS for c in text):
+        return None
+    number = 0
+    for c in text:
+        number = number * len(SEED_SYMBOLS) + SEED_SYMBOLS.index(c)
+    return number
+
+
+def make_seed(p):
+    return f"{p['levels']}-{p['rooms']}-{p['entrances']}-{p['secrets']}-{to_code(p['number'])}"
+
+
+def read_seed(text):
+    parts = (text or "").strip().split("-")
+    if len(parts) != 5:
+        return None
+    try:
+        levels, rooms, entrances, hidden = (int(x) for x in parts[:4])
+    except ValueError:
+        return None
+    number = from_code(parts[4])
+    if number is None:
+        return None
+    p = {"levels": levels, "rooms": rooms, "entrances": entrances, "secrets": hidden, "number": number}
+    return None if check_params(p) else p
+
+
+def example_seed():
+    return "3-24-2-5-K7Q2MB"
+
+
+def check_params(p):
+    """Error message, or None if the parameters are fine."""
+    for key, (lo, hi) in LIMITS.items():
+        if not lo <= p[key] <= hi:
+            return tr("err_range", what=tr("name_" + key), lo=lo, hi=hi)
+    if p["rooms"] < 2 * p["levels"]:
+        return tr("err_rooms_levels", n=2 * p["levels"], l=p["levels"])
+    if p["entrances"] > p["rooms"]:
+        return tr("err_entrances")
+    return None
+
+
+def random_params(number, fixed=None):
+    """Random parameters from the seed number; `fixed` ones are kept as they are."""
+    fixed = fixed or {}
+    r = random.Random(f"wyrmdelve-params-{number}")
+    p = {"levels": r.choices([1, 2, 3, 4, 5, 6], weights=[2, 4, 4, 3, 1, 1])[0]}
+    p.update({k: v for k, v in fixed.items() if k == "levels"})
+    p["rooms"] = p["levels"] * r.randint(4, 9) + r.randint(0, 3)
+    p["entrances"] = r.choices([1, 2, 3, 4], weights=[1, 4, 3, 2])[0]
+    p.update(fixed)
+    if "rooms" not in fixed:
+        p["rooms"] = max(3, 2 * p["levels"], min(p["rooms"], LIMITS["rooms"][1]))
+    if "levels" not in fixed and p["rooms"] < 2 * p["levels"]:
+        p["levels"] = max(1, p["rooms"] // 2)
+    if "entrances" not in fixed:
+        p["entrances"] = min(p["entrances"], p["rooms"])
+    if "secrets" not in fixed:
+        p["secrets"] = r.randint(1, max(2, p["rooms"] // 5))
+    p["number"] = number
+    return p
+
+
+# --- story tables: everything is (Italian, English) ---
+NAME_SYLLABLES = ["kha", "zad", "mor", "goth", "ul", "dar", "vex", "ra", "thal", "in", "gor", "mund", "ash",
+                  "kar", "yr", "sel", "bal", "dur", "nek", "ro", "ish", "tar", "vol", "em", "drak", "un", "zor",
+                  "il", "bri", "gan", "sha", "ost", "mel", "keth"]
+
+FOUNDERS = [
+    {"who": ("i nani del clan {n}", "the dwarves of clan {n}"),
+     "built": ("una roccaforte", "a stronghold"),
+     "title": ("Roccaforte di {n}", "{n} Hold"),
+     "rooms": [("sala del trono", "throne hall"), ("forgia", "forge"), ("armeria", "armoury"),
+               ("birrificio", "brewery"), ("caserma", "barracks"), ("tesoreria", "treasury"),
+               ("tomba degli antenati", "ancestors' tomb"), ("granaio", "granary"), ("corpo di guardia", "guardroom"),
+               ("cisterna", "cistern"), ("sala dei banchetti", "feast hall"), ("officina delle rune", "rune workshop"),
+               ("sala delle udienze", "audience chamber"), ("dormitorio", "dormitory")]},
+    {"who": ("i sacerdoti di {n}", "the priests of {n}"),
+     "built": ("un tempio sotterraneo", "an underground temple"),
+     "title": ("Tempio di {n}", "Temple of {n}"),
+     "rooms": [("navata", "nave"), ("sacrestia", "vestry"), ("cripta", "crypt"), ("celle dei monaci", "monks' cells"),
+               ("sala delle abluzioni", "ablution hall"), ("biblioteca", "library"), ("refettorio", "refectory"),
+               ("ossario", "ossuary"), ("santuario", "sanctum"), ("sala delle offerte", "offering hall"),
+               ("scriptorium", "scriptorium"), ("sala delle reliquie", "reliquary"), ("cappella", "chapel")]},
+    {"who": ("gli architetti dell'imperatore {n}", "the architects of Emperor {n}"),
+     "built": ("una tomba monumentale", "a monumental tomb"),
+     "title": ("Tomba di {n}", "Tomb of {n}"),
+     "rooms": [("camera funeraria", "burial chamber"), ("anticamera", "antechamber"),
+               ("galleria delle statue", "statue gallery"), ("sala dei sarcofagi", "sarcophagus hall"),
+               ("sala dei canopi", "canopic chamber"), ("cappella funebre", "funeral chapel"),
+               ("sala dei guardiani", "guardians' hall"), ("camera del tesoro", "treasure chamber"),
+               ("sala delle trappole", "trapped hall"), ("sala degli affreschi", "fresco hall"),
+               ("camera degli imbalsamatori", "embalmers' room")]},
+    {"who": ("il mago {n} e i suoi apprendisti", "the wizard {n} and their apprentices"),
+     "built": ("un sanctum segreto", "a secret sanctum"),
+     "title": ("Sanctum di {n}", "Sanctum of {n}"),
+     "wizard": True,
+     "rooms": [("laboratorio", "laboratory"), ("biblioteca", "library"), ("sala delle evocazioni", "summoning hall"),
+               ("serraglio", "menagerie"), ("distilleria", "distillery"), ("studio", "study"),
+               ("sala degli specchi", "hall of mirrors"), ("cerchio di protezione", "warding circle"),
+               ("deposito di reagenti", "reagent store"), ("alloggi degli apprendisti", "apprentices' quarters"),
+               ("camera del mago", "wizard's bedchamber"), ("serra dei funghi", "fungus garden")]},
+    {"who": ("i legionari di {n}", "the legionaries of {n}"),
+     "built": ("una fortezza sotterranea", "an underground fortress"),
+     "title": ("Fortezza di {n}", "Fortress of {n}"),
+     "rooms": [("caserma", "barracks"), ("armeria", "armoury"), ("prigioni", "cells"), ("corpo di guardia", "guardroom"),
+               ("magazzino", "storeroom"), ("mensa", "mess hall"), ("alloggio del comandante", "commander's quarters"),
+               ("sala di tortura", "torture chamber"), ("cisterna", "cistern"), ("sala d'armi", "training hall"),
+               ("scuderia", "stables"), ("cappella della guarnigione", "garrison chapel")]},
+]
+
+SECOND = [
+    {"who": ("i cultisti di {n}", "the cultists of {n}"),
+     "rooms": [("altare blasfemo", "blasphemous altar"), ("sala dei rituali", "ritual hall"),
+               ("dormitorio dei cultisti", "cultists' dormitory"), ("celle dei prigionieri", "prisoners' cells"),
+               ("sala delle maschere", "hall of masks"), ("fossa dei sacrifici", "sacrificial pit")]},
+    {"who": ("i contrabbandieri di {n}", "{n}'s smugglers"),
+     "rooms": [("deposito del contrabbando", "contraband store"), ("covo", "hideout"), ("bisca", "gambling den"),
+               ("dormitorio", "bunkroom"), ("deposito dei barili", "barrel store"), ("stanza del capo", "boss's room")]},
+    {"who": ("il negromante {n} e i suoi accoliti", "the necromancer {n} and their acolytes"),
+     "rooms": [("sala delle ossa", "bone hall"), ("laboratorio di imbalsamazione", "embalming lab"),
+               ("camera di rianimazione", "reanimation chamber"), ("deposito di cadaveri", "corpse store"),
+               ("biblioteca proibita", "forbidden library"), ("cella degli accoliti", "acolytes' cell")]},
+    {"who": ("i goblin della tribù {n}", "the goblins of the {n} tribe"),
+     "rooms": [("tana", "den"), ("dispensa", "larder"), ("fossa dei rifiuti", "refuse pit"),
+               ("sala del capo", "chieftain's hall"), ("allevamento di ratti giganti", "giant rat pens"),
+               ("sala del totem", "totem hall")]},
+    {"who": ("i monaci eremiti di {n}", "the hermit monks of {n}"),
+     "rooms": [("cella di meditazione", "meditation cell"), ("orto di funghi", "mushroom garden"),
+               ("scriptorium", "scriptorium"), ("refettorio", "refectory"), ("oratorio", "oratory"),
+               ("sala delle campane", "bell room")]},
+]
+
+PRESENT = [
+    {"who": ("l'orco {n} e i suoi servi coboldi", "the ogre {n} and their kobold servants"),
+     "rooms": [("tana dell'orco", "ogre's lair"), ("cucina", "kitchen"), ("dispensa", "larder"),
+               ("recinto dei prigionieri", "prisoners' pen"), ("mucchio di ossa", "bone heap"),
+               ("cuccia dei coboldi", "kobold warren")]},
+    {"who": ("una banda di orchetti guidata da {n}", "a band of orcs led by {n}"),
+     "rooms": [("accampamento", "camp"), ("sala del bottino", "loot room"), ("posto di guardia", "watch post"),
+               ("fossa dei lupi", "wolf pit"), ("forgia improvvisata", "makeshift forge"), ("tana del capo", "chief's den")]},
+    {"who": ("i morti inquieti, risvegliati da {n}", "the restless dead, woken by {n}"),
+     "rooms": [("sala dei morti", "hall of the dead"), ("ossario profanato", "desecrated ossuary"),
+               ("tomba aperta", "open grave"), ("camera fredda", "cold chamber"), ("nido degli spettri", "wraiths' nest")]},
+    {"who": ("i ragni giganti della regina {n}", "the giant spiders of Queen {n}"),
+     "rooms": [("nido di ragnatele", "web nest"), ("dispensa di bozzoli", "cocoon larder"), ("covata", "brood chamber"),
+               ("tunnel di seta", "silk tunnel"), ("trappola di seta", "silk snare")]},
+    {"who": ("i trogloditi del re {n}", "the troglodytes of King {n}"),
+     "rooms": [("grotta comune", "common cave"), ("altare di pietra", "stone altar"), ("fossa dei rifiuti", "refuse pit"),
+               ("tana delle uova", "egg chamber"), ("sala del re", "king's hall")]},
+]
+
+NATURAL_ROOMS = [("grotta", "cave"), ("caverna dei funghi", "fungus cavern"), ("pozza sotterranea", "underground pool"),
+                 ("caverna delle stalattiti", "stalactite cavern"), ("grotta dei pipistrelli", "bat cave"),
+                 ("galleria di cristalli", "crystal gallery"), ("caverna del fiume", "river cavern"),
+                 ("grotta dell'eco", "echo cave"), ("caverna dei licheni luminosi", "glowing lichen cavern")]
+
+EVENTS = [("una guerra contro i giganti", "a war with the giants"), ("un terremoto", "an earthquake"),
+          ("una pestilenza", "a plague"), ("una maledizione", "a curse"), ("un'inondazione", "a flood"),
+          ("una faida tra fazioni", "a feud between factions"), ("un'invasione dal sottosuolo", "an invasion from the deep")]
+
+AREAS = [("sotto le colline", "beneath the hills"), ("nel ventre di una montagna", "in the belly of a mountain"),
+         ("sotto una palude", "beneath a marsh"), ("sotto le rovine di una città", "beneath the ruins of a city"),
+         ("dietro una cascata", "behind a waterfall"), ("sotto una foresta antica", "beneath an ancient forest")]
+
+MAIN_ENTRANCES = [("portale principale", "main gate"), ("scalinata in rovina", "ruined stairway"),
+                  ("porta nascosta tra i rovi", "door hidden in the brambles"), ("grotta naturale", "natural cave mouth"),
+                  ("pozzo asciutto", "dry well"), ("breccia in un muro crollato", "breach in a fallen wall")]
+SURFACE_SHAFT = ("pozzo dalla superficie", "shaft from the surface")
+MIDPOINT_ENTRANCES = [("imbocco di grotta sul fianco della collina", "cave mouth on the hillside"),
+                      ("sbocco di una fogna", "sewer outlet"), ("dolina", "sinkhole"),
+                      ("galleria di miniera crollata", "collapsed mine adit"),
+                      ("uscita di un fiume sotterraneo", "underground river outlet")]
+
+ERA_TAGS = {0: "N", 1: "I", 2: "II", 3: "III"}
+
+HISTORY = (
+    "In un'epoca remota {f} scavarono {built} {area}, allargando le grotte naturali che già si aprivano nella roccia. "
+    "Dopo {e1} il luogo fu abbandonato; più tardi {s} se ne impadronirono, riadattarono le vecchie sale e scavarono "
+    "nuovi passaggi, alcuni dei quali tenuti segreti. Poi {e2} segnò la fine anche di questa epoca, e alcune gallerie "
+    "crollarono. Gli attuali abitanti sono {p}. I cunicoli più grezzi e gli ingressi più recenti risalgono a "
+    "quest'ultima epoca.",
+    "Long ago {f} dug {built} {area}, widening the natural caves that already opened in the rock. After {e1} the "
+    "place was abandoned; later {s} took it over, refitted the old halls and dug new passages, some of them kept "
+    "secret. Then {e2} ended that age too, and some galleries collapsed. Its current dwellers are {p}. The "
+    "roughest tunnels and the newest entrances date from this last age.")
+
+
+def fmt(pair, **values):
+    return tuple(t.format(**values) for t in pair)
+
+
+def make_name(rng, used):
+    while True:
+        name = "".join(rng.choice(NAME_SYLLABLES) for _ in range(rng.choice((2, 2, 3)))).capitalize()
+        if name not in used and len(name) <= 10:
+            used.add(name)
+            return name
+
+
+class Deck:
+    """Draws without repeats until the deck is empty, then reshuffles."""
+
+    def __init__(self, items, rng):
+        self.items, self.rng, self.pool = list(items), rng, []
+
+    def draw(self):
+        if not self.pool:
+            self.pool = self.items[:]
+            self.rng.shuffle(self.pool)
+        return self.pool.pop()
+
+
+def make_story(rng):
+    used = set()
+    founders, second, present = rng.choice(FOUNDERS), rng.choice(SECOND), rng.choice(PRESENT)
+    e1, e2 = rng.sample(EVENTS, 2)
+    story = {
+        "founders": founders, "second": second, "present": present,
+        "f_who": fmt(founders["who"], n=make_name(rng, used)),
+        "s_who": fmt(second["who"], n=make_name(rng, used)),
+        "p_who": fmt(present["who"], n=make_name(rng, used)),
+        "area": rng.choice(AREAS), "e1": e1, "e2": e2,
+    }
+    story["title"] = fmt(founders["title"], n=make_name(rng, used))
+    story["history"] = tuple(HISTORY[i].format(f=story["f_who"][i], built=founders["built"][i], area=story["area"][i],
+                                               e1=e1[i], s=story["s_who"][i], e2=e2[i], p=story["p_who"][i])
+                             for i in range(2))
+    story["decks"] = {0: Deck(NATURAL_ROOMS, rng), 1: Deck(founders["rooms"], rng),
+                      2: Deck(second["rooms"], rng), 3: Deck(present["rooms"], rng)}
+    return story
+
+
+def describe_room(room, story, rng):
+    """The room's strata: [(era, (it, en)), ...], oldest first."""
+    decks = story["decks"]
+    layers = [(room.era, decks[room.era].draw())]
+    if room.era == 0:
+        if rng.random() < 0.15:
+            layers.append((2, decks[2].draw()))
+        if rng.random() < 0.25:
+            layers.append((3, decks[3].draw()))
+    elif room.era == 1:
+        if rng.random() < 0.4:
+            layers.append((2, decks[2].draw()))
+        if rng.random() < 0.3:
+            layers.append((3, decks[3].draw()))
+    elif room.era == 2 and rng.random() < 0.3:
+        layers.append((3, decks[3].draw()))
+    return layers
+
+
+# --- dungeon model ---
+DIRS = ((1, 0), (-1, 0), (0, 1), (0, -1))
+AROUND = [(dx, dy) for dy in (-1, 0, 1) for dx in (-1, 0, 1) if dx or dy]
+
+ROCK, ROOM, CORRIDOR, DOORWAY = 0, 1, 2, 3
+
+
+class Room:
+
+    def __init__(self, uid, level, era, slot, comp):
+        self.uid, self.level, self.era, self.slot, self.comp = uid, level, era, slot, comp
+        self.cells = set()
+        self.ring = set()
+        self.box = None             # floor bounding box x0, y0, x1, y1
+        self.number, self.label = 0, ""
+        self.layers = []
+        self.doors = []             # Door objects of this room
+
+    @property
+    def center(self):
+        x0, y0, x1, y1 = self.box
+        return (x0 + x1) / 2, (y0 + y1) / 2
+
+    def physical(self):
+        x, y = self.center
+        return x, y * ASPECT_GUESS
+
+
+class Door:
+
+    def __init__(self, room, cell, out, direction, kind):
+        self.room, self.cell, self.out, self.direction, self.kind = room, cell, out, direction, kind
+        self.uses = 0
+
+
+class Corridor:
+
+    def __init__(self, a, b, cells, door_a, door_b, era, kind):
+        self.a, self.b, self.cells, self.door_a, self.door_b = a, b, cells, door_a, door_b
+        self.era, self.kind = era, kind     # kind: tree, loop or fix
+        self.feature = None                 # hidden, water, rubble, steps
+        self.secret_door = None
+
+    def door_of(self, room):
+        return self.door_a if room is self.a else self.door_b
+
+    def other(self, room):
+        return self.b if room is self.a else self.a
+
+
+class Link:
+    """Connection between two rooms on different levels (or a portal)."""
+
+    def __init__(self, kind, a, b):
+        self.kind, self.a, self.b = kind, a, b      # stairs, shaft, portal
+        self.cells = []                             # (level, cell index) of both ends
+        self.secret = False                         # hidden stairs, trapdoor, concealed shaft
+
+    def other(self, room):
+        return self.b if room is self.a else self.a
+
+
+class Level:
+
+    def __init__(self, name, depth, cols, rows, sub=False):
+        self.name, self.depth, self.sub = name, depth, sub
+        self.cols, self.rows = cols, rows
+        self.W, self.H = cols * SLOT_W + 2, rows * SLOT_H + 2
+        size = self.W * self.H
+        self.floor = bytearray(size)
+        self.era = bytearray(size)
+        self.blocked = bytearray(size)      # rooms, their walls and the border
+        self.rooms = []
+        self.doors = {}                     # cell index -> Door
+        self.feat = {}                      # cell index -> up, down, shaft, portal, pillar, water, rubble, steps, hidden
+        self.labels = {}                    # cell index -> letter of a room number
+        self.hidden_feats = set()           # stairs/shafts the players can't see
+        self.exits = []                     # (letter, (x, y), (dx, dy))
+        self.inner_tags = []                # (letter, (x, y)) next to a shaft from the surface
+        self.split = None                   # column that divides the level, or None
+        self.corridors = []
+        for x in range(self.W):
+            self.blocked[x] = self.blocked[(self.H - 1) * self.W + x] = 1
+        for y in range(self.H):
+            self.blocked[y * self.W] = self.blocked[y * self.W + self.W - 1] = 1
+
+    def i(self, x, y):
+        return y * self.W + x
+
+    def inside(self, x, y):
+        return 0 <= x < self.W and 0 <= y < self.H
+
+    def region(self, comp):
+        """x range a component may dig in (a divided level keeps its halves apart)."""
+        if self.split is None:
+            return 1, self.W - 2
+        return (1, self.split - 1) if comp == 0 else (self.split + 1, self.W - 2)
+
+    def header(self):
+        if self.sub:
+            return tr("sub_header", n=self.name)
+        return tr("level_header", n=self.name) + (tr("divided_header") if self.split is not None else "")
+
+
+class Dungeon:
+
+    def __init__(self, params, story):
+        self.params, self.story = params, story
+        self.levels, self.rooms, self.corridors, self.links, self.entrances = [], [], [], [], []
+        self.stats = Counter()
+
+    def mains(self):
+        return [lv for lv in self.levels if not lv.sub]
+
+
+# --- room shapes ---
+def slot_box(slot):
+    """Floor area a room may use inside its slot (inclusive)."""
+    c, r = slot
+    ox, oy = 1 + c * SLOT_W, 1 + r * SLOT_H
+    return ox + 2, oy + 2, ox + SLOT_W - 3, oy + SLOT_H - 3
+
+
+def shape_room(room, rng):
+    bx0, by0, bx1, by1 = slot_box(room.slot)
+    if room.era == 1:
+        w, h = rng.randint(8, 18), rng.randint(4, 7)
+    elif room.era == 2:
+        w, h = rng.randint(6, 13), rng.randint(3, 5)
+    elif room.era == 3:
+        w, h = rng.randint(6, 14), rng.randint(3, 5)
+    else:
+        w, h = rng.randint(10, 20), rng.randint(5, 7)
+    x0, y0 = rng.randint(bx0, bx1 - w + 1), rng.randint(by0, by1 - h + 1)
+    x1, y1 = x0 + w - 1, y0 + h - 1
+    cells = {(x, y) for x in range(x0, x1 + 1) for y in range(y0, y1 + 1)}
+    if room.era == 3:
+        # dug in a hurry: corners chipped off and bumps along the sides
+        for corner in ((x0, y0), (x1, y0), (x0, y1), (x1, y1)):
+            if rng.random() < 0.5:
+                cells.discard(corner)
+        for _ in range(rng.randint(1, 4)):
+            side = rng.randrange(4)
+            if side < 2 and w >= 6:
+                y = y0 - 1 if side == 0 else y1 + 1
+                if by0 <= y <= by1:
+                    a = rng.randint(x0 + 1, x1 - 3)
+                    cells |= {(x, y) for x in range(a, a + rng.randint(2, 3))}
+            elif side >= 2 and h >= 3:
+                x = x0 - 1 if side == 2 else x1 + 1
+                if bx0 <= x <= bx1:
+                    cells.add((x, rng.randint(y0 + 1, y1 - 1)))
+    elif room.era == 0:
+        # natural cave: an ellipse with a wobbly edge, always connected
+        cx, cy, rx, ry = (x0 + x1) / 2, (y0 + y1) / 2, w / 2, h / 2
+        waves = [(k, rng.uniform(0.04, 0.13), rng.uniform(0, 2 * math.pi)) for k in (2, 3, 5)]
+        cells = set()
+        for x in range(x0, x1 + 1):
+            for y in range(y0, y1 + 1):
+                u, v = (x - cx) / rx, (y - cy) / ry
+                limit = 0.97 + sum(a * math.sin(k * math.atan2(v, u) + ph) for k, a, ph in waves)
+                if u * u + v * v <= min(1.0, max(0.55, limit)) ** 2:
+                    cells.add((x, y))
+        cells = largest_part(cells, (round(cx), round(cy)))
+    room.cells = cells
+    xs, ys = [x for x, _ in cells], [y for _, y in cells]
+    room.box = (min(xs), min(ys), max(xs), max(ys))
+    room.ring = {(x + dx, y + dy) for x, y in cells for dx, dy in AROUND} - cells
+
+
+def largest_part(cells, start):
+    """The 4-connected part of `cells` holding `start` (or the biggest one)."""
+    if start not in cells:
+        start = min(cells, key=lambda c: abs(c[0] - start[0]) + abs(c[1] - start[1]))
+    seen, todo = {start}, [start]
+    while todo:
+        x, y = todo.pop()
+        for dx, dy in DIRS:
+            n = (x + dx, y + dy)
+            if n in cells and n not in seen:
+                seen.add(n)
+                todo.append(n)
+    return seen
+
+
+def put_room(level, room):
+    for x, y in room.cells:
+        i = level.i(x, y)
+        level.floor[i], level.era[i], level.blocked[i] = ROOM, room.era, 1
+    for x, y in sorted(room.ring):
+        level.blocked[level.i(x, y)] = 1
+
+
+def place_label(level, room):
+    """Room number in the middle of the room, in bold on the GM map."""
+    cx, cy = room.center
+    text = room.label
+    for dy in (0, -1, 1, -2, 2):
+        y = round(cy) + dy
+        sx = round(cx - (len(text) - 1) / 2)
+        for shift in (0, -1, 1, -2, 2):
+            if all((sx + shift + k, y) in room.cells for k in range(len(text))):
+                for k, ch in enumerate(text):
+                    level.labels[level.i(sx + shift + k, y)] = ch
+                return
+
+
+def place_pillars(level, room):
+    """Founders' big halls get two rows of pillars, kept symmetrical."""
+    x0, y0, x1, y1 = room.box
+    if room.era != 1 or x1 - x0 + 1 < 10 or y1 - y0 + 1 < 5:
+        return
+    xs = list(range(x0 + 2, x1 - 1, 3))
+    shift = ((x1 - 2) - xs[-1]) // 2
+    for y in (y0 + 1, y1 - 1):
+        for x in xs:
+            i = level.i(x + shift, y)
+            if i not in level.labels:
+                level.feat[i] = "pillar"
+
+
+# --- room layout and strata ---
+def split_rooms(params, rng):
+    """Rooms per main level and on the sub-level (0 if none)."""
+    levels, rooms = params["levels"], params["rooms"]
+    sub = 0
+    if (levels >= 2 and rooms >= 2 * levels + 4) or (levels == 1 and rooms >= 8):
+        sub = 3 if rooms >= 30 else 2
+    rest = rooms - sub
+    counts = [rest // levels] * levels
+    for k in rng.sample(range(levels), rest % levels):
+        counts[k] += 1
+    # a little variety, never below 2
+    for _ in range(levels):
+        a, b = rng.randrange(levels), rng.randrange(levels)
+        if a != b and counts[a] > 3:
+            counts[a] -= 1
+            counts[b] += 1
+    return counts, sub
+
+
+def grid_for(n):
+    """Slot columns and rows for a level holding up to n rooms."""
+    slots = math.ceil(n * 1.35) + 1
+    cols = max(2, round(math.sqrt(slots * 1.25)))
+    rows = max(1, math.ceil(slots / cols))
+    return cols, rows
+
+
+def era_weights(t):
+    """Natural caves deeper down, founders and today's tunnels nearer the top."""
+    return [0.10 + 0.50 * t, 0.45 - 0.15 * t, 0.25, 0.30 * (1 - t) + 0.05]
+
+
+def assign_eras(slots, cols, rows, t, rng):
+    """Eras grow in patches (each patch is the work of one age), so the strata
+    read on the map: every room takes the era of the nearest patch seed."""
+    k = max(2, round(len(slots) / 3))
+    seeds = [((rng.uniform(0, cols - 1), rng.uniform(0, rows - 1)), rng.choices(range(4), era_weights(t))[0])
+             for _ in range(k)]
+
+    def nearest(slot):
+        return min(seeds, key=lambda s: (s[0][0] - slot[0]) ** 2 + ((s[0][1] - slot[1]) * 1.1) ** 2)[1]
+    return [nearest(s) for s in slots]
+
+
+def build_rooms(dungeon, rng, log):
+    params, story = dungeon.params, dungeon.story
+    counts, sub_rooms = split_rooms(params, rng)
+    L = params["levels"]
+    cols, rows = grid_for(max(counts))
+
+    # divided level: needs 6+ rooms, room for both halves, and never next to another divided one
+    divided = set()
+    candidates = [d for d in range(L) if counts[d] >= 6 and cols >= 2] if L >= 2 else []
+    rng.shuffle(candidates)
+    for d in candidates:
+        if len(divided) >= max(1, L // 3):
+            break
+        if d - 1 not in divided and d + 1 not in divided and (cols // 2) * rows >= (counts[d] + 1) // 2:
+            divided.add(d)
+
+    uid = 0
+    all_eras = []
+    for d in range(L):
+        level = Level(str(d + 1), d, cols, rows)
+        t = d / (L - 1) if L > 1 else 0.0
+        if d in divided:
+            level.split = 1 + (cols // 2) * SLOT_W
+            left = [(c, r) for c in range(cols // 2) for r in range(rows)]
+            right = [(c, r) for c in range(cols // 2, cols) for r in range(rows)]
+            na = counts[d] // 2
+            slots = rng.sample(left, na) + rng.sample(right, counts[d] - na)
+            comps = [0] * na + [1] * (counts[d] - na)
+        else:
+            slots = rng.sample([(c, r) for c in range(cols) for r in range(rows)], counts[d])
+            comps = [0] * counts[d]
+        eras = assign_eras(slots, cols, rows, t, rng)
+        for slot, comp, era in zip(slots, comps, eras):
+            level.rooms.append(Room(uid, level, era, slot, comp))
+            uid += 1
+        all_eras += eras
+        dungeon.levels.append(level)
+
+    # every story needs its founders, and a dungeon of 4+ rooms shows at least two ages
+    mains = dungeon.levels
+    if 1 not in all_eras:
+        rng.choice(rng.choice(mains).rooms).era = 1
+    if len({r.era for lv in mains for r in lv.rooms}) < 2 and params["rooms"] >= 4:
+        room = rng.choice([r for lv in mains for r in lv.rooms if r.era == 1])
+        others = [r for lv in mains for r in lv.rooms if r is not room]
+        rng.choice(others).era = rng.choice((0, 2, 3))
+
+    # the sub-level: a small hideout between two levels (or below the only one)
+    if sub_rooms:
+        d = rng.randrange(L - 1) if L >= 2 else 0
+        sc, sr = (sub_rooms, 1) if sub_rooms <= 3 else (2, 2)
+        level = Level(f"{d + 1}a", d + 0.5, sc, sr, sub=True)
+        era = rng.choice((0, 2, 2))
+        for slot in rng.sample([(c, r) for c in range(sc) for r in range(sr)], sub_rooms):
+            level.rooms.append(Room(uid, level, era, slot, 0))
+            uid += 1
+        dungeon.levels.append(level)
+        dungeon.levels.sort(key=lambda lv: lv.depth)
+
+    for level in dungeon.levels:
+        for room in level.rooms:
+            shape_room(room, rng)
+            put_room(level, room)
+            room.layers = describe_room(room, story, rng)
+        # numbers in reading order
+        for n, room in enumerate(sorted(level.rooms, key=lambda r: (r.slot[1], r.slot[0])), 1):
+            room.number, room.label = n, f"{level.name}-{n:02d}"
+            place_label(level, room)
+            place_pillars(level, room)
+        dungeon.rooms += level.rooms
+        extra = tr("info_sub") if level.sub else (tr("info_divided") if level.split is not None else "")
+        log.info(tr("info_level_rooms", n=level.name, r=len(level.rooms), extra=extra))
+
+
+# --- corridors ---
+def gabriel_edges(rooms):
+    """Pairs of rooms with no third room inside the circle between them:
+    near neighbours, and corridors that don't cut across other rooms."""
+    pts = [r.physical() for r in rooms]
+    edges = []
+    for a in range(len(rooms)):
+        for b in range(a + 1, len(rooms)):
+            (ax, ay), (bx, by) = pts[a], pts[b]
+            mx, my = (ax + bx) / 2, (ay + by) / 2
+            r2 = ((ax - bx) ** 2 + (ay - by) ** 2) / 4
+            if all((pts[c][0] - mx) ** 2 + (pts[c][1] - my) ** 2 >= r2 for c in range(len(rooms)) if c not in (a, b)):
+                edges.append((math.sqrt(r2) * 2, a, b))
+    return sorted(edges)
+
+
+def spanning_tree(n, edges):
+    parent = list(range(n))
+
+    def find(x):
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+    tree, rest = [], []
+    for e in edges:
+        ra, rb = find(e[1]), find(e[2])
+        if ra != rb:
+            parent[ra] = rb
+            tree.append(e)
+        else:
+            rest.append(e)
+    return tree, rest
+
+
+def door_options(level, room, region, rng, toward):
+    """Possible doors toward a point: (score, cell, out, direction), existing doors first."""
+    lo, hi = region
+    tx, ty = toward
+    options = []
+    for door in room.doors:
+        ox, oy = door.out
+        options.append((math.hypot(ox - tx, (oy - ty) * ASPECT_GUESS) - 4 + rng.random() * 3, door))
+    used = {d.cell for d in room.doors}
+    for x, y in sorted(room.ring):
+        if not (lo <= x <= hi and 0 < y < level.H - 1):
+            continue
+        if any((x + dx, y + dy) in used for dx, dy in AROUND):
+            continue
+        for dx, dy in DIRS:
+            if (x - dx, y - dy) not in room.cells:
+                continue
+            ox, oy = x + dx, y + dy
+            if not (lo <= ox <= hi and 0 < oy < level.H - 1) or level.blocked[level.i(ox, oy)]:
+                continue
+            # rectangular rooms: doors only in the middle of a straight wall
+            if room.era in (1, 2) and not ((x + dy, y + dx) in room.ring and (x - dy, y - dx) in room.ring):
+                continue
+            score = math.hypot(ox - tx, (oy - ty) * ASPECT_GUESS) + rng.random() * 3
+            options.append((score, (x, y), (ox, oy), (dx, dy)))
+    options.sort(key=lambda o: o[0])
+    return options
+
+
+def new_door(level, room, cell, out, direction, rng, kind=None):
+    if kind is None:
+        kind = "door" if room.era in (1, 2) and rng.random() < 0.75 else "open"
+    door = Door(room, cell, out, direction, kind)
+    i = level.i(*cell)
+    level.floor[i], level.era[i] = DOORWAY, room.era
+    level.doors[i] = door
+    room.doors.append(door)
+    return door
+
+
+def astar(level, start, goal, region):
+    """Cheapest 4-way path through rock: straight runs, reusing existing
+    corridors, keeping away from running alongside them."""
+    W, H, blocked, floor = level.W, level.H, level.blocked, level.floor
+    lo, hi = region
+
+    def free(x, y):
+        return lo <= x <= hi and 0 < y < H - 1 and not blocked[y * W + x]
+    if not free(*start) or not free(*goal):
+        return None
+    gx, gy = goal
+    sx, sy = start
+    heap = [(0.0, 0.0, sx, sy, 4)]
+    best = {(sx, sy, 4): 0.0}
+    came = {}
+    while heap:
+        _, g, x, y, d = heapq.heappop(heap)
+        if (x, y) == goal:
+            path, key = [(x, y)], (x, y, d)
+            while key in came:
+                key = came[key]
+                path.append((key[0], key[1]))
+            return path[::-1]
+        if g > best.get((x, y, d), 1e18):
+            continue
+        for nd, (dx, dy) in enumerate(DIRS):
+            nx, ny = x + dx, y + dy
+            if not free(nx, ny):
+                continue
+            if floor[ny * W + nx] == CORRIDOR:
+                step = 0.6
+            else:
+                step = 1.0
+                for ex, ey in DIRS:
+                    px, py = nx + ex, ny + ey
+                    if (px, py) != (x, y) and floor[py * W + px] == CORRIDOR:
+                        step += 1.5
+                        break
+            if d != 4 and nd != d:
+                step += 0.5
+            ng = g + step
+            key = (nx, ny, nd)
+            if ng < best.get(key, 1e18):
+                best[key] = ng
+                came[key] = (x, y, d)
+                heapq.heappush(heap, (ng + 0.6 * (abs(nx - gx) + abs(ny - gy)), ng, nx, ny, nd))
+    return None
+
+
+def corridor_era(a, b):
+    """Later diggers connect to older work, so a corridor belongs to the younger room."""
+    return max(a.era, b.era)
+
+
+def dig(level, a, b, rng, kind, region):
+    """Corridor from room a to room b. Returns the Corridor or None."""
+    opts_a = door_options(level, a, region, rng, b.center)[:4]
+    opts_b = door_options(level, b, region, rng, a.center)[:4]
+    tries = [(oa, ob) for oa in opts_a[:2] for ob in opts_b[:2]] + list(zip(opts_a[2:], opts_b[2:]))
+    for oa, ob in tries:
+        start = oa[1].out if isinstance(oa[1], Door) else oa[2]
+        goal = ob[1].out if isinstance(ob[1], Door) else ob[2]
+        path = astar(level, start, goal, region)
+        if not path:
+            continue
+        da = oa[1] if isinstance(oa[1], Door) else new_door(level, a, oa[1], oa[2], oa[3], rng)
+        db = ob[1] if isinstance(ob[1], Door) else new_door(level, b, ob[1], ob[2], ob[3], rng)
+        era = corridor_era(a, b)
+        for x, y in path:
+            i = level.i(x, y)
+            if level.floor[i] == ROCK:
+                level.floor[i], level.era[i] = CORRIDOR, era
+        da.uses += 1
+        db.uses += 1
+        corridor = Corridor(a, b, path, da, db, era, kind)
+        level.corridors.append(corridor)
+        return corridor
+    return None
+
+
+def connect_level(level, rng):
+    """Spanning tree plus loops in every part of the level (Jaquays: loops)."""
+    for comp in sorted({r.comp for r in level.rooms}):
+        rooms = [r for r in level.rooms if r.comp == comp]
+        region = level.region(comp)
+        edges = gabriel_edges(rooms)
+        tree, rest = spanning_tree(len(rooms), edges)
+        n = len(rooms)
+        want = 0 if n < 3 else max(1, round(n * 0.3))
+        if want and not rest:
+            # tiny or lined-up rooms: Gabriel has no spare edge, use any other pair
+            tree_pairs = {(a, b) for _, a, b in tree}
+            rest = sorted((math.dist(rooms[a].physical(), rooms[b].physical()), a, b)
+                          for a in range(n) for b in range(a + 1, n) if (a, b) not in tree_pairs)
+        pool = rest[:max(want * 2, want + 1)]
+        rng.shuffle(pool)
+        loops = pool[:want]
+        for _, a, b in tree:
+            dig(level, rooms[a], rooms[b], rng, "tree", region)
+        for _, a, b in loops:
+            dig(level, rooms[a], rooms[b], rng, "loop", region)
+
+
+# --- level connections and entrances ---
+def free_spot(level, room, rng):
+    """A floor cell for stairs, shafts and portals: not on the room number,
+    not in front of a door, not next to another feature."""
+    near_doors = {(d.cell[0] + dx, d.cell[1] + dy) for d in room.doors for dx, dy in AROUND}
+    spots = []
+    for x, y in room.cells:
+        i = level.i(x, y)
+        if i in level.feat or i in level.labels or (x, y) in near_doors:
+            continue
+        if any(level.i(x + dx, y + dy) in level.labels or level.feat.get(level.i(x + dx, y + dy)) not in (None, "pillar")
+               for dx, dy in AROUND):
+            continue
+        spots.append((x, y))
+    if not spots:
+        spots = [c for c in room.cells if level.i(*c) not in level.feat and level.i(*c) not in level.labels]
+    return rng.choice(sorted(spots)) if spots else None
+
+
+def add_link(dungeon, kind, a, b, rng):
+    ca, cb = free_spot(a.level, a, rng), free_spot(b.level, b, rng)
+    if ca is None or cb is None:
+        return None
+    if kind == "stairs":
+        upper, lower = (a, b) if a.level.depth < b.level.depth else (b, a)
+        cu, cl = (ca, cb) if upper is a else (cb, ca)
+        upper.level.feat[upper.level.i(*cu)] = "down"
+        lower.level.feat[lower.level.i(*cl)] = "up"
+    else:
+        a.level.feat[a.level.i(*ca)] = kind
+        b.level.feat[b.level.i(*cb)] = kind
+    link = Link(kind, a, b)
+    link.cells = [(a.level, a.level.i(*ca)), (b.level, b.level.i(*cb))]
+    dungeon.links.append(link)
+    return link
+
+
+def plan_links(dungeon, rng):
+    """Jaquays: several connections between each pair of levels, some that
+    skip levels, a sub-level off the main sequence, sometimes a portal."""
+    mains = dungeon.mains()
+    used = Counter()
+
+    def choose(level, comp=None, avoid=()):
+        rooms = [r for r in level.rooms if (comp is None or r.comp == comp) and r not in avoid]
+        rooms = rooms or level.rooms
+        room = min(rooms, key=lambda r: (used[r.uid], rng.random()))
+        used[room.uid] += 1
+        return room
+
+    for d in range(len(mains) - 1):
+        up, down = mains[d], mains[d + 1]
+        comps_up = sorted({r.comp for r in up.rooms})
+        comps_down = sorted({r.comp for r in down.rooms})
+        k = 2 + (len(up.rooms) >= 8 and len(down.rooms) >= 8 and rng.random() < 0.6)
+        for n in range(max(k, len(comps_up), len(comps_down))):
+            a = choose(up, comps_up[n % len(comps_up)])
+            b = choose(down, comps_down[n % len(comps_down)])
+            add_link(dungeon, "stairs", a, b, rng)
+
+    if len(mains) >= 3:
+        for _ in range(1 + (len(mains) >= 6)):
+            d = rng.randrange(len(mains) - 2)
+            jump = 3 if d + 3 < len(mains) and rng.random() < 0.3 else 2
+            add_link(dungeon, "shaft", choose(mains[d]), choose(mains[d + jump]), rng)
+
+    for sub in [lv for lv in dungeon.levels if lv.sub]:
+        d = int(sub.depth)
+        a, b = sorted(sub.rooms, key=lambda r: r.number)[0], sorted(sub.rooms, key=lambda r: r.number)[-1]
+        add_link(dungeon, "stairs", choose(mains[d]), a, rng)
+        below = mains[d + 1] if d + 1 < len(mains) else mains[d]
+        add_link(dungeon, "shaft", b, choose(below), rng)
+
+    if len(dungeon.rooms) >= 15 and (rng.random() < 0.4 or dungeon.story["founders"].get("wizard")):
+        if len(mains) >= 2:
+            la, lb = rng.sample(mains, 2)
+            add_link(dungeon, "portal", choose(la), choose(lb), rng)
+        else:
+            a = choose(mains[0])
+            far = max(mains[0].rooms, key=lambda r: math.dist(r.physical(), a.physical()))
+            used[far.uid] += 1
+            add_link(dungeon, "portal", a, far, rng)
+
+
+def exit_ray(level, room, rng, region, spacing=6):
+    """Straight corridor from a door of the room to the edge of the map:
+    (length, cell, out, direction, ray cells) or None."""
+    lo, hi = region
+    best = None
+    for x, y in sorted(room.ring):
+        for dx, dy in DIRS:
+            f = (x - dx, y - dy)
+            if f not in room.cells or level.i(*f) in level.feat:
+                continue
+            if room.era in (1, 2) and not ((x + dy, y + dx) in room.ring and (x - dy, y - dx) in room.ring):
+                continue
+            if any((x + ex, y + ey) in {d.cell for d in room.doors} for ex, ey in AROUND):
+                continue
+            ray, cx, cy = [], x + dx, y + dy
+            ok = True
+            while True:
+                if not (lo <= cx <= hi or cx in (0, level.W - 1)) or not level.inside(cx, cy):
+                    ok = False
+                    break
+                border = cx in (0, level.W - 1) or cy in (0, level.H - 1)
+                if border:
+                    ray.append((cx, cy))
+                    break
+                if level.blocked[level.i(cx, cy)]:
+                    ok = False
+                    break
+                ray.append((cx, cy))
+                cx, cy = cx + dx, cy + dy
+            if not ok:
+                continue
+            # keep exits apart from each other
+            ex_, ey_ = ray[-1]
+            if any(abs(ex_ - px) + abs(ey_ - py) < spacing for _, (px, py), _ in level.exits):
+                continue
+            score = len(ray) * (ASPECT_GUESS if dy else 1) + rng.random() * 4
+            if best is None or score < best[0]:
+                best = (score, (x, y), ray[0], (dx, dy), ray)
+    return best
+
+
+def place_entrances(dungeon, rng):
+    mains = dungeon.mains()
+    want = dungeon.params["entrances"]
+    targets = []
+    for n in range(want):
+        if n == 0:
+            targets.append(0)
+        elif n == 1 and len(mains) >= 2:
+            targets.append(len(mains) // 2)       # midpoint entry
+        else:
+            targets.append(0 if rng.random() < 0.6 else rng.randrange(len(mains)))
+    taken = set()
+    for n, d in enumerate(targets):
+        letter = "ABCDEFGHJ"[n]
+        order = [(k, spacing) for spacing in (6, 2) for k in [d] + [k for k in range(len(mains)) if k != d]]
+        placed = False
+        for k, spacing in order:
+            level = mains[k]
+            rooms = sorted(level.rooms, key=lambda r: (min(r.box[0], level.W - r.box[2],
+                                                           (r.box[1]) * ASPECT_GUESS, (level.H - r.box[3]) * ASPECT_GUESS)
+                                                       + rng.random() * 8))
+            found = None
+            for room in [r for r in rooms if r.uid not in taken]:
+                ray = exit_ray(level, room, rng, level.region(room.comp), spacing)
+                if ray:
+                    found = (room, ray)
+                    break
+            if not found:
+                continue
+            room, (_, cell, out, direction, cells) = found
+            kind = "door" if room.era in (1, 2) else "open"
+            door = new_door(level, room, cell, out, direction, rng, kind)
+            door.uses += 1
+            for x, y in cells:
+                i = level.i(x, y)
+                if level.floor[i] == ROCK:
+                    level.floor[i], level.era[i] = CORRIDOR, max(room.era, 3 if room.era == 0 else room.era)
+            level.exits.append((letter, cells[-1], direction))
+            taken.add(room.uid)
+            table = MAIN_ENTRANCES if k == 0 else MIDPOINT_ENTRANCES
+            dungeon.entrances.append({"letter": letter, "room": room, "level": level, "kind": rng.choice(table),
+                                      "midpoint": k > 0, "cells": cells})
+            placed = True
+            break
+        if not placed:
+            # every edge is taken: a shaft from the surface straight into a room
+            level = mains[d]
+            rooms = [r for r in level.rooms if r.uid not in taken] or level.rooms
+            room = rng.choice(rooms)
+            spot = free_spot(level, room, rng)
+            if spot is None:
+                continue
+            level.feat[level.i(*spot)] = "shaft"
+            tag = next(((x, y) for x, y in ((spot[0] + 1, spot[1]), (spot[0] - 1, spot[1]))
+                        if (x, y) in room.cells and level.i(x, y) not in level.feat
+                        and level.i(x, y) not in level.labels), None)
+            if tag:
+                level.inner_tags.append((letter, tag))
+                level.feat[level.i(*tag)] = "tag"
+            taken.add(room.uid)
+            dungeon.entrances.append({"letter": letter, "room": room, "level": level, "kind": SURFACE_SHAFT,
+                                      "midpoint": d > 0, "cells": []})
+
+
+# --- secret and unusual paths ---
+def straight_run(cells, length):
+    """Index of the middle of the first straight run of `length` cells, or None."""
+    for s in range(len(cells) - length + 1):
+        seg = cells[s:s + length]
+        if len({x for x, _ in seg}) == 1 or len({y for _, y in seg}) == 1:
+            return s + length // 2
+    return None
+
+
+def secret_and_unusual(dungeon, rng, log):
+    """Secret doors and passages (asked by the user), flooded passages,
+    cave-ins and minor elevation shifts (Jaquays: secret & unusual paths)."""
+    usage = Counter()
+    for level in dungeon.levels:
+        for c in level.corridors:
+            for cell in c.cells:
+                usage[(level.name, cell)] += 1
+        for e in [e for e in dungeon.entrances if e["level"] is level]:
+            for cell in e["cells"]:
+                usage[(level.name, cell)] += 1
+
+    def exclusive(level, c):
+        return [cell for cell in c.cells if usage[(level.name, cell)] == 1]
+
+    corridors = [(lv, c) for lv in dungeon.levels for c in lv.corridors]
+    degree = Counter()
+    for _, c in corridors:
+        degree[c.a.uid] += 1
+        degree[c.b.uid] += 1
+    linked = {r.uid for link in dungeon.links for r in (link.a, link.b)} | {e["room"].uid for e in dungeon.entrances}
+
+    def priority(item):
+        level, c = item
+        leaf = (degree[c.a.uid] == 1 and c.a.uid not in linked) or (degree[c.b.uid] == 1 and c.b.uid not in linked)
+        return (0 if c.kind == "loop" else 1 if leaf else 2, rng.random())
+    corridors.sort(key=priority)
+
+    want = dungeon.params["secrets"]
+    passages_wanted = round(want / 3)
+    stats = dungeon.stats
+    # secret passages: the whole corridor is hidden, both doors are secret
+    for level, c in corridors:
+        if stats["hidden"] >= passages_wanted:
+            break
+        cells = exclusive(level, c)
+        if (c.feature or len(cells) != len(c.cells) or len(cells) < 3
+                or c.door_a.uses != 1 or c.door_b.uses != 1 or c.kind == "tree" and level.sub):
+            continue
+        c.feature = "hidden"
+        for cell in cells:
+            level.feat[level.i(*cell)] = "hidden"
+        c.door_a.kind = c.door_b.kind = "secret"
+        stats["hidden"] += 1
+    # secret doors on the other corridors, loops first
+    for level, c in corridors:
+        if stats["hidden"] + stats["secret_doors"] >= want:
+            break
+        if c.feature == "hidden":
+            continue
+        doors = [d for d in (c.door_a, c.door_b) if d.kind != "secret"]
+        doors.sort(key=lambda d: (d.uses, rng.random()))
+        if doors:
+            doors[0].kind = "secret"
+            c.secret_door = doors[0]
+            stats["secret_doors"] += 1
+    # more secrets than corridors: the other door of a corridor, then hidden level connections
+    for level, c in corridors:
+        if stats["hidden"] + stats["secret_doors"] >= want:
+            break
+        for d in (c.door_a, c.door_b):
+            if d.kind != "secret" and c.feature != "hidden":
+                d.kind = "secret"
+                stats["secret_doors"] += 1
+                break
+    for link in sorted(dungeon.links, key=lambda k: (k.kind == "portal", rng.random())):
+        if stats["hidden"] + stats["secret_doors"] + stats["secret_links"] >= want:
+            break
+        link.secret = True
+        for level, i in link.cells:
+            level.hidden_feats.add(i)
+        stats["secret_links"] += 1
+    got = stats["hidden"] + stats["secret_doors"] + stats["secret_links"]
+    if got < want:
+        log.warn(tr("warn_secrets", n=got, want=want))
+
+    # unusual paths on visible corridors, loops first
+    visible = [(lv, c) for lv, c in corridors if c.feature is None]
+    loops = [(lv, c) for lv, c in visible if c.kind == "loop"]
+
+    def mark(level, c, feature, length):
+        cells = exclusive(level, c)
+        mid = straight_run(cells, length) if feature == "steps" else (len(cells) // 2 if len(cells) >= length + 2 else None)
+        if mid is None:
+            return False
+        span = cells[mid - length // 2: mid - length // 2 + length]
+        if any(level.i(*cell) in level.feat for cell in span):
+            return False
+        for cell in span:
+            level.feat[level.i(*cell)] = feature
+        c.feature = feature
+        return True
+
+    for feature, how_many, length in (("water", 1 + (len(dungeon.rooms) >= 40), 3),
+                                      ("rubble", 1 + (len(dungeon.rooms) >= 30), 1)):
+        for level, c in loops + [x for x in visible if x not in loops]:
+            if stats[feature] >= how_many:
+                break
+            if c.feature is None and mark(level, c, feature, length):
+                stats[feature] += 1
+    # minor elevation shifts: steps in a corridor, about one per main level
+    for level in dungeon.levels:
+        if level.sub:
+            continue
+        target = 1 + (len(level.rooms) >= 8)
+        done = 0
+        pool = [c for c in level.corridors if c.feature is None]
+        rng.shuffle(pool)
+        for c in pool:
+            if done >= target:
+                break
+            if mark(level, c, "steps", 2):
+                done += 1
+        stats["steps"] += done
+
+    # pools of water in some caves
+    for room in dungeon.rooms:
+        if room.era != 0 or rng.random() > 0.4:
+            continue
+        level = room.level
+        x0, y0, x1, y1 = room.box
+        cx, cy = rng.randint(x0 + 2, max(x0 + 2, x1 - 2)), rng.choice((y0 + 1, y1 - 1))
+        near_doors = {(d.cell[0] + dx, d.cell[1] + dy) for d in room.doors for dx, dy in AROUND}
+        for x in range(cx - 2, cx + 3):
+            for y in (cy, cy + (1 if cy == y0 + 1 else -1)) if rng.random() < 0.5 else (cy,):
+                i = level.i(x, y)
+                if (x, y) in room.cells and (x, y) not in near_doors and i not in level.feat and i not in level.labels:
+                    level.feat[i] = "water"
+
+
+# --- checks ---
+def traversal_graph(dungeon):
+    """Rooms plus "outside": corridors, level links and entrances as edges."""
+    edges = []
+    for level in dungeon.levels:
+        for c in level.corridors:
+            edges.append((c.a.uid, c.b.uid))
+    for link in dungeon.links:
+        edges.append((link.a.uid, link.b.uid))
+    for e in dungeon.entrances:
+        edges.append(("out", e["room"].uid))
+    return edges
+
+
+def reachable(dungeon):
+    graph = {}
+    for a, b in traversal_graph(dungeon):
+        graph.setdefault(a, set()).add(b)
+        graph.setdefault(b, set()).add(a)
+    seen, todo = {"out"}, deque(["out"])
+    while todo:
+        n = todo.popleft()
+        for m in graph.get(n, ()):
+            if m not in seen:
+                seen.add(m)
+                todo.append(m)
+    return seen
+
+
+def repair(dungeon, rng):
+    """Join any room the corridors missed (A* can fail in a crowded corner)."""
+    for _ in range(len(dungeon.rooms) * 2):
+        seen = reachable(dungeon)
+        lost = [r for r in dungeon.rooms if r.uid not in seen]
+        if not lost:
+            return True
+        room = lost[0]
+        level = room.level
+        near = sorted([r for r in level.rooms if r.uid in seen and r.comp == room.comp],
+                      key=lambda r: math.dist(r.physical(), room.physical()))
+        if near and dig(level, room, near[0], rng, "fix", level.region(room.comp)):
+            continue
+        others = [r for lv in dungeon.levels if lv is not level and abs(lv.depth - level.depth) <= 1
+                  for r in lv.rooms if r.uid in seen]
+        if not others:
+            return False
+        add_link(dungeon, "stairs", room, rng.choice(others), rng)
+    return not [r for r in dungeon.rooms if r.uid not in reachable(dungeon)]
+
+
+def jaquays_report(dungeon):
+    """Lines describing how each technique was applied."""
+    mains = dungeon.mains()
+    L = len(mains)
+    edges = traversal_graph(dungeon)
+    nodes = len(dungeon.rooms) + 1
+    loops = len(edges) - nodes + 1
+    st = dungeon.stats
+    lines = []
+    E = len(dungeon.entrances)
+    lines.append(("ok", tr("jq_entrances", n=E)) if E >= 2 else ("~", tr("jq_entrances_one")))
+    lines.append(("ok", tr("jq_loops", n=loops)))
+    if L >= 2:
+        pairs = []
+        for d in range(L - 1):
+            n = sum(1 for k in dungeon.links if {k.a.level.name, k.b.level.name} == {mains[d].name, mains[d + 1].name})
+            pairs.append(f"{d + 1}↔{d + 2}: {n}")
+        lines.append(("ok", tr("jq_multi", d=", ".join(pairs))))
+    else:
+        lines.append(("-", tr("jq_na", what=tr("jq_t_multi"), why=tr("jq_why_one"))))
+    disc = [k for k in dungeon.links if not k.a.level.sub and not k.b.level.sub
+            and abs(k.a.level.depth - k.b.level.depth) >= 2]
+    if L >= 3:
+        lines.append(("ok", tr("jq_disc", n=len(disc))))
+    else:
+        lines.append(("-", tr("jq_na", what=tr("jq_t_disc"), why=tr("jq_why_two") if L == 2 else tr("jq_why_one"))))
+    lines.append(("ok", tr("jq_secret", d=st["secret_doors"], p=st["hidden"], h=st["secret_links"], w=st["water"], r=st["rubble"],
+                           g=sum(1 for k in dungeon.links if k.kind == "portal"))))
+    subs = [lv for lv in dungeon.levels if lv.sub]
+    if subs:
+        lines.append(("ok", tr("jq_sub", n=", ".join(lv.name for lv in subs))))
+    else:
+        lines.append(("-", tr("jq_na", what=tr("jq_t_sub"), why=tr("jq_why_small"))))
+    div = [lv.name for lv in mains if lv.split is not None]
+    if div:
+        lines.append(("ok", tr("jq_divided", n=", ".join(div))))
+    else:
+        lines.append(("-", tr("jq_na", what=tr("jq_t_div"), why=tr("jq_why_one") if L == 1 else tr("jq_why_small"))))
+    lines.append(("ok", tr("jq_shifts", n=st["steps"])))
+    mid = sum(1 for e in dungeon.entrances if e["midpoint"])
+    if mid:
+        lines.append(("ok", tr("jq_midpoint", n=mid)))
+    else:
+        lines.append(("-", tr("jq_na", what=tr("jq_t_mid"), why=tr("jq_why_one") if L == 1 else tr("jq_why_entr"))))
+    contacts = sum(1 for lv in dungeon.levels for c in lv.corridors if (c.a.era == 0) != (c.b.era == 0))
+    contacts += sum(1 for k in dungeon.links if (k.a.era == 0) != (k.b.era == 0))
+    if contacts and any(r.era == 0 for r in dungeon.rooms):
+        lines.append(("ok", tr("jq_nested", n=contacts)))
+    else:
+        lines.append(("-", tr("jq_na", what=tr("jq_t_nest"), why=tr("jq_why_caves"))))
+    return lines
+
+
+def generate(params, log):
+    """The whole dungeon, deterministic for a given seed."""
+    seed = make_seed(params)
+    for attempt in range(8):
+        rng = random.Random(f"wyrmdelve-{seed}-{attempt}")
+        story = make_story(random.Random(f"wyrmdelve-story-{seed}"))
+        dungeon = Dungeon(params, story)
+        quiet = log if attempt == 0 else QuietLog()
+        if attempt == 0:
+            log.step(tr("step_story"))
+            log.info(tr("info_title", t=pick(story["title"])))
+            log.step(tr("step_rooms"))
+        build_rooms(dungeon, rng, quiet)
+        if attempt == 0:
+            log.step(tr("step_corridors"))
+        for level in dungeon.levels:
+            connect_level(level, rng)
+        plan_links(dungeon, rng)
+        place_entrances(dungeon, rng)
+        if not repair(dungeon, rng) or len(dungeon.entrances) == 0:
+            log.warn(tr("info_retry", n=attempt + 1))
+            continue
+        secret_and_unusual(dungeon, rng, QuietLog() if attempt else log)
+        dungeon.corridors = [c for lv in dungeon.levels for c in lv.corridors]
+        return dungeon
+    sys.exit(tr("err_build"))
+
+
+# --- fonts ---
+def open_font(spec, size):
+    path, index = spec if isinstance(spec, tuple) else (spec, 0)
+    return ImageFont.truetype(path, size, index=index)
+
+
+def find_font(chosen=None):
+    """Returns (regular, bold or None)."""
+    candidates = []
+    if chosen:
+        candidates.append((chosen, None))
+    candidates += MONO_FONTS
+    try:
+        import matplotlib
+        base = os.path.join(matplotlib.get_data_path(), "fonts", "ttf")
+        candidates.append((os.path.join(base, "DejaVuSansMono.ttf"), os.path.join(base, "DejaVuSansMono-Bold.ttf")))
+    except Exception:
+        pass
+    for regular, bold in candidates:
+        try:
+            open_font(regular, 20)
+        except OSError:
+            continue
+        try:
+            if bold is None:
+                raise OSError
+            open_font(bold, 20)
+        except OSError:
+            bold = None
+        return regular, bold
+    sys.exit(tr("err_no_font"))
+
+
+def font_name(spec):
+    return os.path.basename(spec[0] if isinstance(spec, tuple) else spec)
+
+
+def font_metrics(spec):
+    """Advance and line height, as fractions of the font size."""
+    f = open_font(spec, 200)
+    ascent, descent = f.getmetrics()
+    return f.getlength("M") / 200, (ascent + descent) / 200
+
+
+def font_has_glyph(font, ch):
+    """A missing glyph renders as the .notdef box, so compare with a
+    character that surely isn't in the font."""
+    def fingerprint(c):
+        img = Image.new("L", (80, 80), 0)
+        ImageDraw.Draw(img).text((10, 10), c, font=font, fill=255)
+        return img.tobytes()
+    missing = fingerprint("\U0010FFFD")
+    return fingerprint(ch) != missing and any(fingerprint(ch))
+
+
+class Glyphs:
+    """G("≈", "~") -> "≈", or "~" with --ascii-only or if the font lacks ≈."""
+
+    def __init__(self, font, ascii_only):
+        self.ascii_only = ascii_only
+        self.missing = set()
+        self._cache = {}
+        self.font = font
+
+    def __call__(self, fancy, plain):
+        if self.ascii_only:
+            return plain
+        if fancy not in self._cache:
+            self._cache[fancy] = all(c.isascii() or font_has_glyph(self.font, c) for c in fancy)
+            if not self._cache[fancy]:
+                self.missing.add(fancy)
+        return fancy if self._cache[fancy] else plain
+
+
+# --- canvas ---
+class Canvas:
+    """Grid of characters, each with a style: n normal, b bold, i white on black."""
+
+    def __init__(self, width, height):
+        self.width, self.height = width, height
+        self.chars = [[" "] * width for _ in range(height)]
+        self.styles = [["n"] * width for _ in range(height)]
+
+    def put(self, x, y, ch, style="n"):
+        if 0 <= x < self.width and 0 <= y < self.height:
+            self.chars[y][x], self.styles[y][x] = ch, style
+
+    def write(self, x, y, text, style="n"):
+        for i, c in enumerate(text):
+            self.put(x + i, y, c, style)
+
+    def paste(self, other, ox, oy):
+        for y in range(other.height):
+            for x in range(other.width):
+                if other.chars[y][x] != " " or other.styles[y][x] != "n":
+                    self.put(ox + x, oy + y, other.chars[y][x], other.styles[y][x])
+
+    def lines(self):
+        return ["".join(row).rstrip() for row in self.chars]
+
+
+# box drawing by connections: N=1, E=2, S=4, W=8
+DOUBLE_WALLS = " ║═╚║║╔╠═╝═╩╗╣╦╬"
+SINGLE_WALLS = " │─└││┌├─┘─┴┐┤┬┼"
+WALL_DEFAULTS = {1: "═", 2: "─"}
+
+FEATURE_GLYPHS = {
+    "up": ("<", "<"), "down": (">", ">"), "shaft": ("○", "o"), "portal": ("Ω", "&"),
+    "pillar": ("■", "O"), "water": ("≈", "~"), "rubble": ("∴", "%"), "steps": ("≡", "="), "hidden": ("░", ":"),
+}
+
+
+def panel_canvas(level, gm, G):
+    """One level, framed by its header and the margins for the entrance tags."""
+    W, H = level.W, level.H
+    floor, era, doors, feat = level.floor, level.era, level.doors, level.feat
+    # what can be seen on this map: 1 floor, 2 doorway
+    shown = bytearray(W * H)
+    for i in range(W * H):
+        if floor[i] in (ROOM, CORRIDOR):
+            shown[i] = 0 if (not gm and feat.get(i) == "hidden") else 1
+        elif floor[i] == DOORWAY:
+            shown[i] = 0 if (not gm and doors[i].kind == "secret") else 2
+
+    def is_shown(x, y, what=(1, 2)):
+        return 0 <= x < W and 0 <= y < H and shown[y * W + x] in what
+
+    wall = bytearray(W * H)
+    for y in range(H):
+        for x in range(W):
+            if not shown[y * W + x] and any(is_shown(x + dx, y + dy) for dx, dy in AROUND):
+                wall[y * W + x] = 1
+
+    def wallish(x, y):
+        return 0 <= x < W and 0 <= y < H and (wall[y * W + x] or shown[y * W + x] == 2)
+
+    def wall_era(x, y):
+        rooms, corridors = [], []
+        for dx, dy in AROUND:
+            nx, ny = x + dx, y + dy
+            if is_shown(nx, ny):
+                j = ny * W + nx
+                (rooms if floor[j] in (ROOM, DOORWAY) else corridors).append(era[j])
+        for group in (rooms, corridors):
+            built = [e for e in group if e in (1, 2)]
+            if built:
+                return min(built)
+            if group:
+                return 0
+        return 0
+
+    def wall_char(x, y):
+        e = wall_era(x, y)
+        if e not in (1, 2):
+            return "#"
+        mask = 0
+        if wallish(x, y - 1) and any(is_shown(x + dx, y + dy, (1,)) for dx in (-1, 1) for dy in (0, -1)):
+            mask |= 1
+        if wallish(x + 1, y) and any(is_shown(x + dx, y + dy, (1,)) for dx in (0, 1) for dy in (-1, 1)):
+            mask |= 2
+        if wallish(x, y + 1) and any(is_shown(x + dx, y + dy, (1,)) for dx in (-1, 1) for dy in (0, 1)):
+            mask |= 4
+        if wallish(x - 1, y) and any(is_shown(x + dx, y + dy, (1,)) for dx in (0, -1) for dy in (-1, 1)):
+            mask |= 8
+        table = DOUBLE_WALLS if e == 1 else SINGLE_WALLS
+        ch = table[mask] if mask else WALL_DEFAULTS[e]
+        fallback = "#"
+        return G(ch, fallback)
+
+    canvas = Canvas(W + 2 * PANEL_MX, H + 3)
+    canvas.write(PANEL_MX, 0, level.header(), "b")
+    oy = 2
+    for y in range(H):
+        for x in range(W):
+            i = y * W + x
+            px, py = PANEL_MX + x, oy + y
+            if wall[i]:
+                canvas.put(px, py, wall_char(x, y))
+            elif shown[i] == 2:
+                kind = doors[i].kind
+                if kind == "door":
+                    canvas.put(px, py, "+")
+                elif kind == "secret":
+                    canvas.put(px, py, "S", "b")
+                else:
+                    canvas.put(px, py, ".")
+            elif shown[i] == 1:
+                if gm and i in level.labels:
+                    canvas.put(px, py, level.labels[i], "b")
+                elif feat.get(i) == "tag":
+                    pass
+                elif i in feat and (gm or (feat[i] != "hidden" and i not in level.hidden_feats)):
+                    fancy, plain = FEATURE_GLYPHS[feat[i]]
+                    canvas.put(px, py, G(fancy, plain), "b" if feat[i] in ("up", "down", "shaft", "portal") else "n")
+                else:
+                    canvas.put(px, py, ".")
+    for letter, (x, y) in level.inner_tags:
+        canvas.put(PANEL_MX + x, oy + y, letter, "i")
+    for letter, (x, y), (dx, dy) in level.exits:
+        tag = f"[{letter}]"
+        if dx == -1:
+            canvas.write(PANEL_MX - 4, oy + y, tag, "i")
+        elif dx == 1:
+            canvas.write(PANEL_MX + W + 1, oy + y, tag, "i")
+        elif dy == -1:
+            canvas.write(PANEL_MX + x - 1, oy - 1, tag, "i")
+        else:
+            canvas.write(PANEL_MX + x - 1, oy + H, tag, "i")
+    return canvas
+
+
+def content_bounds(canvas):
+    rows = [y for y in range(1, canvas.height) if any(c != " " for c in canvas.chars[y])]
+    cols = [x for x in range(canvas.width) for y in rows if canvas.chars[y][x] != " "]
+    return min(cols), min(rows), max(cols), max(rows)
+
+
+def trim_panel(canvas, bounds):
+    """Drop the empty rock around the level: header on top, then the drawing.
+    Both maps use the GM map's bounds, so they line up."""
+    x0, y0, x1, y1 = bounds
+    header = "".join(canvas.chars[0]).strip()
+    out = Canvas(max(x1 - x0 + 1, len(header)), y1 - y0 + 3)
+    out.write(0, 0, header, "b")
+    for y in range(y0, y1 + 1):
+        for x in range(x0, x1 + 1):
+            out.put(x - x0, y - y0 + 2, canvas.chars[y][x], canvas.styles[y][x])
+    return out
+
+
+def legend_entries(dungeon, gm, G):
+    """[(text, style), ...] per entry; only what this dungeon actually has."""
+    feats = {f for lv in dungeon.levels for f in lv.feat.values()}
+    kinds = {d.kind for lv in dungeon.levels for d in lv.doors.values()}
+    eras = {r.era for r in dungeon.rooms} | {c.era for c in dungeon.corridors}
+    out = []
+    if 1 in eras:
+        out.append([(G("═║", "##"), "n"), (" " + tr("lg_era1"), "n")])
+    if 2 in eras:
+        out.append([(G("─│", "##"), "n"), (" " + tr("lg_era2"), "n")])
+    if eras & {0, 3}:
+        out.append([("#", "n"), (" " + tr("lg_era0"), "n")])
+    out.append([(".", "n"), (" " + tr("lg_floor"), "n")])
+    if "door" in kinds:
+        out.append([("+", "n"), (" " + tr("lg_door"), "n")])
+    if gm and "secret" in kinds:
+        out.append([("S", "b"), (" " + tr("lg_secret_door"), "n")])
+    if gm and "hidden" in feats:
+        out.append([(G("░", ":"), "n"), (" " + tr("lg_hidden"), "n")])
+    if feats & {"up", "down"}:
+        out.append([("< >", "b"), (" " + tr("lg_stairs"), "n")])
+    for key, label in (("steps", "lg_steps"), ("shaft", "lg_shaft"), ("portal", "lg_portal"), ("water", "lg_water"),
+                       ("rubble", "lg_rubble"), ("pillar", "lg_pillar")):
+        if key in feats:
+            fancy, plain = FEATURE_GLYPHS[key]
+            out.append([(G(fancy, plain), "b" if key in ("shaft", "portal") else "n"), (" " + tr(label), "n")])
+    out.append([("[A]", "i"), (" " + tr("lg_entrance"), "n")])
+    if gm:
+        mains = dungeon.mains()
+        out.append([(f"{mains[0].name}-01", "b"), (" " + tr("lg_room"), "n")])
+    return out
+
+
+def pack_legend(entries, width):
+    lines, line, used = [], [], 0
+    for entry in entries:
+        w = sum(len(t) for t, _ in entry)
+        extra = w + (4 if line else 0)
+        if line and used + extra > width:
+            lines.append(line)
+            line, used = [], 0
+            extra = w
+        line.append(entry)
+        used += extra
+    if line:
+        lines.append(line)
+    return lines
+
+
+def legend_width(line):
+    return sum(len(t) for entry in line for t, _ in entry) + 4 * (len(line) - 1)
+
+
+class Layout:
+    """How the page is put together: panel grid, legend, size in letters."""
+
+    def __init__(self, dungeon, panels, pc, legend, title, subtitle):
+        self.panels, self.pc = panels, pc
+        self.pr = math.ceil(len(panels) / pc)
+        self.panel_w = max(p.width for p in panels)
+        self.panel_h = max(p.height for p in panels)
+        grid_w = pc * self.panel_w + (pc - 1) * GAP_X
+        grid_h = self.pr * self.panel_h + (self.pr - 1) * GAP_Y
+        inner = max(grid_w, len(title) + 4, len(subtitle) + 4, 60)
+        self.legend = pack_legend(legend, inner)
+        self.title, self.subtitle = title, subtitle
+        self.grid_w, self.grid_h = grid_w, grid_h
+        self.cols = inner + 4
+        self.rows = 5 + grid_h + 1 + len(self.legend) + 1
+
+
+def page_layouts(dungeon, panels, legend, title, subtitle):
+    out = []
+    n = len(panels)
+    for pc in range(1, n + 1):
+        if pc > 1 and math.ceil(n / pc) == math.ceil(n / (pc - 1)):
+            continue
+        out.append(Layout(dungeon, panels, pc, legend, title, subtitle))
+    return out
+
+
+def compose_page(layout):
+    page = Canvas(layout.cols, layout.rows)
+    t, s = layout.title, layout.subtitle
+    page.write((layout.cols - len(t)) // 2, 1, t, "b")
+    page.write((layout.cols - len(s)) // 2, 2, s)
+    x0, y0 = (layout.cols - layout.grid_w) // 2, 4
+    for k, panel in enumerate(layout.panels):
+        r, c = divmod(k, layout.pc)
+        px = x0 + c * (layout.panel_w + GAP_X) + (layout.panel_w - panel.width) // 2
+        py = y0 + r * (layout.panel_h + GAP_Y)
+        page.paste(panel, px, py)
+    y = y0 + layout.grid_h + 1
+    for line in layout.legend:
+        x = (layout.cols - legend_width(line)) // 2
+        for n, entry in enumerate(line):
+            if n:
+                x += 4
+            for text, style in entry:
+                page.write(x, y, text, style)
+                x += len(text)
+        y += 1
+    return page
+
+
+# --- paper ---
+def paper_pixels(paper, orientation):
+    w_mm, h_mm = PAPERS[paper]
+    if orientation == "landscape":
+        w_mm, h_mm = h_mm, w_mm
+    return round(mm(w_mm)), round(mm(h_mm))
+
+
+VALID_SIZES = {paper_pixels(p, o) for p in PAPERS for o in ("portrait", "landscape")}
+
+
+def fit(layout, paper, aspect):
+    """Best orientation for one layout on one paper: (char_mm, fill, orientation)."""
+    short, long_ = PAPERS[paper]
+    max_char = MAX_CHAR_MM * short / PAPERS["A4"][0]
+    best = None
+    for name, (w_mm, h_mm) in (("portrait", (short, long_)), ("landscape", (long_, short))):
+        page_w, page_h = w_mm - 2 * MARGIN_MM, h_mm - 2 * MARGIN_MM
+        char_mm = min(page_w / layout.cols, page_h / (layout.rows * aspect), max_char)
+        filled = (layout.cols * char_mm) * (layout.rows * char_mm * aspect) / (page_w * page_h)
+        option = (char_mm, filled, name)
+        if best is None or char_mm > best[0] * 1.08 or (char_mm >= best[0] * 0.92 and filled > best[1]):
+            best = option
+    return best
+
+
+def choose_sheet(layouts, paper, aspect):
+    """Best (layout, char_mm, orientation) for a paper: biggest letters, then fuller sheet."""
+    best = None
+    for layout in layouts:
+        char_mm, filled, orientation = fit(layout, paper, aspect)
+        if best is None or char_mm > best[1] * 1.03 or (char_mm >= best[1] * 0.97 and filled > best[3]):
+            best = (layout, char_mm, orientation, filled)
+    return best[:3]
+
+
+def suggest_paper(layouts, aspect):
+    options = {paper: choose_sheet(layouts, paper, aspect) for paper in PAPERS}
+    readable = [p for p in PAPERS if options[p][1] >= GOOD_CHAR_MM]
+    return (readable[0] if readable else list(PAPERS)[-1]), options
+
+
+def ask_paper(layouts, aspect, wanted, ask_user, log):
+    suggested, options = suggest_paper(layouts, aspect)
+    any_layout = options[suggested][0]
+    log.info(tr("info_paper_intro", nc=any_layout.cols, nr=any_layout.rows))
+    for paper, (layout, char_mm, orientation) in options.items():
+        if char_mm < SMALL_CHAR_MM:
+            verdict = tr("v_too_small")
+        elif char_mm < GOOD_CHAR_MM:
+            verdict = tr("v_small")
+        else:
+            verdict = tr("v_good")
+        note = tr("suggested") if paper == suggested else ""
+        log.info(tr("info_paper_option", paper=paper, o=tr("orientation_" + orientation), pc=layout.pc,
+                    pr=layout.pr, mm=char_mm, v=verdict, note=note))
+    default = wanted or suggested
+    if ask_user:
+        print()
+        print(tr("paper_choice"))
+        while True:
+            answer = input(tr("q_paper", default=default)).strip().upper()
+            if not answer:
+                break
+            if answer in PAPERS:
+                default = answer
+                break
+            print(tr("paper_retry"))
+    return default, options[default]
+
+
+# --- rendering and saving ---
+def pixel_layout(layout, paper, orientation, char_mm, fonts):
+    font_spec, bold_spec, advance_em, _ = fonts
+    width, height = paper_pixels(paper, orientation)
+    area_w, area_h = width - 2 * mm(MARGIN_MM), height - 2 * mm(MARGIN_MM)
+    size = max(6, int(mm(char_mm) / advance_em))
+    while True:
+        regular = open_font(font_spec, size)
+        char_w = regular.getlength("M")
+        ascent, descent = regular.getmetrics()
+        char_h = ascent + descent
+        if (layout.cols * char_w <= area_w and layout.rows * char_h <= area_h) or size <= 6:
+            break
+        size -= 1
+    bold = open_font(bold_spec, size) if bold_spec else None
+    ox, oy = (width - layout.cols * char_w) / 2, (height - layout.rows * char_h) / 2
+    return regular, bold, char_w, char_h, size, width, height, ox, oy
+
+
+def render(canvas, regular, bold, char_w, char_h, size, width, height, ox, oy, progress=None):
+    """Rasterise in grayscale: 0 = ink, 255 = paper (colours come later)."""
+    img = Image.new("L", (width, height), 255)
+    d = ImageDraw.Draw(img)
+    thicken = max(1, size // 22)
+    real_bold = bold is not None
+    probe = bold.font_variant(size=40) if real_bold else None
+    bold_can_draw = {}
+
+    def draw_bold(px, py, ch):
+        if real_bold:
+            if ch not in bold_can_draw:
+                bold_can_draw[ch] = ch.isascii() or font_has_glyph(probe, ch)
+            if bold_can_draw[ch]:
+                d.text((px, py), ch, font=bold, fill=0, anchor="la")
+                return
+        d.text((px, py), ch, font=regular, fill=0, anchor="la")
+        d.text((px + thicken, py), ch, font=regular, fill=0, anchor="la")
+
+    for y in range(canvas.height):
+        py = oy + y * char_h
+        for x in range(canvas.width):
+            ch, style = canvas.chars[y][x], canvas.styles[y][x]
+            if ch == " " and style != "i":
+                continue
+            px = ox + x * char_w
+            if style == "i":
+                # the [ ] only make sense in the .txt
+                d.rectangle([px, py, px + char_w + 0.5, py + char_h + 0.5], fill=0)
+                if ch not in "[] ":
+                    d.text((px, py), ch, font=bold or regular, fill=255, anchor="la")
+            elif style == "b":
+                draw_bold(px, py, ch)
+            else:
+                d.text((px, py), ch, font=regular, fill=0, anchor="la")
+        if progress:
+            progress((y + 1) / canvas.height)
+    return img
+
+
+def colorize(img, scheme):
+    """Grey levels become a blend from ink to paper, so the antialiasing
+    survives. Turns the picture into a palette PNG in place: no extra memory."""
+    if scheme == 1:
+        return img
+    ink, paper = COLOR_SCHEMES[scheme]
+    palette = []
+    for v in range(256):
+        t = v / 255
+        palette += [round(ink[k] * (1 - t) + paper[k] * t) for k in range(3)]
+    img.putpalette(palette)
+    return img
+
+
+def save_png(img, path, settings=None):
+    """Every PNG goes through here: it must be exactly A4/A3/A2/A1 at 600 dpi."""
+    if img.size not in VALID_SIZES:
+        raise ValueError(tr("err_size", path=path, size=img.size))
+    info = PngInfo()
+    if settings:
+        info.add_itxt(SETTINGS_KEY, json.dumps(settings, ensure_ascii=False))
+    img.save(path, dpi=(DPI, DPI), pnginfo=info)
+
+
+def save(canvas, pixels, png_path, scheme, settings):
+    live = LiveBar()
+    drawing = tr("pb_drawing")
+    img = render(canvas, *pixels, progress=lambda done: live.update(0.85 * done, drawing))
+    live.update(0.85, tr("pb_saving"))
+    save_png(colorize(img, scheme), png_path, settings)
+    with open(png_path[:-4] + ".txt", "w", encoding="utf-8") as f:
+        f.write("\n".join(canvas.lines()) + "\n")
+    live.finish()
+
+
+# --- the key ---
+def wrap(text, width, indent=""):
+    words, lines, line = text.split(), [], indent
+    for w in words:
+        if len(line) + len(w) + 1 > width and line.strip():
+            lines.append(line.rstrip())
+            line = indent
+        line += w + " "
+    if line.strip():
+        lines.append(line.rstrip())
+    return lines
+
+
+def room_text(room):
+    first_era, first = room.layers[0]
+    text = pick(first)
+    text = text[0].upper() + text[1:]
+    for era, layer in room.layers[1:]:
+        text += f"; {ERA_TAGS[era]}: {pick(layer)}"
+    return f"[{ERA_TAGS[first_era]}] {text}."
+
+
+def room_exits(dungeon, room):
+    out = []
+    level = room.level
+    for c in level.corridors:
+        if room not in (c.a, c.b):
+            continue
+        door = c.door_of(room)
+        how = [tr("ex_" + ("secret" if door.kind == "secret" else door.kind))]
+        if c.feature == "hidden":
+            how = [tr("ex_hidden")]
+        elif c.feature in ("water", "rubble", "steps"):
+            how.append(tr("ex_" + c.feature))
+        out.append(f"→ {c.other(room).label} ({', '.join(how)})")
+    for link in dungeon.links:
+        if room not in (link.a, link.b):
+            continue
+        other = link.other(room)
+        if link.kind == "stairs":
+            what = tr("ex_down") if other.level.depth > room.level.depth else tr("ex_up")
+        else:
+            what = tr("ex_" + link.kind)
+        gap = abs(other.level.depth - room.level.depth)
+        skip = ""
+        if link.kind != "portal" and gap >= 2 and not other.level.sub and not room.level.sub:
+            skip = tr("ex_skips_one") if gap == 2 else tr("ex_skips", n=int(gap - 1))
+        hidden = tr("ex_hidden_link") if link.secret else ""
+        out.append(f"{what} → {other.label}{skip}{hidden}")
+    for e in dungeon.entrances:
+        if e["room"] is room:
+            out.append(tr("ex_entrance", l=e["letter"]))
+    return out
+
+
+def write_key(dungeon, path, seed, title):
+    story = dungeon.story
+    width = 100
+    lines = [f"WyrmDelve v{VERSION} — {title}", f"{tr('key_seed')}: {seed}", ""]
+    lines += [tr("key_history"), *wrap(pick(story["history"]), width, "  "), ""]
+    lines.append(tr("key_strata"))
+    eras = {r.era for r in dungeon.rooms}
+    strata = [(0, pick(("Grotte naturali, più antiche di ogni costruzione", "Natural caves, older than any building")), "#"),
+              (1, pick(story["f_who"]) + " — " + pick(story["founders"]["built"]), "═║"),
+              (2, pick(story["s_who"]), "─│"),
+              (3, pick(("oggi: ", "today: ")) + pick(story["p_who"]), "#")]
+    for era, text, walls in strata:
+        mark = "" if era in eras or era == 3 else pick(("  (nessuna stanza)", "  (no rooms)"))
+        lines.append(f"  {ERA_TAGS[era]:<4}{text}  [{walls}]{mark}")
+    lines += ["", tr("key_entrances")]
+    for e in dungeon.entrances:
+        mid = tr("key_midpoint") if e["midpoint"] else ""
+        lines.append("  " + tr("key_entrance_line", l=e["letter"], kind=pick(e["kind"]), lv=e["level"].name, mid=mid,
+                                room=e["room"].label))
+    if dungeon.links:
+        lines += ["", tr("key_links")]
+        for link in dungeon.links:
+            a, b = sorted((link.a, link.b), key=lambda r: r.level.depth)
+            hidden = tr("ex_hidden_link") if link.secret else ""
+            lines.append(f"  {a.label:<6} ↔ {b.label:<6} {tr('link_' + link.kind)}{hidden}")
+    mains = dungeon.mains()
+    for level in dungeon.levels:
+        lines.append("")
+        if level.sub:
+            d = int(level.depth)
+            if d + 1 < len(mains):
+                lines.append(tr("key_sublevel", n=level.name, a=mains[d].name, b=mains[d + 1].name))
+            else:
+                lines.append(tr("key_sublevel_one", n=level.name))
+        else:
+            lines.append(tr("key_level", n=level.name))
+        if level.split is not None:
+            lines += wrap(tr("key_divided"), width, "  ")
+        for room in sorted(level.rooms, key=lambda r: r.number):
+            lines += wrap(f"{room.label:<6} {room_text(room)}", width, "  ")
+            exits = room_exits(dungeon, room)
+            if exits:
+                lines += wrap(tr("key_exits") + ": " + "; ".join(exits), width, "         ")
+    lines += ["", tr("key_jaquays")]
+    for mark, text in jaquays_report(dungeon):
+        lines.append(f"  {'✓' if mark == 'ok' else '~' if mark == '~' else '–'} {text}")
+    with open(path, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines) + "\n")
+
+
+# --- files and folders ---
+OUTPUT_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dungeons_generated")
+
+
+def short_path(path):
+    try:
+        rel = os.path.relpath(path)
+    except ValueError:
+        return path
+    return rel if not rel.startswith("..") else path
+
+
+# --- welcome screen and questions ---
+TITLE_ART = r"""
+ _       __                     ____       __
+| |     / /_  ___________ ___  / __ \___  / /   _____
+| | /| / / / / / ___/ __ `__ \/ / / / _ \/ / | / / _ \
+| |/ |/ / /_/ / /  / / / / / / /_/ /  __/ /| |/ /  __/
+|__/|__/\__, /_/  /_/ /_/ /_/_____/\___/_/ |___/\___/
+       /____/
+"""
+
+ORCO_DUNGEON = r"""
+      *         :       :       :       :       :          *
+  . (     . . . . .           . . . . . . . . . . . .  . (    .
+   ) )  *   :       :  (__)         :   `   :    /  :   ) )  *
+  ( ( )  .. . . .   _--) _(__   . . . . . . . . . . .  ( ( )  .
+ ` )`(      ;    /¯¯  ( {φ}) \  :       :       :     ` )`(
+  \~~~/   . .   /(  )  \ ~/  ))   . . . . . . . . . .  \~~~/  .
+   |≡|   ´  :  / |`´).  ¯¯. / )    /:       :       :   |≡|   ´
+. .\_/. .\. .  | | /       /\ |   . . . . . . . . . . . \_/ . .
+:   |   :      | ||       |  ||  .      :       :       :|
+. .[=]. . . .  ├ππ\\ππ¢ππππ┤ ||  |\   . . . . . . . . . [=] . .
+    |       :  |   \\---.  | ||  | \        :       :    |  :
+. . . . . .   =====(_(≡=====(((≡=XXXX>  . . . . . . . . . . . .
+:       :      ||         ||    ´/    \      `  :       :
+=============  ||         ||     `----´  =======================
+    /      /   /\          \\   |      \      \   | σ       \
+  /         /  ¯¯            ¯¯           \       ´√))θ       \
+      /            /            |            \     / \    \
+"""
+
+
+def terminal_width():
+    try:
+        return os.get_terminal_size(sys.stdout.fileno()).columns
+    except (OSError, ValueError):
+        return None
+
+
+def show_welcome():
+    """Title, the ogre in his dungeon, and the first question: Enter = random."""
+    art = ORCO_DUNGEON.strip("\n").split("\n")
+    title = TITLE_ART.strip("\n").split("\n")
+    subtitle = f"v{VERSION}  ·  " + tr("welcome_subtitle")
+    width = max(max(len(line) for line in art), max(len(line) for line in title), len(subtitle)) + 4
+    columns = terminal_width()
+    if columns and columns <= width:
+        width = columns - 1
+    title_width = max(len(line) for line in title)
+    art_width = max(len(line) for line in art)
+    screen = [
+        "═" * width,
+        "",
+        *[" " * max(0, (width - title_width) // 2) + line for line in title],
+        "",
+        " " * max(0, (width - len(subtitle)) // 2) + subtitle,
+        "",
+        "═" * width,
+        *[(" " * max(0, (width - art_width) // 2) + line)[:width] for line in art],
+        "═" * width,
+    ]
+    print("\n" + "\n".join(line.rstrip() for line in screen) + "\n")
+    answer = input(tr("press_enter")).strip().lower()
+    print()
+    if answer.startswith(tr("letter_params")):
+        return "params"
+    if answer.startswith(tr("letter_rebuild")):
+        return "rebuild"
+    return "random"
+
+
+def ask(question, default, kind=int, lowest=None, highest=None):
+    """Keep asking until the answer is valid. Enter = default."""
+    while True:
+        answer = input(f"  {question} [{default}]: ").strip()
+        if not answer:
+            return default
+        try:
+            value = kind(answer)
+        except ValueError:
+            print(tr("invalid_value"))
+            continue
+        if (lowest is not None and value < lowest) or (highest is not None and value > highest):
+            print(tr("value_range", lo=lowest, hi=highest))
+            continue
+        return value
+
+
+def ask_colors(default=1):
+    print(tr("colors_intro"))
+    for k in (1, 2, 3):
+        print(tr(f"color_{k}"))
+    return ask(tr("choice"), default, int, 1, 3)
+
+
+def ask_settings():
+    ask_language()
+    mode = show_welcome()
+    print(tr("enter_accepts"))
+    p = {"title": None, "ascii_only": False, "font": None, "paper": None, "output": OUTPUT_FOLDER}
+    if mode == "rebuild":
+        while True:
+            seed = read_seed(input(tr("ask_seed", example=example_seed())))
+            if seed:
+                break
+            print(tr("seed_invalid", example=example_seed()))
+        p.update(seed)
+        p["randomized"] = False
+    elif mode == "params":
+        lo, hi = LIMITS["levels"]
+        levels = ask(tr("q_levels"), DEFAULTS["levels"], int, lo, hi)
+        rooms = ask(tr("q_rooms"), max(DEFAULTS["rooms"], 2 * levels), int, max(3, 2 * levels), LIMITS["rooms"][1])
+        entrances = ask(tr("q_entrances"), min(DEFAULTS["entrances"], rooms), int, 1, min(LIMITS["entrances"][1], rooms))
+        hidden = ask(tr("q_secrets"), DEFAULTS["secrets"], int, *LIMITS["secrets"])
+        p.update({"levels": levels, "rooms": rooms, "entrances": entrances, "secrets": hidden,
+                  "number": new_number(), "randomized": False})
+    else:
+        p.update(random_params(new_number()))
+        p["randomized"] = True
+    p["colors"] = ask_colors()
+    p["ask_paper"] = sys.stdin.isatty()
+    return p
+
+
+def settings_from_options(argv):
+    """Command line. Every option has an Italian and an English name;
+    --help lists the current language's first."""
+    language_from_options(argv)
+
+    def names(italian, english):
+        return (f"--{italian}", f"--{english}") if LANG == "it" else (f"--{english}", f"--{italian}")
+    ap = argparse.ArgumentParser(description=tr("h_description"), epilog=tr("h_epilog"))
+    ap.add_argument(*names("lingua", "language"), dest="language", default=LANG, metavar="{it,en}",
+                    help=tr("h_language"))
+    ap.add_argument(*names("livelli", "levels"), dest="levels", type=int, default=None, help=tr("h_levels"))
+    ap.add_argument(*names("stanze", "rooms"), dest="rooms", type=int, default=None, help=tr("h_rooms"))
+    ap.add_argument(*names("ingressi", "entrances"), dest="entrances", type=int, default=None, help=tr("h_entrances"))
+    ap.add_argument(*names("segreti", "secrets"), dest="secrets", type=int, default=None, help=tr("h_secrets"))
+    ap.add_argument(*names("colori", "colors"), dest="colors", type=int, choices=(1, 2, 3), default=1,
+                    help=tr("h_colors"))
+    ap.add_argument(*names("seme", "seed"), dest="seed", default=None, help=tr("h_seed"))
+    ap.add_argument(*names("formato", "format"), dest="paper", type=str.upper, choices=list(PAPERS), default=None,
+                    help=tr("h_format"))
+    ap.add_argument(*names("titolo", "title"), dest="title", default=None, help=tr("h_title"))
+    ap.add_argument(*names("solo-ascii", "ascii-only"), dest="ascii_only", action="store_true", help=tr("h_ascii"))
+    ap.add_argument("--font", default=None, metavar="FILE", help=tr("h_font"))
+    ap.add_argument(*names("uscita", "output"), dest="output", default=OUTPUT_FOLDER, help=tr("h_output"))
+    a = ap.parse_args(argv)
+    p = {"title": a.title, "ascii_only": a.ascii_only, "font": a.font, "paper": a.paper, "output": a.output,
+         "colors": a.colors}
+    fixed = {k: v for k, v in (("levels", a.levels), ("rooms", a.rooms), ("entrances", a.entrances),
+                               ("secrets", a.secrets)) if v is not None}
+    if a.seed:
+        seed = read_seed(a.seed)
+        if seed:
+            p.update(seed)
+            p["randomized"] = False
+        else:
+            number = from_code(a.seed) if not a.seed.isdigit() else int(a.seed) % (32 ** CODE_LENGTH)
+            if number is None:
+                ap.error(tr("err_seed", s=a.seed))
+            p.update(random_params(number, fixed))
+            p["randomized"] = len(fixed) < 4
+    else:
+        p.update(random_params(new_number(), fixed))
+        p["randomized"] = len(fixed) < 4
+    error = check_params(p)
+    if error:
+        ap.error(error)
+    p["ask_paper"] = a.paper is None and sys.stdin.isatty()
+    return p
+
+
+# --- main ---
+def main():
+    interactive = len(sys.argv) == 1
+    params = ask_settings() if interactive else settings_from_options(sys.argv[1:])
+    log = Log(10)
+
+    # 1: settings
+    log.step(tr("step_settings"))
+    seed = make_seed(params)
+    log.info(tr("info_seed", s=seed))
+    log.info(tr("info_params", l=params["levels"], r=params["rooms"], e=params["entrances"], x=params["secrets"]))
+    if params.get("randomized"):
+        log.info(tr("info_random"))
+    log.info(tr("info_colors", c=tr(f"color_name_{params['colors']}")))
+    folder = os.path.join(params["output"], seed)
+    os.makedirs(folder, exist_ok=True)
+    log.info(tr("info_folder", folder=short_path(folder)))
+    font_spec, bold_spec = find_font(params["font"])
+    advance_em, line_em = font_metrics(font_spec)
+    aspect = line_em / advance_em
+    log.info(tr("info_font", name=font_name(font_spec), fake="" if bold_spec else tr("fake_bold"), a=aspect))
+
+    # 2-4: story, rooms, corridors
+    dungeon = generate(params, log)
+    loops = sum(1 for c in dungeon.corridors if c.kind == "loop")
+    log.info(tr("info_corridors", c=len(dungeon.corridors), l=loops))
+
+    # 5: level connections and entrances
+    log.step(tr("step_links"))
+    kinds = Counter(k.kind for k in dungeon.links)
+    log.info(tr("info_links", s=kinds["stairs"], p=kinds["shaft"], g=kinds["portal"], e=len(dungeon.entrances)))
+
+    # 6: secrets
+    log.step(tr("step_secrets"))
+    st = dungeon.stats
+    log.info(tr("info_secrets", d=st["secret_doors"], p=st["hidden"], h=st["secret_links"], w=st["water"], r=st["rubble"], s=st["steps"]))
+
+    # 7: Jaquays
+    log.step(tr("step_check"))
+    log.info(tr("info_reach", n=len(dungeon.rooms)))
+    for mark, text in jaquays_report(dungeon):
+        log.info(("✓ " if mark == "ok" else "~ " if mark == "~" else "– ") + text)
+
+    # 8: paper
+    log.step(tr("step_paper"))
+    G = Glyphs(open_font(font_spec, 40), params["ascii_only"])
+    title = params["title"] or pick(dungeon.story["title"])
+    L = len(dungeon.mains())
+    subtitle = (tr("subtitle", seed=seed, l=L, r=len(dungeon.rooms), e=len(dungeon.entrances)) if L > 1 else
+                tr("subtitle_one", seed=seed, r=len(dungeon.rooms), e=len(dungeon.entrances)))
+    gm_full = [panel_canvas(lv, True, G) for lv in dungeon.levels]
+    bounds = [content_bounds(p) for p in gm_full]
+    gm_panels = [trim_panel(p, b) for p, b in zip(gm_full, bounds)]
+    gm_layouts = page_layouts(dungeon, gm_panels, legend_entries(dungeon, True, G), title, subtitle)
+    paper, (layout, char_mm, orientation) = ask_paper(gm_layouts, aspect, params["paper"],
+                                                      params.pop("ask_paper", False), log)
+    params["paper"] = paper
+    fonts = (font_spec, bold_spec, advance_em, aspect)
+    pixels = pixel_layout(layout, paper, orientation, char_mm, fonts)
+    printed_mm = pixels[2] / DPI * 25.4
+    log.info(tr("info_sheet", paper=paper, o=tr("orientation_" + orientation), w=pixels[5], h=pixels[6], dpi=DPI,
+                mm=printed_mm))
+    if printed_mm < SMALL_CHAR_MM:
+        log.warn(tr("warn_tiny"))
+    settings = {"seed": seed, "colors": params["colors"], "paper": paper, "title": params["title"],
+                "language": LANG, "ascii_only": params["ascii_only"], "version": VERSION}
+
+    # 9: GM map
+    log.step(tr("step_gm", paper=paper, dpi=DPI))
+    gm_path = os.path.join(folder, f"{seed}_gm.png")
+    save(compose_page(layout), pixels, gm_path, params["colors"], settings)
+    log.info(tr("saved", a=short_path(gm_path), b=short_path(gm_path[:-4] + ".txt")))
+
+    # 10: players' map (same layout and letter size) and key
+    log.step(tr("step_players"))
+    pl_panels = [trim_panel(panel_canvas(lv, False, G), b) for lv, b in zip(dungeon.levels, bounds)]
+    pl_layout = Layout(dungeon, pl_panels, layout.pc, legend_entries(dungeon, False, G),
+                       tr("players_title", t=title), subtitle)
+    pl_pixels = pixel_layout(pl_layout, paper, orientation, char_mm, fonts)
+    pl_path = os.path.join(folder, f"{seed}_players.png")
+    save(compose_page(pl_layout), pl_pixels, pl_path, params["colors"], settings)
+    log.info(tr("saved", a=short_path(pl_path), b=short_path(pl_path[:-4] + ".txt")))
+    key_path = os.path.join(folder, f"{seed}_key.txt")
+    write_key(dungeon, key_path, seed, title)
+    log.info(tr("saved_key", a=short_path(key_path)))
+    if G.missing:
+        log.warn(tr("warn_missing_glyphs", g=" ".join(sorted(G.missing))))
+    log.done()
+
+
+if __name__ == "__main__":
+    try:
+        sys.stdout.reconfigure(errors="replace")
+    except AttributeError:
+        pass
+    try:
+        main()
+    except (KeyboardInterrupt, EOFError):
+        print(tr("interrupted"))
+        sys.exit(1)
