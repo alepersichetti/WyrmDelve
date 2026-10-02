@@ -81,7 +81,13 @@ python wyrmdelve.py
    1. simboli neri su sfondo bianco (default)
    2. simboli bianchi su sfondo celeste
    3. simboli bianchi su sfondo nero
-5. Il programma costruisce il dungeon e ti mostra una tabella con **A4, A3, A2 e A1**: per ogni formato la grandezza dei caratteri e se sono leggibili. Ti consiglia il foglio più piccolo su cui la mappa si legge bene; premi Invio per accettarlo o scrivi un altro formato. L'immagine esce sempre a **600 dpi** e il foglio si gira da solo in verticale o in orizzontale.
+5. Il programma costruisce il dungeon e ti chiede come impaginare i livelli:
+   1. tutti i livelli in **un solo foglio** (default)
+   2. **un livello per foglio**, su file separati
+
+   (con un solo livello la domanda non compare).
+6. Poi ti chiede che file vuoi: un'immagine **PNG** (una per foglio) oppure un **PDF** (con un livello per foglio, un solo PDF con tutti i fogli).
+7. Infine ti mostra una tabella con **A4, A3, A2 e A1**: per ogni formato la grandezza dei caratteri e se sono leggibili. Ti consiglia il foglio più piccolo su cui la mappa si legge bene; premi Invio per accettarlo o scrivi un altro formato. L'immagine esce sempre a **600 dpi** e il foglio si gira da solo in verticale o in orizzontale.
 
 ## 3. Cosa ottieni
 
@@ -92,6 +98,8 @@ In `dungeons_generated/<seme>/`:
 | `<seme>_gm.png` / `.txt` | mappa del master: numeri delle stanze, porte `S` e passaggi `░` segreti |
 | `<seme>_players.png` / `.txt` | la stessa mappa senza numeri e senza segreti |
 | `<seme>_key.txt` | storia, strati, ingressi, collegamenti tra livelli, chiave stanza per stanza, verifica dei principi di Jaquays |
+
+Con **un livello per foglio** i nomi dei PNG contengono il livello: `<seme>_gm_L1.png`, `<seme>_gm_L2a.png`… Tutti i fogli usano caratteri della stessa grandezza, così i livelli restano in scala. Con il **PDF** ottieni invece `<seme>_gm.pdf` e `<seme>_players.pdf` (una pagina per foglio, senza perdita di qualità, 600 dpi), ognuno con il suo `.txt`.
 
 Il **seme** (es. `3-24-2-5-K7Q2MB` = livelli-stanze-ingressi-segreti-codice) contiene tutto il dungeon: lo stesso seme dà sempre lo stesso dungeon.
 
@@ -115,6 +123,8 @@ python wyrmdelve.py --livelli 3 --stanze 24 --ingressi 2 --segreti 5
 python wyrmdelve.py --colori 2                   (1 nero/bianco, 2 bianco/celeste, 3 bianco/nero)
 python wyrmdelve.py --seme 3-24-2-5-K7Q2MB       rifà un dungeon
 python wyrmdelve.py --formato A2                 salta la domanda sul formato
+python wyrmdelve.py --per-livello                un livello per foglio (--un-foglio: tutti in uno)
+python wyrmdelve.py --pdf                        salva in PDF (--png: in PNG)
 python wyrmdelve.py --titolo "La Tana dell'Orco"
 python wyrmdelve.py --solo-ascii                 solo caratteri della tastiera (# ~ = o)
 python wyrmdelve.py --font MioFont.ttf

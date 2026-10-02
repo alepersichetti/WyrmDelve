@@ -81,7 +81,13 @@ python wyrmdelve.py
    1. black symbols on white (default)
    2. white symbols on light blue
    3. white symbols on black
-5. The program builds the dungeon and shows a table with **A4, A3, A2 and A1**: for each, the letter size and whether it's readable. It suggests the smallest sheet where the map reads well; press Enter to accept it or type another format. The picture is always **600 dpi** and the sheet turns portrait or landscape by itself.
+5. The program builds the dungeon and asks how to lay out the levels:
+   1. all levels on **one sheet** (default)
+   2. **one level per sheet**, in separate files
+
+   (with a single level this question is skipped).
+6. Then it asks which files you want: a **PNG** image (one per sheet) or a **PDF** (with one level per sheet, a single PDF holding every sheet).
+7. Last, it shows a table with **A4, A3, A2 and A1**: for each, the letter size and whether it's readable. It suggests the smallest sheet where the map reads well; press Enter to accept it or type another format. The picture is always **600 dpi** and the sheet turns portrait or landscape by itself.
 
 ## 3. What you get
 
@@ -92,6 +98,8 @@ In `dungeons_generated/<seed>/`:
 | `<seed>_gm.png` / `.txt` | game master map: room numbers, secret doors `S` and passages `░` |
 | `<seed>_players.png` / `.txt` | same map without numbers and secrets |
 | `<seed>_key.txt` | history, strata, entrances, level connections, room-by-room key, Jaquays check |
+
+With **one level per sheet** the PNG names get the level: `<seed>_gm_L1.png`, `<seed>_gm_L2a.png`… All sheets use the same letter size, so the levels keep the same scale. With **PDF** you get `<seed>_gm.pdf` and `<seed>_players.pdf` instead (one page per sheet, lossless, 600 dpi), each with its `.txt`.
 
 The **seed** (e.g. `3-24-2-5-K7Q2MB` = levels-rooms-entrances-secrets-code) holds the whole dungeon: the same seed always gives the same dungeon.
 
@@ -115,6 +123,8 @@ python wyrmdelve.py --levels 3 --rooms 24 --entrances 2 --secrets 5
 python wyrmdelve.py --colors 2                   (1 black/white, 2 white/light blue, 3 white/black)
 python wyrmdelve.py --seed 3-24-2-5-K7Q2MB       rebuild a dungeon
 python wyrmdelve.py --format A2                  skip the paper question
+python wyrmdelve.py --per-level                  one level per sheet (--one-sheet: all on one)
+python wyrmdelve.py --pdf                        save as PDF (--png: as PNG)
 python wyrmdelve.py --title "The Ogre's Lair"
 python wyrmdelve.py --ascii-only                 keyboard characters only (# ~ = o)
 python wyrmdelve.py --font MyFont.ttf
