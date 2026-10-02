@@ -14,13 +14,16 @@ Alexander ("Xandering the Dungeon"): multiple entrances, loops, multiple and
 discontinuous level connections, secret and unusual paths, sub-levels,
 divided levels, minor elevation shifts, midpoint entries, nested complexes.
 
-Prints on A4, A3, A2 or A1 at 600 dpi; the best paper is suggested. Three
+Prints on A4, A3, A2 or A1 at 600 dpi; the best paper is suggested. All
+levels go on one sheet, or one level per sheet; PNG files or a PDF. Three
 colour schemes: black on white, white on light blue, white on black.
 
 Output goes to dungeons_generated/<seed>/ next to this file (or --output):
   <seed>_gm.png/.txt        game master map: room numbers and secrets
   <seed>_players.png/.txt   same map without numbers and secrets
   <seed>_key.txt            history, room key, level connections, Jaquays check
+One level per sheet adds the level to the PNG names (<seed>_gm_L1.png ...);
+with PDF every map is a single <seed>_gm.pdf / <seed>_players.pdf.
 
 The seed (e.g. 3-24-2-5-K7Q2MB = levels-rooms-entrances-secrets-code) holds
 the whole dungeon: the same seed always gives the same dungeon.
@@ -33,6 +36,9 @@ Usage. Every option has an Italian and an English name, use whichever:
       (1 black on white, 2 white on light blue, 3 white on black)
   python wyrmdelve.py --seme 3-24-2-5-K7Q2MB        / --seed 3-24-2-5-K7Q2MB
   python wyrmdelve.py --formato A2                  / --format A2
+  python wyrmdelve.py --per-livello                 / --per-level  (one level per sheet)
+  python wyrmdelve.py --un-foglio                   / --one-sheet  (all levels on one sheet)
+  python wyrmdelve.py --pdf                         / --png
   python wyrmdelve.py --titolo "La Tana dell'Orco"  / --title "The Ogre's Lair"
   python wyrmdelve.py --solo-ascii                  / --ascii-only
   python wyrmdelve.py --lingua en                   / --language en  (default: Italian)
@@ -50,6 +56,7 @@ import os
 import random
 import sys
 import time
+import zlib
 from collections import Counter, deque
 
 try:
@@ -204,11 +211,29 @@ TEXTS = {
                      "  Choose the format (press Enter for the suggested one)."),
     "q_paper": ("  Formato di stampa (A4, A3, A2, A1) [{default}]: ", "  Print format (A4, A3, A2, A1) [{default}]: "),
     "paper_retry": ("    Scrivi A4, A3, A2 oppure A1.", "    Type A4, A3, A2 or A1."),
+    "sheets_intro": ("\n  Come impaginare i livelli?", "\n  How should the levels be laid out?"),
+    "sheets_1": ("    1 = tutti i livelli in un solo foglio", "    1 = all levels on one sheet"),
+    "sheets_2": ("    2 = un livello per foglio, su file separati", "    2 = one level per sheet, in separate files"),
+    "output_intro": ("\n  Che file vuoi?", "\n  Which files do you want?"),
+    "output_png_one": ("    1 = immagine PNG", "    1 = PNG image"),
+    "output_pdf_one": ("    2 = PDF", "    2 = PDF"),
+    "output_png_many": ("    1 = un'immagine PNG per ogni foglio", "    1 = one PNG image per sheet"),
+    "output_pdf_many": ("    2 = tutti i fogli in un solo PDF", "    2 = all sheets in one PDF"),
+    "info_sheets_one": ("Impaginazione: tutti i livelli in un foglio, {f}", "Layout: all levels on one sheet, {f}"),
+    "info_files": ("File: {f}", "Files: {f}"),
+    "info_sheets_levels": ("Impaginazione: un livello per foglio ({n} fogli), {f}",
+                           "Layout: one level per sheet ({n} sheets), {f}"),
+    "info_paper_intro_levels": ("Un livello per foglio, il più grande occupa {nc} x {nr} caratteri. Formati possibili:",
+                                "One level per sheet, the biggest takes {nc} x {nr} letters. Possible formats:"),
+    "info_paper_option_levels": ("{paper}  {n} fogli   caratteri da {mm:.2f} mm   {v}{note}",
+                                 "{paper}  {n} sheets   {mm:.2f} mm letters   {v}{note}"),
+    "info_sheet_level": ("{lv}: foglio {paper} {o} ({w} x {h} px)", "{lv}: {paper} sheet, {o} ({w} x {h} px)"),
     "info_sheet": ("Foglio {paper} {o} ({w} x {h} px a {dpi} dpi), caratteri da {mm:.2f} mm",
                    "{paper} sheet, {o} ({w} x {h} px at {dpi} dpi), {mm:.2f} mm letters"),
+    "info_letters": ("Caratteri da {mm:.2f} mm su tutti i fogli ({dpi} dpi)", "{mm:.2f} mm letters on every sheet ({dpi} dpi)"),
     "warn_tiny": ("Caratteri molto piccoli: scegli un formato più grande se puoi.",
                   "Very small letters: choose a bigger format if you can."),
-    "step_gm": ("Mappa del master ({paper}, {dpi} dpi, PNG + TXT)", "Game master map ({paper}, {dpi} dpi, PNG + TXT)"),
+    "step_gm": ("Mappa del master ({paper}, {dpi} dpi, {f} + TXT)", "Game master map ({paper}, {dpi} dpi, {f} + TXT)"),
     "step_players": ("Mappa dei giocatori e chiave del dungeon", "Players' map and dungeon key"),
     "saved": ("Salvate: {a}  +  {b}", "Saved: {a}  +  {b}"),
     "saved_key": ("Chiave: {a}", "Key: {a}"),
@@ -316,9 +341,9 @@ TEXTS = {
     "jq_t_nest": ("Dungeon annidati", "Nested dungeons"),
     # help
     "h_description": ("WyrmDelve: genera dungeon casuali per giochi OSR in stile ASCII roguelike, "
-                      "seguendo i principi di Jennell Jaquays. PNG a 600 dpi (A4, A3, A2, A1) + TXT.",
+                      "seguendo i principi di Jennell Jaquays. PNG o PDF a 600 dpi (A4, A3, A2, A1) + TXT.",
                       "WyrmDelve: makes random dungeons for OSR games in ASCII roguelike style, "
-                      "following Jennell Jaquays' principles. 600 dpi PNG (A4, A3, A2, A1) + TXT."),
+                      "following Jennell Jaquays' principles. 600 dpi PNG or PDF (A4, A3, A2, A1) + TXT."),
     "h_epilog": ("Senza opzioni parte la modalità interattiva. I parametri non indicati sono scelti a caso.",
                  "Without options the interactive mode starts. Parameters you leave out are chosen at random."),
     "h_levels": ("numero di livelli (1-10)", "number of levels (1-10)"),
@@ -329,6 +354,10 @@ TEXTS = {
                  "1 black on white (default), 2 white on light blue, 3 white on black"),
     "h_seed": ("seme completo (es. 3-24-2-5-K7Q2MB) per rifare un dungeon", "full seed (e.g. 3-24-2-5-K7Q2MB) to rebuild a dungeon"),
     "h_format": ("formato di stampa; senza, viene suggerito e chiesto", "print format; without it, it is suggested and asked"),
+    "h_per_level": ("un livello per foglio, su file separati", "one level per sheet, in separate files"),
+    "h_one_sheet": ("tutti i livelli in un solo foglio", "all levels on one sheet"),
+    "h_pdf": ("salva le mappe in PDF (un solo file anche con più fogli)", "save the maps as PDF (one file even with many sheets)"),
+    "h_png": ("salva le mappe in PNG (un file per foglio)", "save the maps as PNG (one file per sheet)"),
     "h_title": ("titolo della mappa (default: il nome del dungeon)", "map title (default: the dungeon's name)"),
     "h_ascii": ("solo caratteri base della tastiera", "only basic keyboard characters"),
     "h_font": ("file .ttf monospazio da usare", "monospaced .ttf font file to use"),
@@ -2057,17 +2086,32 @@ def choose_sheet(layouts, paper, aspect):
     return best[:3]
 
 
-def suggest_paper(layouts, aspect):
-    options = {paper: choose_sheet(layouts, paper, aspect) for paper in PAPERS}
-    readable = [p for p in PAPERS if options[p][1] >= GOOD_CHAR_MM]
+def choose_sheets(sheets, paper, aspect):
+    """Best (layout, char_mm, orientation) for every sheet on one paper. All
+    sheets get the smallest of their letter sizes, so they match."""
+    picks = [choose_sheet(layouts, paper, aspect) for layouts in sheets]
+    char_mm = min(char for _, char, _ in picks)
+    return [(layout, char_mm, orientation) for layout, _, orientation in picks]
+
+
+def suggest_paper(sheets, aspect):
+    options = {paper: choose_sheets(sheets, paper, aspect) for paper in PAPERS}
+    readable = [p for p in PAPERS if options[p][0][1] >= GOOD_CHAR_MM]
     return (readable[0] if readable else list(PAPERS)[-1]), options
 
 
-def ask_paper(layouts, aspect, wanted, ask_user, log):
-    suggested, options = suggest_paper(layouts, aspect)
-    any_layout = options[suggested][0]
-    log.info(tr("info_paper_intro", nc=any_layout.cols, nr=any_layout.rows))
-    for paper, (layout, char_mm, orientation) in options.items():
+def ask_paper(sheets, aspect, wanted, ask_user, log):
+    """sheets: for every sheet, the layouts it may use. Returns the paper and,
+    for every sheet, (layout, char_mm, orientation)."""
+    suggested, options = suggest_paper(sheets, aspect)
+    if len(sheets) == 1:
+        any_layout = options[suggested][0][0]
+        log.info(tr("info_paper_intro", nc=any_layout.cols, nr=any_layout.rows))
+    else:
+        biggest = max((layout for layout, _, _ in options[suggested]), key=lambda lay: lay.cols * lay.rows)
+        log.info(tr("info_paper_intro_levels", nc=biggest.cols, nr=biggest.rows))
+    for paper, picks in options.items():
+        layout, char_mm, orientation = picks[0]
         if char_mm < SMALL_CHAR_MM:
             verdict = tr("v_too_small")
         elif char_mm < GOOD_CHAR_MM:
@@ -2075,8 +2119,11 @@ def ask_paper(layouts, aspect, wanted, ask_user, log):
         else:
             verdict = tr("v_good")
         note = tr("suggested") if paper == suggested else ""
-        log.info(tr("info_paper_option", paper=paper, o=tr("orientation_" + orientation), pc=layout.pc,
-                    pr=layout.pr, mm=char_mm, v=verdict, note=note))
+        if len(sheets) == 1:
+            log.info(tr("info_paper_option", paper=paper, o=tr("orientation_" + orientation), pc=layout.pc,
+                        pr=layout.pr, mm=char_mm, v=verdict, note=note))
+        else:
+            log.info(tr("info_paper_option_levels", paper=paper, n=len(picks), mm=char_mm, v=verdict, note=note))
     default = wanted or suggested
     if ask_user:
         print()
@@ -2165,25 +2212,129 @@ def colorize(img, scheme):
     return img
 
 
-def save_png(img, path, settings=None):
-    """Every PNG goes through here: it must be exactly A4/A3/A2/A1 at 600 dpi."""
+def check_size(img, path):
+    """Every sheet must be exactly A4/A3/A2/A1 at 600 dpi."""
     if img.size not in VALID_SIZES:
         raise ValueError(tr("err_size", path=path, size=img.size))
+
+
+def save_png(img, path, settings=None):
+    check_size(img, path)
     info = PngInfo()
     if settings:
         info.add_itxt(SETTINGS_KEY, json.dumps(settings, ensure_ascii=False))
     img.save(path, dpi=(DPI, DPI), pnginfo=info)
 
 
-def save(canvas, pixels, png_path, scheme, settings):
+def pdf_text(text):
+    return "<" + ("\ufeff" + text).encode("utf-16-be").hex().upper() + ">"
+
+
+class PdfFile:
+    """A minimal PDF, one 600 dpi picture per page, Flate-compressed so it stays
+    lossless (Pillow's own PDF saves greys as JPEG and palettes uncompressed).
+    Pages are written as they come, so only one sheet is in memory at a time."""
+
+    def __init__(self, path, settings=None):
+        self.path, self.settings = path, settings
+        self.f = open(path, "wb")
+        self.f.write(b"%PDF-1.4\n%\xe2\xe3\xcf\xd3\n")
+        self.offsets = {}
+        self.next_id = 3            # 1 catalog, 2 page tree
+        self.pages = []
+
+    def new_id(self):
+        self.next_id += 1
+        return self.next_id - 1
+
+    def begin(self, oid):
+        self.offsets[oid] = self.f.tell()
+        self.f.write(f"{oid} 0 obj\n".encode())
+
+    def obj(self, oid, body):
+        self.begin(oid)
+        self.f.write(body.encode("latin-1") + b"\nendobj\n")
+
+    def add_page(self, img):
+        check_size(img, self.path)
+        w, h = img.size
+        if img.mode == "P":
+            palette = bytes(img.getpalette()[:768]).ljust(768, b"\0")
+            space = f"[/Indexed /DeviceRGB 255 <{palette.hex().upper()}>]"
+        else:
+            img = img.convert("L")
+            space = "/DeviceGray"
+        image_id, length_id = self.new_id(), self.new_id()
+        self.begin(image_id)
+        self.f.write((f"<< /Type /XObject /Subtype /Image /Width {w} /Height {h} /ColorSpace {space} "
+                      f"/BitsPerComponent 8 /Filter /FlateDecode /Length {length_id} 0 R >>\nstream\n").encode())
+        start, packer = self.f.tell(), zlib.compressobj(6)
+        for y in range(0, h, 256):
+            self.f.write(packer.compress(img.crop((0, y, w, min(h, y + 256))).tobytes()))
+        self.f.write(packer.flush())
+        length = self.f.tell() - start
+        self.f.write(b"\nendstream\nendobj\n")
+        self.obj(length_id, str(length))
+        pw, ph = w / DPI * 72, h / DPI * 72
+        draw = f"q {pw:.3f} 0 0 {ph:.3f} 0 0 cm /Im0 Do Q"
+        content_id, page_id = self.new_id(), self.new_id()
+        self.obj(content_id, f"<< /Length {len(draw)} >>\nstream\n{draw}\nendstream")
+        self.obj(page_id, f"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 {pw:.3f} {ph:.3f}] "
+                          f"/Resources << /XObject << /Im0 {image_id} 0 R >> >> /Contents {content_id} 0 R >>")
+        self.pages.append(page_id)
+
+    def close(self):
+        kids = " ".join(f"{p} 0 R" for p in self.pages)
+        self.obj(2, f"<< /Type /Pages /Kids [{kids}] /Count {len(self.pages)} >>")
+        self.obj(1, "<< /Type /Catalog /Pages 2 0 R >>")
+        info_id = self.new_id()
+        info = f"/Creator {pdf_text('WyrmDelve v' + VERSION)}"
+        if self.settings:
+            info += f" /Subject {pdf_text(json.dumps(self.settings, ensure_ascii=False))}"
+        self.obj(info_id, f"<< {info} >>")
+        xref = self.f.tell()
+        self.f.write(f"xref\n0 {self.next_id}\n0000000000 65535 f \n".encode())
+        for oid in range(1, self.next_id):
+            self.f.write(f"{self.offsets[oid]:010d} 00000 n \n".encode())
+        self.f.write(f"trailer\n<< /Size {self.next_id} /Root 1 0 R /Info {info_id} 0 R >>\n"
+                     f"startxref\n{xref}\n%%EOF\n".encode())
+        self.f.close()
+
+
+def draw_sheet(canvas, pixels, scheme):
     live = LiveBar()
     drawing = tr("pb_drawing")
     img = render(canvas, *pixels, progress=lambda done: live.update(0.85 * done, drawing))
     live.update(0.85, tr("pb_saving"))
-    save_png(colorize(img, scheme), png_path, settings)
-    with open(png_path[:-4] + ".txt", "w", encoding="utf-8") as f:
-        f.write("\n".join(canvas.lines()) + "\n")
-    live.finish()
+    return colorize(img, scheme), live
+
+
+def write_text(path, canvases):
+    with open(path, "w", encoding="utf-8") as f:
+        f.write("\n\n\n".join("\n".join(c.lines()) for c in canvases) + "\n")
+
+
+def save_map(pages, base, pdf, scheme, settings, log):
+    """pages: (canvas, pixels, suffix) for every sheet. PNG: one PNG + TXT per
+    sheet. PDF: one PDF with every sheet, and one TXT."""
+    if pdf:
+        doc = PdfFile(base + ".pdf", settings)
+        for canvas, pixels, _ in pages:
+            img, live = draw_sheet(canvas, pixels, scheme)
+            doc.add_page(img)
+            del img
+            live.finish()
+        doc.close()
+        write_text(base + ".txt", [canvas for canvas, _, _ in pages])
+        log.info(tr("saved", a=short_path(base + ".pdf"), b=short_path(base + ".txt")))
+        return
+    for canvas, pixels, suffix in pages:
+        img, live = draw_sheet(canvas, pixels, scheme)
+        save_png(img, base + suffix + ".png", settings)
+        del img
+        write_text(base + suffix + ".txt", [canvas])
+        live.finish()
+        log.info(tr("saved", a=short_path(base + suffix + ".png"), b=short_path(base + suffix + ".txt")))
 
 
 # --- the key ---
@@ -2397,11 +2548,36 @@ def ask_colors(default=1):
     return ask(tr("choice"), default, int, 1, 3)
 
 
+def ask_output(levels, per_level, pdf):
+    """Before the paper: all levels on one sheet or one per sheet, then PNG or
+    PDF. None means ask (only on a terminal; otherwise one sheet, PNG)."""
+    asking = sys.stdin.isatty()
+    if levels < 2:
+        per_level = False
+    elif per_level is None:
+        per_level = False
+        if asking:
+            print(tr("sheets_intro"))
+            print(tr("sheets_1"))
+            print(tr("sheets_2"))
+            per_level = ask(tr("choice"), 1, int, 1, 2) == 2
+    if pdf is None:
+        pdf = False
+        if asking:
+            many = "many" if per_level else "one"
+            print(tr("output_intro"))
+            print(tr("output_png_" + many))
+            print(tr("output_pdf_" + many))
+            pdf = ask(tr("choice"), 1, int, 1, 2) == 2
+    return per_level, pdf
+
+
 def ask_settings():
     ask_language()
     mode = show_welcome()
     print(tr("enter_accepts"))
-    p = {"title": None, "ascii_only": False, "font": None, "paper": None, "output": OUTPUT_FOLDER}
+    p = {"title": None, "ascii_only": False, "font": None, "paper": None, "output": OUTPUT_FOLDER,
+         "per_level": None, "pdf": None}
     if mode == "rebuild":
         while True:
             seed = read_seed(input(tr("ask_seed", example=example_seed())))
@@ -2445,13 +2621,21 @@ def settings_from_options(argv):
     ap.add_argument(*names("seme", "seed"), dest="seed", default=None, help=tr("h_seed"))
     ap.add_argument(*names("formato", "format"), dest="paper", type=str.upper, choices=list(PAPERS), default=None,
                     help=tr("h_format"))
+    sheets = ap.add_mutually_exclusive_group()
+    sheets.add_argument(*names("per-livello", "per-level"), dest="per_level", action="store_const", const=True,
+                        default=None, help=tr("h_per_level"))
+    sheets.add_argument(*names("un-foglio", "one-sheet"), dest="per_level", action="store_const", const=False,
+                        help=tr("h_one_sheet"))
+    files = ap.add_mutually_exclusive_group()
+    files.add_argument("--pdf", dest="pdf", action="store_const", const=True, default=None, help=tr("h_pdf"))
+    files.add_argument("--png", dest="pdf", action="store_const", const=False, help=tr("h_png"))
     ap.add_argument(*names("titolo", "title"), dest="title", default=None, help=tr("h_title"))
     ap.add_argument(*names("solo-ascii", "ascii-only"), dest="ascii_only", action="store_true", help=tr("h_ascii"))
     ap.add_argument("--font", default=None, metavar="FILE", help=tr("h_font"))
     ap.add_argument(*names("uscita", "output"), dest="output", default=OUTPUT_FOLDER, help=tr("h_output"))
     a = ap.parse_args(argv)
     p = {"title": a.title, "ascii_only": a.ascii_only, "font": a.font, "paper": a.paper, "output": a.output,
-         "colors": a.colors}
+         "colors": a.colors, "per_level": a.per_level, "pdf": a.pdf}
     fixed = {k: v for k, v in (("levels", a.levels), ("rooms", a.rooms), ("entrances", a.entrances),
                                ("secrets", a.secrets)) if v is not None}
     if a.seed:
@@ -2528,35 +2712,55 @@ def main():
     gm_full = [panel_canvas(lv, True, G) for lv in dungeon.levels]
     bounds = [content_bounds(p) for p in gm_full]
     gm_panels = [trim_panel(p, b) for p, b in zip(gm_full, bounds)]
-    gm_layouts = page_layouts(dungeon, gm_panels, legend_entries(dungeon, True, G), title, subtitle)
-    paper, (layout, char_mm, orientation) = ask_paper(gm_layouts, aspect, params["paper"],
-                                                      params.pop("ask_paper", False), log)
+    per_level, pdf = ask_output(len(dungeon.levels), params["per_level"], params["pdf"])
+    params["per_level"], params["pdf"] = per_level, pdf
+    files = "PDF" if pdf else "PNG"
+    if per_level:
+        log.info(tr("info_sheets_levels", n=len(dungeon.levels), f=files))
+        groups = [[k] for k in range(len(dungeon.levels))]
+    else:
+        log.info(tr("info_sheets_one", f=files) if len(dungeon.levels) > 1 else tr("info_files", f=files))
+        groups = [list(range(len(dungeon.levels)))]
+    gm_legend = legend_entries(dungeon, True, G)
+    sheets = [page_layouts(dungeon, [gm_panels[k] for k in group], gm_legend, title, subtitle) for group in groups]
+    paper, picks = ask_paper(sheets, aspect, params["paper"], params.pop("ask_paper", False), log)
     params["paper"] = paper
     fonts = (font_spec, bold_spec, advance_em, aspect)
-    pixels = pixel_layout(layout, paper, orientation, char_mm, fonts)
-    printed_mm = pixels[2] / DPI * 25.4
-    log.info(tr("info_sheet", paper=paper, o=tr("orientation_" + orientation), w=pixels[5], h=pixels[6], dpi=DPI,
-                mm=printed_mm))
+    gm_pixels = [pixel_layout(layout, paper, orientation, char_mm, fonts) for layout, char_mm, orientation in picks]
+    printed_mm = min(pixels[2] for pixels in gm_pixels) / DPI * 25.4
+    if per_level:
+        log.info(tr("info_letters", mm=printed_mm, dpi=DPI))
+        for group, (_, _, orientation), pixels in zip(groups, picks, gm_pixels):
+            log.info(tr("info_sheet_level", lv=dungeon.levels[group[0]].header(), paper=paper,
+                        o=tr("orientation_" + orientation), w=pixels[5], h=pixels[6]))
+    else:
+        orientation, pixels = picks[0][2], gm_pixels[0]
+        log.info(tr("info_sheet", paper=paper, o=tr("orientation_" + orientation), w=pixels[5], h=pixels[6],
+                    dpi=DPI, mm=printed_mm))
     if printed_mm < SMALL_CHAR_MM:
         log.warn(tr("warn_tiny"))
     settings = {"seed": seed, "colors": params["colors"], "paper": paper, "title": params["title"],
-                "language": LANG, "ascii_only": params["ascii_only"], "version": VERSION}
+                "language": LANG, "ascii_only": params["ascii_only"], "per_level": per_level, "pdf": pdf,
+                "version": VERSION}
+    suffixes = [f"_L{dungeon.levels[g[0]].name}" if per_level else "" for g in groups]
 
     # 9: GM map
-    log.step(tr("step_gm", paper=paper, dpi=DPI))
-    gm_path = os.path.join(folder, f"{seed}_gm.png")
-    save(compose_page(layout), pixels, gm_path, params["colors"], settings)
-    log.info(tr("saved", a=short_path(gm_path), b=short_path(gm_path[:-4] + ".txt")))
+    log.step(tr("step_gm", paper=paper, dpi=DPI, f=files))
+    gm_pages = [(compose_page(layout), pixels, suffix)
+                for (layout, _, _), pixels, suffix in zip(picks, gm_pixels, suffixes)]
+    save_map(gm_pages, os.path.join(folder, f"{seed}_gm"), pdf, params["colors"], settings, log)
+    del gm_pages
 
     # 10: players' map (same layout and letter size) and key
     log.step(tr("step_players"))
     pl_panels = [trim_panel(panel_canvas(lv, False, G), b) for lv, b in zip(dungeon.levels, bounds)]
-    pl_layout = Layout(dungeon, pl_panels, layout.pc, legend_entries(dungeon, False, G),
-                       tr("players_title", t=title), subtitle)
-    pl_pixels = pixel_layout(pl_layout, paper, orientation, char_mm, fonts)
-    pl_path = os.path.join(folder, f"{seed}_players.png")
-    save(compose_page(pl_layout), pl_pixels, pl_path, params["colors"], settings)
-    log.info(tr("saved", a=short_path(pl_path), b=short_path(pl_path[:-4] + ".txt")))
+    pl_legend = legend_entries(dungeon, False, G)
+    pl_pages = []
+    for group, (layout, char_mm, orientation), suffix in zip(groups, picks, suffixes):
+        pl_layout = Layout(dungeon, [pl_panels[k] for k in group], layout.pc, pl_legend,
+                           tr("players_title", t=title), subtitle)
+        pl_pages.append((compose_page(pl_layout), pixel_layout(pl_layout, paper, orientation, char_mm, fonts), suffix))
+    save_map(pl_pages, os.path.join(folder, f"{seed}_players"), pdf, params["colors"], settings, log)
     key_path = os.path.join(folder, f"{seed}_key.txt")
     write_key(dungeon, key_path, seed, title)
     log.info(tr("saved_key", a=short_path(key_path)))
