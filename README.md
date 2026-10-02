@@ -4,10 +4,9 @@
 
 [Italiano](README.it.md) · **English**
 
-Works with any analogue "OSR" roleplaying game. Sibling of [WyrmHex](https://github.com/alepersichetti/WyrmHex).
 </div>
 
-```
+<table align="center"><tr><td><pre>
       *         :       :       :       :       :          *
   . (     . . . . .           . . . . . . . . . . . .  . (    .
    ) )  *   :       :  (__)         :   `   :    /  :   ) )  *
@@ -19,13 +18,20 @@ Works with any analogue "OSR" roleplaying game. Sibling of [WyrmHex](https://git
 :   |   :      | ||       |  ||  .      :       :       :|
 . .[=]. . . .  ├ππ\\ππ¢ππππ┤ ||  |\   . . . . . . . . . [=] . .
     |       :  |   \\---.  | ||  | \        :       :    |  :
-. . . . . .   =====(_(≡=====(((≡=XXXX>  . . . . . . . . . . . .
+. . . . . .   =====(_(≡=====(((≡=XXXX&gt;  . . . . . . . . . . . .
 :       :      ||         ||    ´/    \      `  :       :
 =============  ||         ||     `----´  =======================
     /      /   /\          \\   |      \      \   | σ       \
   /         /  ¯¯            ¯¯           \       ´√))θ       \
       /            /            |            \     / \    \
-```
+</pre></td></tr></table>
+
+<div align="center">
+
+<img src="img_examples/OSR%20LOGO.png" alt="OSR logo" width="25%"><br>
+Works with any analogue "OSR" roleplaying game. Sibling of [WyrmHex](https://github.com/alepersichetti/WyrmHex).
+
+</div>
 
 ### WyrmDelve v0.0.1
 
