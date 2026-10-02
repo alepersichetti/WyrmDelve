@@ -255,7 +255,7 @@ The pictures already have the exact size of the paper you chose, at 600 dpi: the
 
 ## 7. Changing the words of the dungeons
 
-The program's logic is in `wyrmdelve.py`; the **words** it draws at random are in `wyrmdelve_tables.json`, a text file you can open with any text editor (Notepad, TextEdit…):
+The program's logic is in `wyrmdelve.py`; the **words** it draws at random are in `wyrmdelve_tables.json`, **in the same folder as `wyrmdelve.py`**: a text file you can open and change with any text editor (Notepad, TextEdit…). It holds about 3,000 entries (rooms, builders, occupants, caves, events, places, entrances, name syllables), which combine into billions of different stories:
 
 | Section | What it holds |
 |---|---|

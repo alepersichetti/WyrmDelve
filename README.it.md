@@ -255,7 +255,7 @@ Le immagini hanno già la misura esatta del foglio scelto, a 600 dpi: si stampan
 
 ## 7. Cambiare le parole dei dungeon
 
-La logica del programma sta in `wyrmdelve.py`; le **parole** che pesca a caso stanno in `wyrmdelve_tables.json`, un file di testo che puoi aprire con qualsiasi editor (Blocco note, TextEdit…):
+La logica del programma sta in `wyrmdelve.py`; le **parole** che pesca a caso stanno in `wyrmdelve_tables.json`, **nella stessa cartella di `wyrmdelve.py`**: un file di testo che puoi aprire e modificare con qualsiasi editor (Blocco note, TextEdit…). Contiene circa 3.000 voci (stanze, costruttori, occupanti, grotte, eventi, luoghi, ingressi, sillabe per i nomi), che si combinano in miliardi di storie diverse:
 
 | Sezione | Cosa contiene |
 |---|---|
