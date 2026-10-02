@@ -411,3 +411,7 @@ Premi **Ctrl+C**. Non si rompe niente: basta riavviarlo.
 - Justin Alexander, [Xandering the Dungeon](https://thealexandrian.net/wordpress/13085/roleplaying-games/xandering-the-dungeon) (parti 1–5) e [Xandering on the Small Scale](https://thealexandrian.net/wordpress/34950/roleplaying-games/thought-of-the-day-xandering-on-the-small-scale)
 - Alcune voci di `wyrmdelve_tables.json` (caratteristiche delle stanze, grotte, luoghi, nomi dei siti, minacce, guai degli insediamenti) sono tradotte e adattate da *Ironsworn* e *Ironsworn: Delve* di Shawn Tomkin ([ironswornrpg.com](https://ironswornrpg.com)), con licenza [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); i dati sono stati letti da [Datasworn](https://github.com/rsek/datasworn). Dalla stessa fonte vengono le sillabe dei nomi di Ironsworn.
 - Le sillabe e le desinenze in stile Tolkien sono statistiche di frequenza ricavate dalla lista di nomi di [Angband](https://github.com/angband/angband) (`lib/gamedata/names.txt`); la lista non è copiata.
+
+## Licenza
+
+WyrmDelve è software libero con licenza [GNU General Public License v3.0](LICENSE). Le parti di `wyrmdelve_tables.json` adattate da Ironsworn mantengono la loro attribuzione CC BY 4.0 (vedi Fonti qui sopra).

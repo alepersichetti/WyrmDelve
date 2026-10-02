@@ -411,3 +411,7 @@ Press **Ctrl+C**. Nothing breaks: just start it again.
 - Justin Alexander, [Xandering the Dungeon](https://thealexandrian.net/wordpress/13085/roleplaying-games/xandering-the-dungeon) (parts 1–5) and [Xandering on the Small Scale](https://thealexandrian.net/wordpress/34950/roleplaying-games/thought-of-the-day-xandering-on-the-small-scale)
 - Some entries of `wyrmdelve_tables.json` (room features, caves, places, site names, threats, settlement troubles) are translated and adapted from *Ironsworn* and *Ironsworn: Delve* by Shawn Tomkin ([ironswornrpg.com](https://ironswornrpg.com)), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); the data was read from [Datasworn](https://github.com/rsek/datasworn). Syllables from Ironsworn's names come from the same source.
 - The Tolkien-style syllables and endings are frequency statistics derived from the name list of [Angband](https://github.com/angband/angband) (`lib/gamedata/names.txt`); the list itself is not copied.
+
+## License
+
+WyrmDelve is free software under the [GNU General Public License v3.0](LICENSE). The parts of `wyrmdelve_tables.json` adapted from Ironsworn keep their CC BY 4.0 attribution (see Sources above).
