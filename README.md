@@ -425,4 +425,4 @@ Press **Ctrl+C**. Nothing breaks: just start it again.
 
 ## License
 
-WyrmDelve is free software under the [GNU General Public License v3.0](LICENSE). The parts of `wyrmdelve_tables.json` adapted from Ironsworn keep their CC BY 4.0 attribution (see Sources above). The fonts in `fonts/` keep their own free licenses (SIL Open Font License for Crimson Text and UnifrakturMaguntia, the DejaVu license for DejaVu); Sebaldus-Gotisch belongs to its authors: see `fonts/README.md`.
+WyrmDelve is free software under the [GNU General Public License v3.0](LICENSE). The parts of `wyrmdelve_tables.json` adapted from Ironsworn keep their CC BY 4.0 attribution (see Sources above). > **The fonts are not covered by the GPL 3.0.** In particular **Sebaldus-Gotisch** (© Typographer Mediengestaltung 2002, digitized by Dieter Steffmann, "All rights reserved") and **Crimson Text** (SIL Open Font License 1.1) keep their own terms; so do UnifrakturMaguntia (SIL Open Font License 1.1) and DejaVu (DejaVu / Bitstream Vera license). The GPL 3.0 applies to the program and the tables, not to the files in `fonts/`: see `fonts/README.md`.

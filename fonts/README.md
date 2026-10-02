@@ -2,6 +2,8 @@
 
 **Italiano** — WyrmDelve usa solo i font di questa cartella, così funziona allo stesso modo su ogni computer.
 
+> **Questi font non ricadono nella licenza GPL 3.0 di WyrmDelve.** In particolare Sebaldus-Gotisch e Crimson Text mantengono le loro condizioni, indicate qui sotto, come gli altri font della cartella.
+
 | File | Uso | Licenza |
 |---|---|---|
 | `DejaVuSansMono.ttf`, `DejaVuSansMono-Bold.ttf` | le mappe | `LICENSE-DejaVu.txt` (Bitstream Vera / DejaVu, libera) |
@@ -15,6 +17,8 @@
 ---
 
 **English** — WyrmDelve only uses the fonts in this folder, so it works the same on every computer.
+
+> **These fonts are not covered by WyrmDelve's GPL 3.0 license.** In particular Sebaldus-Gotisch and Crimson Text keep their own terms, listed below, like the other fonts in this folder.
 
 | File | Used for | License |
 |---|---|---|
