@@ -4,7 +4,7 @@
 
 **Italiano** · [English](README.md)
 
-Compatibile con qualunque gioco di ruolo analogico "OSR". Fratello di [WyrmHex](../WyrmHex).
+Compatibile con qualunque gioco di ruolo analogico "OSR". Fratello di [WyrmHex](https://github.com/alepersichetti/WyrmHex).
 </div>
 
 ```

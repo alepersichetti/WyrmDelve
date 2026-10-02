@@ -4,7 +4,7 @@
 
 [Italiano](README.it.md) · **English**
 
-Works with any analogue "OSR" roleplaying game. Sibling of [WyrmHex](../WyrmHex).
+Works with any analogue "OSR" roleplaying game. Sibling of [WyrmHex](https://github.com/alepersichetti/WyrmHex).
 </div>
 
 ```
