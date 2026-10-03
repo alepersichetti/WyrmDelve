@@ -2415,7 +2415,7 @@ def panel_canvas(level, gm, G):
                 if kind == "door":
                     canvas.put(px, py, "+")
                 elif kind == "secret":
-                    canvas.put(px, py, "S", "b")
+                    canvas.put(px, py, "$", "b")
                 else:
                     canvas.put(px, py, ".")
             elif shown[i] == 1:
@@ -2478,7 +2478,7 @@ def legend_entries(dungeon, gm, G):
     if "door" in kinds:
         out.append([("+", "n"), (" " + tr("lg_door"), "n")])
     if gm and "secret" in kinds:
-        out.append([("S", "b"), (" " + tr("lg_secret_door"), "n")])
+        out.append([("$", "b"), (" " + tr("lg_secret_door"), "n")])
     if gm and "hidden" in feats:
         out.append([(G("░", ":"), "n"), (" " + tr("lg_hidden"), "n")])
     if feats & {"up", "down"}:
