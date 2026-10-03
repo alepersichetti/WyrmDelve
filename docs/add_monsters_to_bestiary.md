@@ -2,7 +2,7 @@
 
 Questa guida spiega, passo per passo, come aggiungere i tuoi mostri a WyrmDelve. Non serve saper programmare: basta un editor di testo e un po' di attenzione alle virgolette.
 
-> Come il programma usa i mostri (tabelle dei mostri erranti, stanze, indizi, mostri fuori posto) è spiegato nel capitolo 15 di [story_generation_algorithm.md](story_generation_algorithm.md).
+> Come il programma usa i mostri (tabelle dei mostri erranti, stanze, indizi, mostri fuori posto) è spiegato in [monsters.md](monsters.md). Questa guida spiega solo come si scrivono.
 
 ## Indice
 
@@ -88,7 +88,7 @@ Un mostro compare nelle tabelle di un livello solo se quel livello è di un tipo
 | `3` | alto | terzo livello | troll, mummia, basilisco |
 | `4` | mortale | livelli più profondi | draghi, lich, golem di ferro |
 
-Il programma mette in ogni livello mostri del pericolo giusto per quella profondità: al primo livello il pericolo 1, poi un punto in più per ogni livello, fino a 4.
+Come il pericolo dei mostri si abbina alla profondità dei livelli è spiegato nel capitolo 2 di [monsters.md](monsters.md#2-il-pericolo-cresce-con-la-profondità).
 
 ### `kind`: che creatura è
 
@@ -218,7 +218,7 @@ Per un `kind` nuovo, aggiungi un elenco nuovo:
 
 ## 7. Aggiungere motivi per i mostri fuori posto
 
-Ogni tanto (circa un livello su tre) un mostro **non adatto** al tipo del livello ci vive lo stesso, per un motivo. I motivi stanno sotto `"quirks"`:
+Quando e come compaiono i mostri fuori posto è spiegato nel capitolo 5 di [monsters.md](monsters.md#5-i-mostri-fuori-posto). I motivi stanno sotto `"quirks"`:
 
 ```json
 {"when": "water", "kinds": ["aquatic"], "text": {"it": "le grotte allagate{from} arrivano fin sotto questa stanza, attraverso una vasca", "en": "the flooded caves{from} reach up under this room, through a pool"}},
@@ -226,19 +226,18 @@ Ogni tanto (circa un livello su tre) un mostro **non adatto** al tipo del livell
 
 | Campo | Cosa contiene |
 |---|---|
-| `when` | **quando** il motivo è possibile (vedi sotto) |
+| `when` | **quando** il motivo è possibile: `water`, `portal`, `below`, `founders` o `any` (le condizioni sono nella tabella del capitolo 5 di [monsters.md](monsters.md#5-i-mostri-fuori-posto)) |
 | `kinds` | quali `kind` di mostro può riguardare (`[]` = tutti) |
 | `text` | il motivo, in tutte e due le lingue |
 
-I valori di `when`:
+I segnaposto che puoi usare nel testo dipendono da `when`:
 
-| `when` | Il motivo vale solo se… | Segnaposto |
-|---|---|---|
-| `water` | un altro livello ha grotte naturali e acqua | `{from}` = « del livello 3» |
-| `portal` | il dungeon ha un portale magico | `{room}` = la stanza del portale |
-| `below` | il livello sotto è di un altro tipo; il mostro viene scelto tra quelli di quel tipo | `{level}` = il numero del livello |
-| `founders` | il livello ha stanze dei fondatori | |
-| `any` | sempre | |
+| `when` | Segnaposto |
+|---|---|
+| `water` | `{from}` = « del livello 3» (con lo spazio davanti) |
+| `portal` | `{room}` = la stanza del portale, per esempio `1-04` |
+| `below` | `{level}` = il numero del livello sotto, per esempio `3` |
+| `founders`, `any` | nessuno |
 
 Nella chiave:
 

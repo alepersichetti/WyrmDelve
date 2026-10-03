@@ -234,9 +234,9 @@ Tutto va in `dungeons_generated/<seme>/`, una cartella per ogni dungeon:
 
 Se scegli **solo le mappe**, la chiave e il PDF non vengono creati.
 
-**I mostri.** Ogni livello ha una tabella d6 di mostri erranti: l'1 sono gli abitanti di oggi, gli altri sono mostri adatti al tipo del livello, più pericolosi man mano che si scende. Circa un terzo delle stanze ospita dei mostri (gli abitanti di oggi nelle loro tane, gli altri mostri della tabella nelle loro); almeno un terzo resta sempre vuoto, e accanto a ogni stanza con mostri c'è una stanza vuota con un **indizio** (ossa rosicchiate, scie viscide, odore di zolfo…) che dice da dove viene. Ogni tanto un mostro è **fuori posto**, con il suo motivo: per esempio un aboleth nella vasca di un castello, risalito dalle grotte allagate del livello sotto. Per aggiungere mostri vedi [docs/add_monsters_to_bestiary.md](docs/add_monsters_to_bestiary.md).
+**I mostri.** Ogni livello ha una tabella d6 di mostri erranti: l'1 sono gli abitanti di oggi, gli altri sono mostri adatti al tipo del livello, più pericolosi man mano che si scende. Circa un terzo delle stanze ospita dei mostri (gli abitanti di oggi nelle loro tane, gli altri mostri della tabella nelle loro); almeno un terzo resta sempre vuoto, e accanto a ogni stanza con mostri c'è una stanza vuota con un **indizio** (ossa rosicchiate, scie viscide, odore di zolfo…) che dice da dove viene. Ogni tanto un mostro è **fuori posto**, con il suo motivo: per esempio un aboleth nella vasca di un castello, risalito dalle grotte allagate del livello sotto. Come funziona: [docs/monsters.md](docs/monsters.md); per aggiungere mostri: [docs/add_monsters_to_bestiary.md](docs/add_monsters_to_bestiary.md).
 
-**Le trappole.** Compaiono **solo sulla mappa del master**, con il simbolo `^`, e la chiave le descrive: nome, **segnale** (come si capisce che c'è), **effetto** e **contromisure**. Chi ha costruito un luogo l'ha protetto a modo suo: meccanismi accurati nelle sale dei fondatori e della seconda epoca, trappole rozze dove vivono gli abitanti di oggi, soprattutto attorno alle stanze importanti. Prima di incontrare una trappola funzionante, i giocatori ne incontrano una **rotta o scoperta** dello stesso tipo, che insegna come funziona; più si scende, più le trappole sono crudeli.
+**Le trappole.** Compaiono **solo sulla mappa del master**, con il simbolo `^`, e la chiave le descrive: nome, **segnale** (come si capisce che c'è), **effetto** e **contromisure**. Chi ha costruito un luogo l'ha protetto a modo suo: meccanismi accurati nelle sale dei fondatori e della seconda epoca, trappole rozze dove vivono gli abitanti di oggi, soprattutto attorno alle stanze importanti. Prima di incontrare una trappola funzionante, i giocatori ne incontrano una **rotta o scoperta** dello stesso tipo, che insegna come funziona; più si scende, più le trappole sono crudeli. Come funziona: [docs/trap.md](docs/trap.md).
 
 I titoli della storia usano **Sebaldus-Gotisch** e il testo **Crimson Text**, entrambi nella cartella `fonts` (vedi `fonts/README.md`).
 
@@ -445,6 +445,8 @@ Se vuoi sapere come il programma inventa i dungeon, nella cartella `docs` ci son
 
 - [Come nasce la mappa del dungeon](docs/dungeon_map_generation.md): seme, tipi, stanze, epoche, corridoi e anelli, scale, ingressi, segreti, disegno e stampa;
 - [Come nasce la storia del dungeon](docs/story_generation_algorithm.md): ingredienti, nomi, le parti del racconto e le loro 3.840 forme, le stanze a strati, la chiave e il PDF;
+- [Come nascono i mostri](docs/monsters.md): mostri erranti, mostri e indizi nelle stanze, mostri fuori posto;
+- [Come nascono le trappole](docs/trap.md): famiglie e gradi, chi le costruisce, prima si impara e poi si rischia;
 - [Come aggiungere mostri al bestiario](docs/add_monsters_to_bestiary.md): i campi di ogni mostro, esempi pronti da copiare, indizi, mostri fuori posto, errori comuni.
 
 ## Fonti
