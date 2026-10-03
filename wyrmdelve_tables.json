@@ -3794,6 +3794,18 @@
       {"it": "Chi vi entra oggi trova {p}, ma per capire queste sale bisogna tornare indietro di secoli.", "en": "Those who enter today find {p}, but to understand these halls one must go back centuries."},
       {"it": "I cacciatori di tesori sanno bene chi abita oggi quei corridoi: {p}. Pochi però ne conoscono le origini.", "en": "Treasure hunters know well who haunts those corridors today: {p}. Few, though, know how it all began."}
     ],
+    "opening_legend": [
+      {"it": "Si dice che laggiù si trovi ancora {relic}, ma pochi di quelli che sono scesi sono tornati a raccontarlo.", "en": "It is said that {relic} still lies down there, but few of those who went down came back to tell."},
+      {"it": "L'ultima spedizione a scendere laggiù, guidata da un certo {hero}, non è mai tornata; ma per capire perché bisogna partire dall'inizio.", "en": "The last expedition to go down there, led by one {hero}, never came back; but to understand why one must start from the beginning."},
+      {"it": "Nelle taverne della regione la sua storia si racconta in cento modi diversi; questo è il più vicino al vero.", "en": "In the region's taverns its story is told a hundred different ways; this is the closest to the truth."},
+      {"it": "Ogni bambino della regione conosce la filastrocca che ne parla, ma pochi adulti ne conoscono la vera storia.", "en": "Every child in the region knows the rhyme about it, but few grown-ups know its true story."}
+    ],
+    "opening_place": [
+      {"it": "Sulle mappe è solo un nome, e chi vive nei dintorni preferisce non pronunciarlo.", "en": "On maps it is just a name, and those who live nearby would rather not say it."},
+      {"it": "Pochi sanno dove si trovi, e ancora meno sanno cosa nasconda.", "en": "Few know where it lies, and fewer still what it hides."},
+      {"it": "Le sue pietre hanno visto passare più padroni di quanti se ne possano contare.", "en": "Its stones have seen more masters come and go than anyone can count."},
+      {"it": "Ogni epoca vi ha lasciato le sue mura, una sopra l'altra, come gli strati di una roccia.", "en": "Every age has left its walls there, one upon another, like the layers of a rock."}
+    ],
     "founded": [
       {"it": "In un'epoca remota {f} costruirono {built} {area}.", "en": "Long ago {f} built {built} {area}."},
       {"it": "Secoli fa {f} eressero {built} {area}.", "en": "Centuries ago {f} raised {built} {area}."},
@@ -3802,6 +3814,13 @@
       {"it": "Le cronache più antiche ricordano che {f} costruirono {built} {area}.", "en": "The oldest chronicles recall that {f} built {built} {area}."},
       {"it": "Nessuno sa con certezza quando, ma {f} costruirono {built} {area}.", "en": "No one knows exactly when, but {f} built {built} {area}."},
       {"it": "Molte generazioni fa, {area}, {f} costruirono {built}.", "en": "Many generations ago, {area}, {f} built {built}."}
+    ],
+    "purpose": [
+      {"it": "Il loro scopo era {goal}.", "en": "Their purpose was to {goal}."},
+      {"it": "Volevano {goal}, e non badarono a spese.", "en": "They meant to {goal}, and spared no expense."},
+      {"it": "Lo scopo dichiarato era {goal}; quello vero, si mormora, era un altro.", "en": "The stated aim was to {goal}; the real one, some whisper, was another."},
+      {"it": "Lo fecero per {goal}, o almeno così raccontano le cronache.", "en": "They did it to {goal}, or so the chronicles say."},
+      {"it": "Nelle intenzioni dei fondatori doveva servire a {goal}.", "en": "In the founders' minds it was meant to help them {goal}."}
     ],
     "caves": [
       {"it": "Sfruttarono le grotte naturali che già si aprivano nella roccia, allargandole e collegandole alle loro sale.", "en": "They made use of the natural caves that already opened in the rock, widening them and joining them to their halls."},
@@ -3813,7 +3832,15 @@
       {"it": "Per generazioni il luogo prosperò, e le sue sale si riempirono di vita.", "en": "For generations the place thrived, and its halls filled with life."},
       {"it": "Le sale più grandi e le mura più solide risalgono a quel tempo.", "en": "The largest halls and the strongest walls date from that time."},
       {"it": "I fondatori vi lasciarono il segno: stemmi, iscrizioni e simboli si vedono ancora sulle pareti più antiche.", "en": "The founders left their mark there: crests, inscriptions and symbols can still be seen on the oldest walls."},
-      {"it": "Per un certo tempo fu un luogo potente e temuto.", "en": "For a while it was a place of power, and feared."}
+      {"it": "Per un certo tempo fu un luogo potente e temuto.", "en": "For a while it was a place of power, and feared."},
+      {"it": "In quegli anni le sue sale risuonavano di voci, canti e passi.", "en": "In those years its halls rang with voices, songs and footsteps."},
+      {"it": "Fu il loro tempo migliore, anche se nessuno allora lo sapeva.", "en": "It was their finest time, though no one knew it then."}
+    ],
+    "omen": [
+      {"it": "Ma già allora non mancavano i cattivi presagi.", "en": "But even then there were ill omens."},
+      {"it": "Qualcuno, tra loro, aveva previsto la fine, ma nessuno gli diede ascolto.", "en": "One of them had foreseen the end, but no one listened."},
+      {"it": "Le prime crepe, nelle mura e tra la gente, comparvero presto.", "en": "The first cracks, in the walls and among the people, soon appeared."},
+      {"it": "La loro fortuna, però, non era destinata a durare.", "en": "Their fortune, though, was not meant to last."}
     ],
     "second": [
       {"it": "Dopo {e1} il luogo fu abbandonato; più tardi {s} se ne impadronirono, riadattarono le vecchie sale e aprirono nuovi passaggi, alcuni dei quali tenuti segreti.", "en": "After {e1} the place was abandoned; later {s} took it over, refitted the old halls and opened new passages, some of them kept secret."},
@@ -3823,6 +3850,19 @@
       {"it": "Fu {e1} a cacciare i fondatori. Poco dopo arrivarono {s}: riadattarono le vecchie sale e scavarono nuovi cunicoli, alcuni segreti.", "en": "It was {e1} that drove the founders out. Soon after came {s}: they refitted the old halls and dug new tunnels, some of them secret."},
       {"it": "Quando {e1} pose fine al dominio dei fondatori, {s} presero possesso del luogo e lo trasformarono, aprendo passaggi noti solo a loro.", "en": "When {e1} ended the founders' rule, {s} took possession of the place and changed it, opening passages known only to them."}
     ],
+    "second_detail": [
+      {"it": "Ne fecero il loro rifugio e la loro fortezza.", "en": "They made it their refuge and their stronghold."},
+      {"it": "Murarono alcune porte, ne aprirono altre e cambiarono il nome a ogni sala.", "en": "They walled up some doors, opened others and renamed every hall."},
+      {"it": "Non capirono mai del tutto ciò che avevano trovato.", "en": "They never fully understood what they had found."},
+      {"it": "Per loro divenne una casa, e la difesero con ogni mezzo.", "en": "To them it became a home, and they defended it by every means."},
+      {"it": "Alcune sale dei fondatori le lasciarono intatte, per paura o per rispetto.", "en": "Some of the founders' halls they left untouched, out of fear or respect."}
+    ],
+    "fate": [
+      {"it": "Dei fondatori non restarono che tombe e nomi incisi nella pietra.", "en": "Of the founders nothing was left but tombs and names carved in stone."},
+      {"it": "Nessuno sa dove andarono i fondatori sopravvissuti; alcuni dicono che non se ne andarono mai.", "en": "No one knows where the surviving founders went; some say they never left."},
+      {"it": "I discendenti dei fondatori, se ce ne sono, hanno dimenticato tutto.", "en": "The founders' descendants, if there are any, have forgotten everything."},
+      {"it": "Le ultime parole dei fondatori sono ancora incise accanto a una porta murata.", "en": "The founders' last words are still carved beside a walled-up door."}
+    ],
     "fall": [
       {"it": "Poi {e2} segnò la fine anche di questa epoca, e alcuni passaggi crollarono.", "en": "Then {e2} ended that age too, and some passages collapsed."},
       {"it": "Anche il loro tempo finì: con {e2}, quell'epoca si chiuse, e parte dei passaggi crollò.", "en": "Their time ended too: with {e2}, that age came to a close, and part of the passages collapsed."},
@@ -3830,11 +3870,29 @@
       {"it": "Il loro dominio non durò: dopo {e2} il luogo cadde in rovina e alcuni passaggi crollarono.", "en": "Their rule did not last: after {e2} the place fell into ruin and some passages collapsed."},
       {"it": "Poi venne {e2}: da allora alcuni passaggi sono crollati e nessuno li ha più riaperti.", "en": "Then came {e2}: since then some passages have collapsed and no one has reopened them."}
     ],
+    "aftermath": [
+      {"it": "Per secoli il luogo restò in rovina.", "en": "For centuries the place lay in ruins."},
+      {"it": "Le rovine restarono a lungo in silenzio.", "en": "The ruins lay silent for a long time."},
+      {"it": "Il luogo finì dimenticato, e la natura cominciò a riprenderselo.", "en": "The place was forgotten, and nature began to take it back."},
+      {"it": "Da allora, chi passa da quelle parti affretta il passo.", "en": "Since then, whoever passes by hurries on."}
+    ],
+    "interlude": [
+      {"it": "Negli anni dell'abbandono vi trovarono rifugio {visitors}, ma nessuno vi rimase a lungo.", "en": "In the years of neglect {visitors} found shelter there, but none stayed long."},
+      {"it": "Per un breve periodo vi si accamparono {visitors}; ne restano solo fuochi spenti e scritte sui muri.", "en": "For a short while {visitors} camped there; only cold fires and scrawls on the walls remain of them."},
+      {"it": "Più tardi vi passarono {visitors}, che portarono via tutto ciò che potevano.", "en": "Later {visitors} passed through and carried off all they could."},
+      {"it": "Provarono a stabilirvisi anche {visitors}, senza fortuna.", "en": "{visitors} tried to settle there too, without luck."}
+    ],
     "present": [
       {"it": "Gli attuali abitanti sono {p}.", "en": "Its current dwellers are {p}."},
       {"it": "Oggi chi vi scende incontra {p}.", "en": "Today whoever goes down there meets {p}."},
       {"it": "Ora quelle sale appartengono a chi le ha prese per ultimo: {p}.", "en": "Now those halls belong to whoever took them last: {p}."},
       {"it": "I pochi tornati a raccontarlo dicono che gli abitanti di oggi sono {p}.", "en": "The few who came back to tell say that today's dwellers are {p}."}
+    ],
+    "present_detail": [
+      {"it": "Chi abita nei dintorni si tiene alla larga.", "en": "Those who live nearby keep their distance."},
+      {"it": "I villaggi vicini pagano un tributo per essere lasciati in pace.", "en": "The nearby villages pay a tribute to be left in peace."},
+      {"it": "Di notte, dagli ingressi si vedono luci e si sentono rumori.", "en": "At night, lights can be seen and noises heard from the entrances."},
+      {"it": "Pare che tutto, laggiù, ruoti attorno a {relic}.", "en": "It seems everything down there revolves around {relic}."}
     ],
     "crude": [
       {"it": "I cunicoli più grezzi e gli ingressi più recenti risalgono a quest'ultima epoca.", "en": "The roughest tunnels and the newest entrances date from this last age."},
@@ -3847,7 +3905,115 @@
       {"it": "Qualcuno giura che {s} abbiano lasciato passaggi segreti che nessuno ha ancora scoperto.", "en": "Some swear that {s} left secret passages no one has found yet."},
       {"it": "Le leggende parlano di un tesoro mai trovato, sepolto da qualche parte sotto le prime pietre.", "en": "Legends speak of a treasure never found, buried somewhere under the first stones."},
       {"it": "Chi conosce il luogo avverte: le mappe dei vecchi abitanti non sono affidabili.", "en": "Those who know the place warn: the old dwellers' maps cannot be trusted."},
-      {"it": "Gli anziani raccontano che {f} non se ne andarono mai davvero.", "en": "The elders say that {f} never truly left."}
-    ]
+      {"it": "Gli anziani raccontano che {f} non se ne andarono mai davvero.", "en": "The elders say that {f} never truly left."},
+      {"it": "Si dice che nelle sale più profonde si trovi ancora {relic}.", "en": "It is said that {relic} still lies in the deepest halls."},
+      {"it": "Di {hero}, l'ultimo che vi scese da solo, è stata ritrovata soltanto la lanterna.", "en": "Of {hero}, the last to go down alone, only the lantern was ever found."}
+    ],
+    "warning": [
+      {"it": "Chi decide di scendere farebbe bene a portare corde, torce e un buon motivo per tornare.", "en": "Whoever decides to go down had better bring rope, torches and a good reason to come back."},
+      {"it": "Un vecchio detto della regione avverte: ciò che è sepolto laggiù vuole restarci.", "en": "An old local saying warns: what is buried down there wants to stay buried."},
+      {"it": "Le guardie della strada più vicina hanno l'ordine di non avvicinarsi.", "en": "The guards of the nearest road are ordered not to go near it."},
+      {"it": "Nessuna mappa dei suoi corridoi è mai risultata completa.", "en": "No map of its corridors has ever proved complete."}
+    ],
+    "hook": [
+      {"it": "Ora qualcuno offre una ricompensa a chi riporterà {relic}.", "en": "Now someone is offering a reward to whoever brings back {relic}."},
+      {"it": "Un mercante della città vicina paga bene ogni mappa delle sue sale.", "en": "A merchant in the nearby town pays well for any map of its halls."},
+      {"it": "Da qualche settimana, dagli ingressi escono rumori che prima non c'erano.", "en": "For some weeks, sounds never heard before have been coming from the entrances."},
+      {"it": "L'erede di {hero}, scomparso laggiù anni fa, cerca qualcuno disposto a scendere.", "en": "The heir of {hero}, lost down there years ago, is looking for someone willing to go down."},
+      {"it": "Una mappa parziale, comprata in una taverna, indica un passaggio che nessuno ha mai trovato.", "en": "A partial map, bought in a tavern, marks a passage no one has ever found."}
+    ],
+    "words": {
+      "goals": [
+        {"it": "custodire un segreto", "en": "guard a secret"},
+        {"it": "proteggere una reliquia", "en": "protect a relic"},
+        {"it": "sorvegliare il confine", "en": "watch over the border"},
+        {"it": "nascondere un tesoro", "en": "hide a treasure"},
+        {"it": "onorare i loro morti", "en": "honour their dead"},
+        {"it": "studiare le stelle", "en": "study the stars"},
+        {"it": "imprigionare qualcosa che non doveva uscire", "en": "imprison something that must never get out"},
+        {"it": "sfuggire a una guerra", "en": "escape a war"},
+        {"it": "estrarre un metallo raro", "en": "dig out a rare metal"},
+        {"it": "venerare un dio dimenticato", "en": "worship a forgotten god"},
+        {"it": "tenere lontani i nemici", "en": "keep their enemies away"},
+        {"it": "conservare un sapere proibito", "en": "keep a forbidden lore"},
+        {"it": "celebrare una vittoria", "en": "celebrate a victory"},
+        {"it": "ospitare i pellegrini", "en": "shelter pilgrims"},
+        {"it": "sigillare una porta verso altri mondi", "en": "seal a door to other worlds"},
+        {"it": "mettere al sicuro un erede", "en": "keep an heir safe"},
+        {"it": "accumulare ricchezze lontano da occhi indiscreti", "en": "hoard riches away from prying eyes"},
+        {"it": "sorvegliare una strada dei mercanti", "en": "watch over a merchant road"},
+        {"it": "domare le acque sotterranee", "en": "tame the underground waters"},
+        {"it": "ingraziarsi un patrono potente", "en": "win the favour of a mighty patron"},
+        {"it": "seppellire un re con tutti i suoi tesori", "en": "bury a king with all his treasures"},
+        {"it": "addestrare guerrieri in segreto", "en": "train warriors in secret"},
+        {"it": "mostrare a tutti la loro potenza", "en": "show everyone their might"},
+        {"it": "espiare una colpa antica", "en": "atone for an old sin"},
+        {"it": "tenere prigioniero un drago", "en": "keep a dragon prisoner"},
+        {"it": "aspettare la fine del mondo", "en": "wait for the end of the world"},
+        {"it": "parlare con i morti", "en": "speak with the dead"},
+        {"it": "allevare bestie da guerra", "en": "breed war beasts"},
+        {"it": "coltivare funghi rari al buio", "en": "grow rare mushrooms in the dark"},
+        {"it": "forgiare armi per un esercito", "en": "forge weapons for an army"}
+      ],
+      "relics": [
+        {"it": "un idolo d'oro", "en": "a golden idol"},
+        {"it": "una corona spezzata", "en": "a broken crown"},
+        {"it": "un libro di incantesimi", "en": "a spellbook"},
+        {"it": "una spada che non arrugginisce", "en": "a sword that never rusts"},
+        {"it": "uno scrigno sigillato", "en": "a sealed chest"},
+        {"it": "un uovo di drago", "en": "a dragon's egg"},
+        {"it": "una mappa delle stelle", "en": "a star map"},
+        {"it": "un anello di ferro nero", "en": "a black iron ring"},
+        {"it": "una lampada che non si spegne mai", "en": "a lamp that never goes out"},
+        {"it": "un cuore di pietra che batte ancora", "en": "a stone heart that still beats"},
+        {"it": "un calice d'argento", "en": "a silver chalice"},
+        {"it": "una maschera senza volto", "en": "a faceless mask"},
+        {"it": "un'arpa che suona da sola", "en": "a harp that plays by itself"},
+        {"it": "uno specchio che mostra il passato", "en": "a mirror that shows the past"},
+        {"it": "una chiave d'osso", "en": "a bone key"},
+        {"it": "un sigillo reale", "en": "a royal seal"},
+        {"it": "una statua con gli occhi di rubino", "en": "a statue with ruby eyes"},
+        {"it": "un tamburo di guerra", "en": "a war drum"},
+        {"it": "un frammento di stella caduta", "en": "a shard of a fallen star"},
+        {"it": "una reliquia di un santo dimenticato", "en": "a relic of a forgotten saint"},
+        {"it": "uno scettro di cristallo", "en": "a crystal sceptre"},
+        {"it": "una pergamena che nessuno sa leggere", "en": "a scroll no one can read"},
+        {"it": "un forziere pieno di monete antiche", "en": "a chest full of old coins"},
+        {"it": "un seme di un albero estinto", "en": "a seed from an extinct tree"},
+        {"it": "una campana che suona per i morti", "en": "a bell that tolls for the dead"},
+        {"it": "un'armatura vuota che cammina", "en": "an empty suit of armour that walks"},
+        {"it": "una gemma grande come un pugno", "en": "a gem as big as a fist"},
+        {"it": "un trono di ossa", "en": "a throne of bones"},
+        {"it": "una fiala di sangue di drago", "en": "a vial of dragon's blood"},
+        {"it": "un elmo con le ali", "en": "a winged helm"}
+      ],
+      "visitors": [
+        {"it": "briganti in fuga", "en": "fugitive brigands"},
+        {"it": "pastori sorpresi da una tempesta", "en": "shepherds caught in a storm"},
+        {"it": "contrabbandieri", "en": "smugglers"},
+        {"it": "eretici perseguitati", "en": "hunted heretics"},
+        {"it": "disertori di una guerra lontana", "en": "deserters from a distant war"},
+        {"it": "cercatori di tesori", "en": "treasure hunters"},
+        {"it": "lebbrosi cacciati dai villaggi", "en": "lepers driven out of the villages"},
+        {"it": "goblin di passaggio", "en": "wandering goblins"},
+        {"it": "monaci eremiti", "en": "hermit monks"},
+        {"it": "streghe in cerca di solitudine", "en": "witches seeking solitude"},
+        {"it": "mercenari senza paga", "en": "unpaid mercenaries"},
+        {"it": "profughi di una città bruciata", "en": "refugees from a burned city"},
+        {"it": "banditi di strada", "en": "highwaymen"},
+        {"it": "cultisti in fuga", "en": "fleeing cultists"},
+        {"it": "nani esiliati", "en": "exiled dwarves"},
+        {"it": "minatori in cerca di filoni", "en": "miners looking for veins"},
+        {"it": "ladri di tombe", "en": "tomb robbers"},
+        {"it": "orchi di una tribù sconfitta", "en": "orcs from a defeated tribe"},
+        {"it": "alchimisti cacciati dalla gilda", "en": "alchemists thrown out of their guild"},
+        {"it": "falsari", "en": "counterfeiters"},
+        {"it": "pellegrini smarriti", "en": "lost pilgrims"},
+        {"it": "cacciatori di taglie", "en": "bounty hunters"},
+        {"it": "schiavi fuggiti", "en": "runaway slaves"},
+        {"it": "spie di un regno vicino", "en": "spies from a nearby kingdom"},
+        {"it": "negromanti alle prime armi", "en": "novice necromancers"}
+      ]
+    }
   }
 }

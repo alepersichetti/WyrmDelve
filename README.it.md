@@ -278,7 +278,7 @@ La logica del programma sta in `wyrmdelve.py`; le **parole** che pesca a caso st
 | `events` | cosa chiuse ogni epoca |
 | `areas` | dove si trova il dungeon: `surface` per gli edifici sopra il suolo, `underground` per gli altri |
 | `surface_shaft` | l'ingresso usato quando nessuna parete del livello può ospitarne uno |
-| `history` | le frasi della storia in cima alla chiave: per ogni parte (`founded` la fondazione, `caves` le grotte, `second` la seconda epoca, `fall` la sua fine, `present` gli abitanti di oggi, `crude` i cunicoli recenti) un elenco di frasi tra cui il programma ne sceglie una; `opening` (aprire con gli abitanti di oggi), `golden` (l'epoca d'oro dei fondatori) e `legend` (una leggenda finale) a volte ci sono e a volte no |
+| `history` | le frasi della storia in cima alla chiave: per ogni parte (`founded` la fondazione, `caves` le grotte, `second` la seconda epoca, `fall` la sua fine, `present` gli abitanti di oggi, `crude` i cunicoli recenti) un elenco di frasi tra cui il programma ne sceglie una. La storia può aprirsi con gli abitanti di oggi (`opening`), con una diceria (`opening_legend`) o con il luogo (`opening_place`), e chiudersi con una leggenda (`legend`), un avvertimento (`warning`) o un aggancio per l'avventura (`hook`); otto parti a volte ci sono e a volte no: lo scopo dei fondatori (`purpose`), la loro epoca d'oro (`golden`), i presagi (`omen`), cosa fecero i nuovi arrivati (`second_detail`), l'abbandono (`aftermath`), la sorte dei fondatori (`fate`), chi ci passò in seguito (`interlude`) e un dettaglio sul presente (`present_detail`). In tutto 3.840 forme diverse. `words` contiene gli elenchi da cui pescano: scopi (`goals`), reliquie (`relics`) e visitatori (`visitors`) |
 
 Ogni tipo in `dungeon_types` ha:
 
@@ -303,7 +303,7 @@ Ogni testo è scritto nelle due lingue, così:
 {"it": "sala del trono", "en": "throne hall"},
 ```
 
-Puoi cambiare le parole o aggiungere righe nuove copiandone una esistente. I costruttori vanno scritti al plurale (*i conti di {n}*, *il barone {n} e i suoi vassalli*), perché la storia dice "{f} costruirono…". `{n}` è il punto in cui il programma mette un nome casuale; in `history`, `{f}`, `{built}`, `{area}`, `{e1}`, `{s}`, `{e2}` e `{p}` sono i fondatori, cosa costruirono, il luogo, il primo evento, la seconda epoca, il secondo evento e gli abitanti di oggi. Gli abitanti di oggi possono essere singolari o plurali (*una setta*, *i coboldi*): nelle frasi nuove non accordarci un verbo, scrivi per esempio «chi vi scende incontra {p}». Se modifichi le frasi della storia, lo stesso seme dà ancora le stesse mappe e le stesse stanze: cambia solo il racconto.
+Puoi cambiare le parole o aggiungere righe nuove copiandone una esistente. I costruttori vanno scritti al plurale (*i conti di {n}*, *il barone {n} e i suoi vassalli*), perché la storia dice "{f} costruirono…". `{n}` è il punto in cui il programma mette un nome casuale; in `history`, `{f}`, `{built}`, `{area}`, `{e1}`, `{s}`, `{e2}` e `{p}` sono i fondatori, cosa costruirono, il luogo, il primo evento, la seconda epoca, il secondo evento e gli abitanti di oggi; `{goal}`, `{relic}` e `{visitors}` vengono da `words` (uno scopo all'infinito, una reliquia con l'articolo indeterminativo, dei visitatori al plurale senza articolo), `{hero}` è il nome di un avventuriero scomparso. Gli abitanti di oggi possono essere singolari o plurali (*una setta*, *i coboldi*): nelle frasi nuove non accordarci un verbo, scrivi per esempio «chi vi scende incontra {p}». Se modifichi le frasi della storia, lo stesso seme dà ancora le stesse mappe e le stesse stanze: cambia solo il racconto.
 
 Fai una **copia** del file prima di modificarlo. Lascia le virgolette `"`, le virgole tra le righe e le parentesi esattamente come sono: se qualcosa è fuori posto, il programma ti dice quale riga controllare (vedi il capitolo 9). Cambiare il file cambia i dungeon: lo stesso seme può dare una storia diversa da prima.
 
@@ -427,6 +427,13 @@ La finestra del terminale è troppo stretta. Allargala e riavvia il programma.
 Premi **Ctrl+C**. Non si rompe niente: basta riavviarlo.
 
 ---
+
+## Come funziona
+
+Se vuoi sapere come il programma inventa i dungeon, nella cartella `docs` ci sono due spiegazioni in linguaggio semplice, con molti esempi:
+
+- [Come nasce la mappa del dungeon](docs/dungeon_map_generation.md): seme, tipi, stanze, epoche, corridoi e anelli, scale, ingressi, segreti, disegno e stampa;
+- [Come nasce la storia del dungeon](docs/story_generation_algorithm.md): ingredienti, nomi, le parti del racconto e le loro 3.840 forme, le stanze a strati, la chiave e il PDF.
 
 ## Fonti
 
