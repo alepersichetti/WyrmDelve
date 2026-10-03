@@ -187,6 +187,10 @@ TEXTS = {
     "story_yes": ("    1 = sì, mappe e storia (chiave delle stanze in PDF e TXT)",
                   "    1 = yes, maps and story (room key as PDF and TXT)"),
     "story_no": ("    2 = no, solo le mappe", "    2 = no, only the maps"),
+    "units_intro": ("\n  Unità di misura della griglia (ogni lettera della mappa è una casella)?",
+                    "\n  Grid units (every letter of the map is one square)?"),
+    "units_1": ("    1 = imperiale (piedi): 1 casella = 5 ft", "    1 = imperial (feet): 1 square = 5 ft"),
+    "units_2": ("    2 = metrica (metri): 1 casella = 1,5 m", "    2 = metric (meters): 1 square = 1.5 m"),
     # parameter names and checks
     "name_levels": ("livelli", "levels"),
     "name_rooms": ("stanze", "rooms"),
@@ -209,6 +213,7 @@ TEXTS = {
                     "No monospaced font found. Give a .ttf file with --font (e.g. DejaVuSansMono.ttf)."),
     "err_size": ("{path}: {size} non è un foglio A4, A3, A2 o A1 a 600 dpi",
                  "{path}: {size} is not an A4, A3, A2 or A1 sheet at 600 dpi"),
+    "err_units": ("«{s}» non è un'unità: usa imperiale o metrica", "“{s}” is not a unit: use imperial or metric"),
     "err_build": ("Non riesco a costruire un dungeon con questi parametri, prova con un altro seme.",
                   "Cannot build a dungeon with these settings, try another seed."),
     # steps
@@ -223,6 +228,7 @@ TEXTS = {
     "info_name_mine": ("Nome della mappa: «{t}»", "Map name: “{t}”"),
     "info_name_none": ("Mappa senza nome", "Map without a name"),
     "info_no_story": ("Solo le mappe, senza storia", "Only the maps, no story"),
+    "info_units": ("Griglia: {s}", "Grid: {s}"),
     "info_folder": ("Cartella: {folder}", "Folder: {folder}"),
     "info_font": ("Font: {name}{fake}, cella {a:.2f} volte più alta che larga",
                   "Font: {name}{fake}, letter cell {a:.2f} times taller than wide"),
@@ -346,6 +352,9 @@ TEXTS = {
     "lg_pillar": ("colonna", "pillar"),
     "lg_entrance": ("ingresso", "entrance"),
     "lg_room": ("stanza (livello-numero)", "room (level-number)"),
+    "lg_scale": ("Scala:", "Scale:"),
+    "scale_imperial": ("1 casella = 5 ft (piedi)", "1 square = 5 ft"),
+    "scale_metric": ("1 casella = 1,5 m", "1 square = 1.5 m"),
     "lg_era1": ("mura dei fondatori (I)", "founders' walls (I)"),
     "lg_era2": ("mura della II epoca", "second-age walls (II)"),
     "lg_era0": ("grotte e cunicoli (N, III)", "caves and tunnels (N, III)"),
@@ -353,6 +362,7 @@ TEXTS = {
     "key_seed": ("Seme", "Seed"),
     "key_history": ("STORIA", "HISTORY"),
     "key_types": ("Tipo", "Type"),
+    "key_scale": ("Scala", "Scale"),
     "key_strata": ("STRATI (dal più antico)", "STRATA (oldest first)"),
     "key_entrances": ("INGRESSI E USCITE", "ENTRANCES AND EXITS"),
     "key_links": ("COLLEGAMENTI TRA LIVELLI", "LEVEL CONNECTIONS"),
@@ -449,6 +459,10 @@ TEXTS = {
     "h_title": ("titolo della mappa (default: il nome del dungeon)", "map title (default: the dungeon's name)"),
     "h_no_title": ("mappa senza nome", "map without a name"),
     "h_no_story": ("solo le mappe: niente chiave né PDF della storia", "only the maps: no key and no story PDF"),
+    "h_units": ("unità della griglia: imperiale (1 casella = 5 ft) o metrica (1 casella = 1,5 m); "
+                "di base metrica in italiano, imperiale in inglese",
+                "grid units: imperial (1 square = 5 ft) or metric (1 square = 1.5 m); "
+                "by default imperial in English, metric in Italian"),
     "h_ascii": ("solo caratteri base della tastiera", "only basic keyboard characters"),
     "h_font": ("file .ttf monospazio da usare", "monospaced .ttf font file to use"),
     "h_output": ("cartella in cui salvare (default: dungeons_generated accanto allo script)",
@@ -2557,7 +2571,28 @@ def trim_panel(canvas, bounds):
     return out
 
 
-def legend_entries(dungeon, gm, G):
+# --- grid scale: only written on the maps and in the key, the dungeon doesn't change ---
+UNIT_NAMES = {"imperial": "imperial", "imperiale": "imperial", "feet": "imperial", "foot": "imperial", "ft": "imperial",
+              "piedi": "imperial", "metric": "metric", "metrica": "metric", "metrico": "metric", "meters": "metric",
+              "metres": "metric", "metri": "metric", "m": "metric"}
+
+
+def read_units(text):
+    units = UNIT_NAMES.get(text.strip().lower())
+    if units is None:
+        raise argparse.ArgumentTypeError(tr("err_units", s=text))
+    return units
+
+
+def default_units():
+    return "metric" if LANG == "it" else "imperial"
+
+
+def scale_text(units):
+    return tr("scale_metric" if units == "metric" else "scale_imperial")
+
+
+def legend_entries(dungeon, gm, G, units):
     """[(text, style), ...] per entry; only what this dungeon actually has."""
     feats = {f for lv in dungeon.levels for f in lv.feat.values()}
     kinds = {d.kind for lv in dungeon.levels for d in lv.doors.values()}
@@ -2587,6 +2622,7 @@ def legend_entries(dungeon, gm, G):
     if gm:
         mains = dungeon.mains()
         out.append([(f"{mains[0].name}-01", "b"), (" " + tr("lg_room"), "n")])
+    out.append([(tr("lg_scale"), "b"), (" " + scale_text(units), "n")])
     return out
 
 
@@ -3006,14 +3042,15 @@ def room_exits(dungeon, room):
     return out
 
 
-def key_blocks(dungeon, seed, title):
+def key_blocks(dungeon, seed, title, units):
     """The dungeon key as blocks, shared by the .txt and the story PDF:
     ("title", text) ("meta", text) ("h", txt, pdf) ("p", text) ("stratum", tag, text, walls, note)
     ("entrance", text) ("link", a, b, kind) ("level", txt, pdf, note) ("note", text)
     ("room", label, text, exits) ("check", mark, text)"""
     story = dungeon.story
     blocks = [("title", title), ("meta", f"{tr('key_seed')}: {seed}"),
-              ("meta", f"{tr('key_types')}: {types_text(dungeon.params['types'])}")]
+              ("meta", f"{tr('key_types')}: {types_text(dungeon.params['types'])}"),
+              ("meta", f"{tr('key_scale')}: {scale_text(units)}")]
     blocks += [("h", tr("key_history"), tr("pdf_history")), ("p", pick(history_text(dungeon)))]
     blocks.append(("h", tr("key_strata"), tr("pdf_strata")))
     eras = {r.era for r in dungeon.rooms}
@@ -3420,12 +3457,20 @@ def ask_story():
     return ask(tr("choice"), 1, int, 1, 2) == 1
 
 
+def ask_units():
+    print(tr("units_intro"))
+    print(tr("units_1"))
+    print(tr("units_2"))
+    default = 2 if default_units() == "metric" else 1
+    return "metric" if ask(tr("choice"), default, int, 1, 2) == 2 else "imperial"
+
+
 def ask_settings():
     ask_language()
     mode = show_welcome()
     print(tr("enter_accepts"))
     p = {"title": None, "ascii_only": False, "font": None, "paper": None, "output": OUTPUT_FOLDER, "story": True,
-         "per_level": None, "pdf": None}
+         "per_level": None, "pdf": None, "units": None}
     if mode == "rebuild":
         while True:
             text = input(tr("ask_seed", example=example_seed()))
@@ -3454,6 +3499,7 @@ def ask_settings():
     p["colors"] = ask_colors()
     p["title"] = ask_name()
     p["story"] = ask_story()
+    p["units"] = ask_units()
     p["ask_paper"] = sys.stdin.isatty()
     return p
 
@@ -3491,12 +3537,14 @@ def settings_from_options(argv):
     naming.add_argument(*names("senza-titolo", "no-title"), dest="title", action="store_const", const="",
                         help=tr("h_no_title"))
     ap.add_argument(*names("senza-storia", "no-story"), dest="no_story", action="store_true", help=tr("h_no_story"))
+    ap.add_argument(*names("unita", "units"), dest="units", type=read_units, default=None,
+                    metavar="{imperial,metric}" if LANG == "en" else "{imperiale,metrica}", help=tr("h_units"))
     ap.add_argument(*names("solo-ascii", "ascii-only"), dest="ascii_only", action="store_true", help=tr("h_ascii"))
     ap.add_argument("--font", default=None, metavar="FILE", help=tr("h_font"))
     ap.add_argument(*names("uscita", "output"), dest="output", default=OUTPUT_FOLDER, help=tr("h_output"))
     a = ap.parse_args(argv)
     p = {"title": a.title, "ascii_only": a.ascii_only, "font": a.font, "paper": a.paper, "output": a.output,
-         "colors": a.colors, "per_level": a.per_level, "pdf": a.pdf, "story": not a.no_story}
+         "colors": a.colors, "per_level": a.per_level, "pdf": a.pdf, "story": not a.no_story, "units": a.units}
     fixed = {k: v for k, v in (("levels", a.levels), ("rooms", a.rooms), ("entrances", a.entrances),
                                ("secrets", a.secrets)) if v is not None}
     if a.types:
@@ -3548,6 +3596,8 @@ def main():
     log.info(tr("info_colors", c=tr(f"color_name_{params['colors']}")))
     if params["title"] == "":
         log.info(tr("info_name_none"))
+    units = params.get("units") or default_units()
+    log.info(tr("info_units", s=scale_text(units)))
     if not params["story"]:
         log.info(tr("info_no_story"))
     elif story_pdf_problem():
@@ -3602,7 +3652,7 @@ def main():
     else:
         log.info(tr("info_sheets_one", f=files) if len(dungeon.levels) > 1 else tr("info_files", f=files))
         groups = [list(range(len(dungeon.levels)))]
-    gm_legend = legend_entries(dungeon, True, G)
+    gm_legend = legend_entries(dungeon, True, G, units)
     sheets = [page_layouts(dungeon, [gm_panels[k] for k in group], gm_legend, title, subtitle) for group in groups]
     paper, picks = ask_paper(sheets, aspect, params["paper"], params.pop("ask_paper", False), log)
     params["paper"] = paper
@@ -3622,7 +3672,7 @@ def main():
         log.warn(tr("warn_tiny"))
     settings = {"seed": seed, "colors": params["colors"], "paper": paper, "title": params["title"],
                 "language": LANG, "ascii_only": params["ascii_only"], "per_level": per_level, "pdf": pdf,
-                "version": VERSION}
+                "units": units, "version": VERSION}
     suffixes = [f"_L{dungeon.levels[g[0]].name}" if per_level else "" for g in groups]
 
     # 9: GM map
@@ -3635,7 +3685,7 @@ def main():
     # 10: players' map (same layout and letter size) and key
     log.step(tr("step_players" if params["story"] else "step_players_only"))
     pl_panels = [trim_panel(panel_canvas(lv, False, G), b) for lv, b in zip(dungeon.levels, bounds)]
-    pl_legend = legend_entries(dungeon, False, G)
+    pl_legend = legend_entries(dungeon, False, G, units)
     pl_pages = []
     for group, (layout, char_mm, orientation), suffix in zip(groups, picks, suffixes):
         pl_layout = Layout(dungeon, [pl_panels[k] for k in group], layout.pc, pl_legend,
@@ -3643,7 +3693,7 @@ def main():
         pl_pages.append((compose_page(pl_layout), pixel_layout(pl_layout, paper, orientation, char_mm, fonts), suffix))
     save_map(pl_pages, os.path.join(folder, f"{seed}_players"), pdf, params["colors"], settings, log)
     if params["story"]:
-        blocks = key_blocks(dungeon, seed, title)
+        blocks = key_blocks(dungeon, seed, title, units)
         key_path = os.path.join(folder, f"{seed}_key.txt")
         write_key(blocks, key_path)
         log.info(tr("saved_key", a=short_path(key_path)))

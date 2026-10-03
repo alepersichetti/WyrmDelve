@@ -180,6 +180,7 @@ Il programma ti fa alcune domande. **Ogni domanda ha una risposta già pronta tr
    3. simboli bianchi su sfondo nero
 5. **Vuoi un nome per la mappa?** Se no, la mappa esce senza titolo. Se sì, scegli se **generarlo a caso** (es. *Tomba di Zordur*, la risposta già pronta) o **scriverlo tu**.
 6. **Vuoi anche la storia del dungeon?** `1` = mappe e storia (la risposta già pronta: la chiave in `.txt` e in PDF), `2` = solo le mappe. Il programma lo chiede ogni volta, anche per un dungeon tutto casuale.
+7. **Unità di misura della griglia:** `1` = imperiale, **1 casella = 5 ft** (piedi); `2` = metrica, **1 casella = 1,5 m** (la risposta già pronta in italiano). La scala viene scritta nella legenda delle mappe, nella chiave e nel PDF della storia; il dungeon è lo stesso con entrambe le scelte.
 
 A questo punto il programma costruisce il dungeon. Mostra ogni passaggio con una barra che si riempie:
 
@@ -246,6 +247,8 @@ Con **un livello per foglio** i nomi dei PNG contengono il livello: `<seme>_gm_L
 | `○` | pozzo o camino tra livelli (può saltarne qualcuno) | `Ω` | portale magico |
 | `≈` | acqua | `∴` | crollo |
 | `■` | colonna | `[A]` | ingresso (riquadro pieno sulla mappa) |
+
+**Scala.** Ogni lettera della mappa è una casella della griglia: **1 casella = 5 ft** (imperiale) oppure **1,5 m** (metrica), come scritto in fondo alla legenda. Le lettere sono più alte che larghe, quindi sulla carta le caselle sono rettangoli: per misurare conta le caselle, non i millimetri.
 
 ---
 
@@ -336,6 +339,7 @@ Ogni opzione ha anche un nome inglese (dopo la barra `/`), e puoi mescolarli com
 | `--titolo` / `--title` | Nome sulla mappa (default: uno casuale) | `--titolo "La Tana dell'Orco"` |
 | `--senza-titolo` / `--no-title` | Mappa senza nome | `--senza-titolo` |
 | `--senza-storia` / `--no-story` | Solo le mappe: niente chiave né PDF della storia | `--senza-storia` |
+| `--unita` / `--units` | Scala della griglia: `imperiale` (1 casella = 5 ft) o `metrica` (1 casella = 1,5 m); di base metrica in italiano, imperiale in inglese | `--unita imperiale` |
 | `--solo-ascii` / `--ascii-only` | Solo i caratteri della tastiera (`# ~ = o`) | `--solo-ascii` |
 | `--font` | Un file di font a tua scelta (tutte le lettere devono avere la stessa larghezza) | `--font consola.ttf` |
 | `--uscita` / `--output` | Cartella in cui salvare al posto di `dungeons_generated` | `--uscita mie_mappe` |
