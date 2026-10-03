@@ -278,7 +278,7 @@ La logica del programma sta in `wyrmdelve.py`; le **parole** che pesca a caso st
 | `events` | cosa chiuse ogni epoca |
 | `areas` | dove si trova il dungeon: `surface` per gli edifici sopra il suolo, `underground` per gli altri |
 | `surface_shaft` | l'ingresso usato quando nessuna parete del livello può ospitarne uno |
-| `history` | le frasi della storia in cima alla chiave |
+| `history` | le frasi della storia in cima alla chiave: per ogni parte (`founded` la fondazione, `caves` le grotte, `second` la seconda epoca, `fall` la sua fine, `present` gli abitanti di oggi, `crude` i cunicoli recenti) un elenco di frasi tra cui il programma ne sceglie una; `opening` (aprire con gli abitanti di oggi), `golden` (l'epoca d'oro dei fondatori) e `legend` (una leggenda finale) a volte ci sono e a volte no |
 
 Ogni tipo in `dungeon_types` ha:
 
@@ -303,7 +303,7 @@ Ogni testo è scritto nelle due lingue, così:
 {"it": "sala del trono", "en": "throne hall"},
 ```
 
-Puoi cambiare le parole o aggiungere righe nuove copiandone una esistente. I costruttori vanno scritti al plurale (*i conti di {n}*, *il barone {n} e i suoi vassalli*), perché la storia dice "{f} costruirono…". `{n}` è il punto in cui il programma mette un nome casuale; in `history`, `{f}`, `{built}`, `{area}`, `{e1}`, `{s}`, `{e2}` e `{p}` sono i fondatori, cosa costruirono, il luogo, il primo evento, la seconda epoca, il secondo evento e gli abitanti di oggi.
+Puoi cambiare le parole o aggiungere righe nuove copiandone una esistente. I costruttori vanno scritti al plurale (*i conti di {n}*, *il barone {n} e i suoi vassalli*), perché la storia dice "{f} costruirono…". `{n}` è il punto in cui il programma mette un nome casuale; in `history`, `{f}`, `{built}`, `{area}`, `{e1}`, `{s}`, `{e2}` e `{p}` sono i fondatori, cosa costruirono, il luogo, il primo evento, la seconda epoca, il secondo evento e gli abitanti di oggi. Gli abitanti di oggi possono essere singolari o plurali (*una setta*, *i coboldi*): nelle frasi nuove non accordarci un verbo, scrivi per esempio «chi vi scende incontra {p}». Se modifichi le frasi della storia, lo stesso seme dà ancora le stesse mappe e le stesse stanze: cambia solo il racconto.
 
 Fai una **copia** del file prima di modificarlo. Lascia le virgolette `"`, le virgole tra le righe e le parentesi esattamente come sono: se qualcosa è fuori posto, il programma ti dice quale riga controllare (vedi il capitolo 9). Cambiare il file cambia i dungeon: lo stesso seme può dare una storia diversa da prima.
 

@@ -278,7 +278,7 @@ The program's logic is in `wyrmdelve.py`; the **words** it draws at random are i
 | `events` | what ended each age |
 | `areas` | where the dungeon is: `surface` for buildings above ground, `underground` for the others |
 | `surface_shaft` | the entrance used when no wall of the level can take one |
-| `history` | the sentences of the story at the top of the key |
+| `history` | the sentences of the story at the top of the key: for each part (`founded` the founding, `caves` the caves, `second` the second age, `fall` its end, `present` today's dwellers, `crude` the newer tunnels) a list of sentences the program picks one from; `opening` (start with today's dwellers), `golden` (the founders' golden age) and `legend` (a closing legend) are sometimes there and sometimes not |
 
 Each type in `dungeon_types` has:
 
@@ -303,7 +303,7 @@ Every text is written in both languages, like this:
 {"it": "sala del trono", "en": "throne hall"},
 ```
 
-You can change the words or add new lines by copying an existing one. Builders must be written in the plural (*the counts of {n}*, *Baron {n} and their vassals*), because the history says "{f} built…". `{n}` is where the program puts a random name; in `history`, `{f}`, `{built}`, `{area}`, `{e1}`, `{s}`, `{e2}` and `{p}` are the founders, what they built, the place, the first event, the second age, the second event and today's dwellers.
+You can change the words or add new lines by copying an existing one. Builders must be written in the plural (*the counts of {n}*, *Baron {n} and their vassals*), because the history says "{f} built…". `{n}` is where the program puts a random name; in `history`, `{f}`, `{built}`, `{area}`, `{e1}`, `{s}`, `{e2}` and `{p}` are the founders, what they built, the place, the first event, the second age, the second event and today's dwellers. Today's dwellers may be singular or plural (*a cult*, *the kobolds*): in new sentences don't make a verb agree with them, write for example "whoever goes down there meets {p}". If you edit the history sentences, the same seed still gives the same maps and rooms: only the tale changes.
 
 Make a **copy** of the file before you edit it. Keep the quotes `"`, the commas between lines and the brackets exactly as they are: if something is out of place, the program tells you which line to check (see chapter 9). Changing the file changes the dungeons: the same seed may then give a different story than before.
 

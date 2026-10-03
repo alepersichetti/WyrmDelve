@@ -753,7 +753,13 @@ NATURAL_ROOMS = TABLES["natural_rooms"]
 EVENTS = TABLES["events"]
 AREAS = TABLES["areas"]
 SURFACE_SHAFT = TABLES["surface_shaft"]
-HISTORY = TABLES["history"]
+# every part of the history is a list of variants (older files: a single sentence)
+HISTORY = {k: v if isinstance(v, list) else [v] for k, v in TABLES["history"].items()}
+HISTORY_PARTS = ("founded", "caves", "second", "fall", "present", "crude")
+missing = [k for k in HISTORY_PARTS if not HISTORY.get(k)]
+if missing:
+    sys.exit(f"Nel file {os.path.basename(TABLES_FILE)} mancano / {os.path.basename(TABLES_FILE)} lacks: "
+             + ", ".join("history." + k for k in missing))
 
 ERA_TAGS = {0: "N", 1: "I", 2: "II", 3: "III"}
 
@@ -889,18 +895,35 @@ def make_story(rng, types):
     return story
 
 
+def plan_history(rng):
+    """Which sentence tells each part of the history, and whether it opens with
+    today's dwellers, dwells on the founders' age, ends with a legend. It has
+    its own random numbers, so the maps and the rooms never change with it."""
+    plan = {k: rng.choice(v) for k, v in HISTORY.items() if v}
+    plan["shape"] = {k for k, chance in (("opening", 0.3), ("golden", 0.5), ("legend", 0.5))
+                     if k in plan and rng.random() < chance}
+    return plan
+
+
+def capitalized(text):
+    return text[:1].upper() + text[1:]
+
+
 def history_text(dungeon):
     """The history in the key, sentence by sentence: caves and crude tunnels
     are only mentioned if the dungeon has them."""
-    s = dungeon.story
+    s, plan = dungeon.story, dungeon.story["history"]
+    shape = plan["shape"]
     eras = {r.era for r in dungeon.rooms}
-    parts = ["founded"] + (["caves"] if 0 in eras else []) + ["second", "fall", "present"]
-    parts += ["crude"] if 3 in eras else []
+    parts = (["opening"] if "opening" in shape else []) + ["founded"] + (["caves"] if 0 in eras else [])
+    parts += (["golden"] if "golden" in shape else []) + ["second", "fall"]
+    parts += ([] if "opening" in shape else ["present"]) + (["crude"] if 3 in eras else [])
+    parts += ["legend"] if "legend" in shape else []
     out = []
     for i in range(2):
         values = dict(f=s["f_who"][i], built=s["built"][i], area=s["area"][i], e1=s["e1"][i], s=s["s_who"][i],
                       e2=s["e2"][i], p=s["p_who"][i])
-        out.append(" ".join(HISTORY[k][i].format(**values) for k in parts))
+        out.append(" ".join(capitalized(plan[k][i].format(**values)) for k in parts))
     return tuple(out)
 
 
@@ -2317,6 +2340,7 @@ def generate(params, log):
     for attempt in range(8):
         rng = random.Random(f"wyrmdelve-{seed}-{attempt}")
         story = make_story(random.Random(f"wyrmdelve-story-{seed}"), params["types"])
+        story["history"] = plan_history(random.Random(f"wyrmdelve-history-{seed}"))
         dungeon = Dungeon(params, story)
         quiet = log if attempt == 0 else QuietLog()
         if attempt == 0:
