@@ -103,6 +103,7 @@ COLOR_SCHEMES = {
     3: ((255, 255, 255), (0, 0, 0)),          # white symbols on black
 }
 
+MIN_PER_LEVEL = 3          # a level needs 3 rooms for a loop (Jaquays/Xandering)
 LIMITS = {"levels": (1, 10), "rooms": (3, 200), "entrances": (1, 9), "secrets": (0, 60)}
 DEFAULTS = {"levels": 3, "rooms": 20, "entrances": 2, "secrets": 4}
 
@@ -152,7 +153,7 @@ TEXTS = {
     "enter_accepts": ("  Premi Invio per accettare il valore tra parentesi\n",
                       "  Press Enter to accept the value in brackets\n"),
     "q_levels": ("Numero di livelli del dungeon", "Number of dungeon levels"),
-    "q_rooms": ("Numero di stanze (almeno 2 per livello)", "Number of rooms (at least 2 per level)"),
+    "q_rooms": ("Numero di stanze (almeno 3 per livello)", "Number of rooms (at least 3 per level)"),
     "q_entrances": ("Numero di ingressi/uscite dall'area", "Number of entrances/exits to the area"),
     "q_secrets": ("Numero di porte e passaggi segreti", "Number of secret doors and passages"),
     "ask_seed": ("  Seme del dungeon da rifare (è anche il nome della sua cartella, es. {example}): ",
@@ -191,8 +192,8 @@ TEXTS = {
     "name_entrances": ("ingressi", "entrances"),
     "name_secrets": ("segreti", "secrets"),
     "err_range": ("Il numero di {what} deve essere tra {lo} e {hi}.", "The number of {what} must be between {lo} and {hi}."),
-    "err_rooms_levels": ("Con {l} livelli servono almeno {n} stanze (2 per livello).",
-                         "{l} levels need at least {n} rooms (2 per level)."),
+    "err_rooms_levels": ("Con {l} livelli servono almeno {n} stanze (3 per livello, perché ogni livello abbia un anello).",
+                         "{l} levels need at least {n} rooms (3 per level, so that every level has a loop)."),
     "err_entrances": ("Gli ingressi non possono essere più delle stanze.",
                       "There can't be more entrances than rooms."),
     "err_seed": ("Seme non valido: {s}", "Invalid seed: {s}"),
@@ -382,7 +383,8 @@ TEXTS = {
     "jq_entrances_one": ("Ingressi multipli: uno solo, come richiesto (gli anelli e i livelli compensano)",
                          "Multiple entrances: just one, as asked (loops and levels make up for it)"),
     "jq_midpoint": ("Ingresso a metà dungeon: {n}", "Midpoint entry: {n}"),
-    "jq_loops": ("Anelli (numero ciclomatico del dungeon): {n}", "Loops (cyclomatic number of the dungeon): {n}"),
+    "jq_loops": ("Anelli (numero ciclomatico del dungeon): {n}; su ogni livello: {d}",
+                 "Loops (cyclomatic number of the dungeon): {n}; on each level: {d}"),
     "jq_multi": ("Collegamenti multipli tra livelli: {d}", "Multiple level connections: {d}"),
     "jq_disc": ("Collegamenti discontinui (saltano livelli): {n}", "Discontinuous level connections (skip levels): {n}"),
     "jq_secret": ("Percorsi segreti e insoliti: {d} porte segrete, {p} passaggi segreti, {h} scale/pozzi nascosti, "
@@ -419,7 +421,7 @@ TEXTS = {
     "h_epilog": ("Senza opzioni parte la modalità interattiva. I parametri non indicati sono scelti a caso.",
                  "Without options the interactive mode starts. Parameters you leave out are chosen at random."),
     "h_levels": ("numero di livelli (1-10)", "number of levels (1-10)"),
-    "h_rooms": ("numero di stanze (3-200, almeno 2 per livello)", "number of rooms (3-200, at least 2 per level)"),
+    "h_rooms": ("numero di stanze (3-200, almeno 3 per livello)", "number of rooms (3-200, at least 3 per level)"),
     "h_entrances": ("ingressi/uscite dall'area (1-9)", "entrances/exits to the area (1-9)"),
     "h_secrets": ("porte e passaggi segreti (0-60)", "secret doors and passages (0-60)"),
     "h_colors": ("1 nero su bianco (default), 2 bianco su celeste, 3 bianco su nero",
@@ -601,6 +603,24 @@ def read_seed(text):
     return None if p["types"] is None or check_params(p) else p
 
 
+def seed_problem(text):
+    """Why a well-formed seed can't be used (e.g. too few rooms per level), or None."""
+    parts = (text or "").strip().split("-")
+    if len(parts) not in (5, 6):
+        return None
+    try:
+        levels, rooms, entrances, hidden = (int(x) for x in parts[:4])
+    except ValueError:
+        return None
+    p = {"levels": levels, "rooms": rooms, "entrances": entrances, "secrets": hidden}
+    error = check_params(p)
+    if error is None and len(parts) == 6:
+        types = read_types(parts[4], levels)
+        if types is not None:
+            error = check_params({**p, "types": types})
+    return error
+
+
 def example_seed():
     return "3-24-2-5-CDK-K7Q2MB"
 
@@ -610,8 +630,8 @@ def check_params(p):
     for key, (lo, hi) in LIMITS.items():
         if not lo <= p[key] <= hi:
             return tr("err_range", what=tr("name_" + key), lo=lo, hi=hi)
-    if p["rooms"] < 2 * p["levels"]:
-        return tr("err_rooms_levels", n=2 * p["levels"], l=p["levels"])
+    if p["rooms"] < MIN_PER_LEVEL * p["levels"]:
+        return tr("err_rooms_levels", n=MIN_PER_LEVEL * p["levels"], l=p["levels"])
     if p["entrances"] > p["rooms"]:
         return tr("err_entrances")
     types = p.get("types")
@@ -635,9 +655,9 @@ def random_params(number, fixed=None):
     p["entrances"] = r.choices([1, 2, 3, 4], weights=[1, 4, 3, 2])[0]
     p.update(fixed)
     if "rooms" not in fixed:
-        p["rooms"] = max(3, 2 * p["levels"], min(p["rooms"], LIMITS["rooms"][1]))
-    if "levels" not in fixed and p["rooms"] < 2 * p["levels"]:
-        p["levels"] = max(1, p["rooms"] // 2)
+        p["rooms"] = max(3, MIN_PER_LEVEL * p["levels"], min(p["rooms"], LIMITS["rooms"][1]))
+    if "levels" not in fixed and p["rooms"] < MIN_PER_LEVEL * p["levels"]:
+        p["levels"] = max(1, p["rooms"] // MIN_PER_LEVEL)
     if "entrances" not in fixed:
         p["entrances"] = min(p["entrances"], p["rooms"])
     if "secrets" not in fixed:
@@ -1446,7 +1466,7 @@ def divide(specs, cols):
         if spec.slot[0] < half < spec.slot[0] + spec.span[0]:
             spec.span = (half - spec.slot[0], spec.span[1])
     comps = [0 if spec.slot[0] < half else 1 for spec in specs]
-    return comps if min(comps.count(0), comps.count(1)) >= 2 else None
+    return comps if min(comps.count(0), comps.count(1)) >= MIN_PER_LEVEL else None
 
 
 # --- room layout and strata ---
@@ -1454,13 +1474,13 @@ def split_rooms(params, rng):
     """Rooms per main level and on the sub-level (0 if none)."""
     levels, rooms = params["levels"], params["rooms"]
     sub = 0
-    if (levels >= 2 and rooms >= 2 * levels + 4) or (levels == 1 and rooms >= 8):
-        sub = 3 if rooms >= 30 else 2
+    if (levels >= 2 and rooms >= MIN_PER_LEVEL * levels + 3) or (levels == 1 and rooms >= 8):
+        sub = 3                             # 3 rooms, so the sub-level has its own loop
     rest = rooms - sub
     counts = [rest // levels] * levels
     for k in rng.sample(range(levels), rest % levels):
         counts[k] += 1
-    # a little variety, never below 2
+    # a little variety, never below 3
     for _ in range(levels):
         a, b = rng.randrange(levels), rng.randrange(levels)
         if a != b and counts[a] > 3:
@@ -1540,7 +1560,7 @@ def build_rooms(dungeon, rng, log):
     if sub_rooms:
         d = rng.randrange(L - 1) if L >= 2 else 0
         kind = types[d]
-        sc, sr = (sub_rooms, 1) if sub_rooms <= 3 else (2, 2)
+        sc, sr = 3, 2                       # 3 rooms in 6 slots: room for a loop around them
         level = Level(f"{d + 1}a", d + 0.5, sc, sr, sub=True, kind=kind)
         era = rng.choice((0, 2, 2) if TYPE[kind]["eras"][0] > 0 else (2,))
         for slot in rng.sample([(c, r) for c in range(sc) for r in range(sr)], sub_rooms):
@@ -1738,8 +1758,15 @@ def connect_level(level, rng):
         loops = pool[:want]
         for _, a, b in tree:
             dig(level, rooms[a], rooms[b], rng, "tree", region)
-        for _, a, b in loops:
-            dig(level, rooms[a], rooms[b], rng, "loop", region)
+        dug = sum(1 for _, a, b in loops if dig(level, rooms[a], rooms[b], rng, "loop", region))
+        if want and not dug:
+            # every part of a level gets at least one loop: try the other pairs until one can be dug
+            tree_pairs = {(a, b) for _, a, b in tree} | {(a, b) for _, a, b in loops}
+            others = sorted((math.dist(rooms[a].physical(), rooms[b].physical()), a, b)
+                            for a in range(n) for b in range(a + 1, n) if (a, b) not in tree_pairs)
+            for _, a, b in others:
+                if dig(level, rooms[a], rooms[b], rng, "loop", region):
+                    break
 
 
 # --- level connections and entrances ---
@@ -1784,47 +1811,93 @@ def plan_links(dungeon, rng):
     skip levels, a sub-level off the main sequence, sometimes a portal."""
     mains = dungeon.mains()
     used = Counter()
+    linked = set()                          # pairs of rooms already joined by a link
 
     def choose(level, comp=None, avoid=()):
-        rooms = [r for r in level.rooms if (comp is None or r.comp == comp) and r not in avoid]
-        rooms = rooms or level.rooms
+        """The least used room (of a part of the level), outside `avoid` if possible."""
+        part = [r for r in level.rooms if comp is None or r.comp == comp]
+        rooms = [r for r in part if r not in avoid] or part or level.rooms
         room = min(rooms, key=lambda r: (used[r.uid], rng.random()))
         used[room.uid] += 1
         return room
+
+    def link(kind, a, b):
+        linked.add(frozenset((a.uid, b.uid)))
+        return add_link(dungeon, kind, a, b, rng)
+
+    def partners(room):
+        return {r for r in dungeon.rooms if frozenset((room.uid, r.uid)) in linked}
 
     for d in range(len(mains) - 1):
         up, down = mains[d], mains[d + 1]
         comps_up = sorted({r.comp for r in up.rooms})
         comps_down = sorted({r.comp for r in down.rooms})
         k = 2 + (len(up.rooms) >= 8 and len(down.rooms) >= 8 and rng.random() < 0.6)
+        taken = set()                       # each connection between two levels uses rooms of its own
         for n in range(max(k, len(comps_up), len(comps_down))):
-            a = choose(up, comps_up[n % len(comps_up)])
-            b = choose(down, comps_down[n % len(comps_down)])
-            add_link(dungeon, "stairs", a, b, rng)
+            a = choose(up, comps_up[n % len(comps_up)], taken)
+            b = choose(down, comps_down[n % len(comps_down)], taken | partners(a))
+            taken |= {a, b}
+            link("stairs", a, b)
 
     if len(mains) >= 3:
         for _ in range(1 + (len(mains) >= 6)):
             d = rng.randrange(len(mains) - 2)
             jump = 3 if d + 3 < len(mains) and rng.random() < 0.3 else 2
-            add_link(dungeon, "shaft", choose(mains[d]), choose(mains[d + jump]), rng)
+            a = choose(mains[d])
+            link("shaft", a, choose(mains[d + jump], avoid=partners(a)))
 
     for sub in [lv for lv in dungeon.levels if lv.sub]:
         d = int(sub.depth)
         a, b = sorted(sub.rooms, key=lambda r: r.number)[0], sorted(sub.rooms, key=lambda r: r.number)[-1]
-        add_link(dungeon, "stairs", choose(mains[d]), a, rng)
+        link("stairs", choose(mains[d]), a)
         below = mains[d + 1] if d + 1 < len(mains) else mains[d]
-        add_link(dungeon, "shaft", b, choose(below), rng)
+        link("shaft", b, choose(below, avoid=partners(b)))
 
     chance = max(TYPE[lv.kind].get("portal", 0.4) for lv in mains)
     if len(dungeon.rooms) >= (8 if chance >= 1 else 15) and rng.random() < chance:
         if len(mains) >= 2:
-            la, lb = rng.sample(mains, 2)
-            add_link(dungeon, "portal", choose(la), choose(lb), rng)
+            # a portal joins far-away places: levels at least two apart when there are three or more
+            pairs = [(x, y) for x in range(len(mains)) for y in range(x + 1, len(mains)) if y - x >= 2]
+            x, y = rng.choice(pairs) if pairs else (0, 1)
+            a = choose(mains[x])
+            link("portal", a, choose(mains[y], avoid=partners(a)))
         else:
             a = choose(mains[0])
             far = max(mains[0].rooms, key=lambda r: math.dist(r.physical(), a.physical()))
             used[far.uid] += 1
-            add_link(dungeon, "portal", a, far, rng)
+            link("portal", a, far)
+
+
+def neighbours(dungeon):
+    """room uid -> the rooms (and "out") it can be reached from."""
+    out = {r.uid: set() for r in dungeon.rooms}
+    for level in dungeon.levels:
+        for c in level.corridors:
+            out[c.a.uid].add(c.b.uid)
+            out[c.b.uid].add(c.a.uid)
+    for link in dungeon.links:
+        out[link.a.uid].add(link.b.uid)
+        out[link.b.uid].add(link.a.uid)
+    for e in dungeon.entrances:
+        out[e["room"].uid].add("out")
+    return out
+
+
+def no_dead_ends(dungeon, rng):
+    """Xandering: no room with a single way in. A room reached from one place
+    only gets a corridor to the nearest room of its part of the level that it
+    isn't joined to yet."""
+    for room in dungeon.rooms:
+        near = neighbours(dungeon)[room.uid]
+        if len(near) >= 2:
+            continue
+        level = room.level
+        others = sorted([r for r in level.rooms if r.comp == room.comp and r is not room and r.uid not in near],
+                        key=lambda r: math.dist(r.physical(), room.physical()))
+        for other in others:
+            if dig(level, room, other, rng, "loop", level.region(room.comp)):
+                break
 
 
 def exit_ray(level, room, rng, region, spacing=6):
@@ -2154,7 +2227,20 @@ def jaquays_report(dungeon):
     lines = []
     E = len(dungeon.entrances)
     lines.append(("ok", tr("jq_entrances", n=E)) if E >= 2 else ("~", tr("jq_entrances_one")))
-    lines.append(("ok", tr("jq_loops", n=loops)))
+    per_level = []
+    for level in dungeon.levels:
+        parent = {r.uid: r.uid for r in level.rooms}
+
+        def find(x):
+            while parent[x] != x:
+                x = parent[x]
+            return x
+        for c in level.corridors:
+            parent[find(c.a.uid)] = find(c.b.uid)
+        parts = len({find(r.uid) for r in level.rooms})
+        per_level.append((level.name, len(level.corridors) - len(level.rooms) + parts))
+    every = all(n >= 1 for _, n in per_level)
+    lines.append(("ok" if every else "~", tr("jq_loops", n=loops, d=", ".join(f"{name}: {n}" for name, n in per_level))))
     if L >= 2:
         pairs = []
         for d in range(L - 1):
@@ -2222,6 +2308,7 @@ def generate(params, log):
             connect_level(level, rng)
         plan_links(dungeon, rng)
         place_entrances(dungeon, rng)
+        no_dead_ends(dungeon, rng)
         if not repair(dungeon, rng) or len(dungeon.entrances) == 0:
             log.warn(tr("info_retry", n=attempt + 1))
             continue
@@ -3313,16 +3400,21 @@ def ask_settings():
          "per_level": None, "pdf": None}
     if mode == "rebuild":
         while True:
-            seed = read_seed(input(tr("ask_seed", example=example_seed())))
+            text = input(tr("ask_seed", example=example_seed()))
+            seed = read_seed(text)
             if seed:
                 break
             print(tr("seed_invalid", example=example_seed()))
+            problem = seed_problem(text)
+            if problem:
+                print("    " + problem)
         p.update(seed)
         p["randomized"] = False
     elif mode == "params":
         lo, hi = LIMITS["levels"]
         levels = ask(tr("q_levels"), DEFAULTS["levels"], int, lo, hi)
-        rooms = ask(tr("q_rooms"), max(DEFAULTS["rooms"], 2 * levels), int, max(3, 2 * levels), LIMITS["rooms"][1])
+        rooms = ask(tr("q_rooms"), max(DEFAULTS["rooms"], MIN_PER_LEVEL * levels), int, MIN_PER_LEVEL * levels,
+                    LIMITS["rooms"][1])
         entrances = ask(tr("q_entrances"), min(DEFAULTS["entrances"], rooms), int, 1, min(LIMITS["entrances"][1], rooms))
         hidden = ask(tr("q_secrets"), DEFAULTS["secrets"], int, *LIMITS["secrets"])
         types = ask_types(levels)
@@ -3397,7 +3489,8 @@ def settings_from_options(argv):
         else:
             number = from_code(a.seed) if not a.seed.isdigit() else int(a.seed) % (32 ** CODE_LENGTH)
             if number is None:
-                ap.error(tr("err_seed", s=a.seed))
+                problem = seed_problem(a.seed)
+                ap.error(tr("err_seed", s=a.seed) + (" — " + problem if problem else ""))
             p.update(random_params(number, fixed))
             p["randomized"] = len(fixed) < 4
     else:
