@@ -234,9 +234,9 @@ Everything goes in `dungeons_generated/<seed>/`, one folder per dungeon:
 
 If you choose **only the maps**, the key and the PDF are not made.
 
-**The monsters.** Every level has a d6 wandering monster table: 1 is today's dwellers, the others are monsters that fit the level's type, more dangerous the deeper you go. About a third of the rooms hold monsters (today's dwellers in their lairs, the other table monsters in theirs); at least a third always stay empty, and next to every room with monsters there is an empty room with a **clue** (gnawed bones, slimy trails, a smell of sulphur…) saying where it comes from. Now and then a monster is **out of place**, with its reason: for instance an aboleth in a castle pool, come up from the flooded caves of the level below. To add monsters see [docs/add_monsters_to_bestiary.md](docs/add_monsters_to_bestiary.md).
+**The monsters.** Every level has a d6 wandering monster table: 1 is today's dwellers, the others are monsters that fit the level's type, more dangerous the deeper you go. About a third of the rooms hold monsters (today's dwellers in their lairs, the other table monsters in theirs); at least a third always stay empty, and next to every room with monsters there is an empty room with a **clue** (gnawed bones, slimy trails, a smell of sulphur…) saying where it comes from. Now and then a monster is **out of place**, with its reason: for instance an aboleth in a castle pool, come up from the flooded caves of the level below. How it works: [docs/monsters.md](docs/monsters.md); to add monsters: [docs/add_monsters_to_bestiary.md](docs/add_monsters_to_bestiary.md).
 
-**The traps.** They show **only on the game master's map**, as `^`, and the key describes them: name, **tell** (how you notice it), **effect** and **countermeasures**. Whoever built a place protected it their own way: careful mechanisms in the founders' and second age's halls, crude traps where today's dwellers live, mostly around the important rooms. Before meeting a working trap, the players meet a **broken or exposed** one of the same kind, which shows how it works; the deeper you go, the crueller the traps.
+**The traps.** They show **only on the game master's map**, as `^`, and the key describes them: name, **tell** (how you notice it), **effect** and **countermeasures**. Whoever built a place protected it their own way: careful mechanisms in the founders' and second age's halls, crude traps where today's dwellers live, mostly around the important rooms. Before meeting a working trap, the players meet a **broken or exposed** one of the same kind, which shows how it works; the deeper you go, the crueller the traps. How it works: [docs/trap.md](docs/trap.md).
 
 The headings of the story use **Sebaldus-Gotisch** and the text uses **Crimson Text**, both in the `fonts` folder (see `fonts/README.md`).
 
@@ -445,6 +445,8 @@ If you want to know how the program invents the dungeons, the `docs` folder has 
 
 - [How the dungeon map is made](docs/dungeon_map_generation.md): seed, types, rooms, ages, corridors and loops, stairs, entrances, secrets, drawing and printing;
 - [How the dungeon story is made](docs/story_generation_algorithm.md): ingredients, names, the parts of the history and their 3,840 shapes, layered rooms, the key and the PDF;
+- [How the monsters are made](docs/monsters.md): wandering monsters, monsters and clues in the rooms, out-of-place monsters;
+- [How the traps are made](docs/trap.md): families and stages, who builds them, learn first and then risk;
 - [How to add monsters to the bestiary](docs/add_monsters_to_bestiary.md): the fields of every monster, ready-to-copy examples, clues, out-of-place monsters, common mistakes.
 
 ## Sources

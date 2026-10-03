@@ -18,11 +18,10 @@ Tutti i testi di questo documento sono stati scritti dal programma, non a mano. 
 8. [Altri tre racconti, tre forme diverse](#8-altri-tre-racconti-tre-forme-diverse)
 9. [Quante storie diverse?](#9-quante-storie-diverse)
 10. [Gli strati](#10-gli-strati)
-11. [Cosa c'è in ogni stanza](#11-cosa-cè-in-ogni-stanza)
+11. [Le descrizioni delle stanze](#11-le-descrizioni-delle-stanze)
 12. [Ingressi, uscite e collegamenti](#12-ingressi-uscite-e-collegamenti)
 13. [Dove finisce la storia: la chiave e il PDF](#13-dove-finisce-la-storia-la-chiave-e-il-pdf)
 14. [Scrivere frasi nuove senza errori](#14-scrivere-frasi-nuove-senza-errori)
-15. [I mostri](#15-i-mostri)
 
 ---
 
@@ -63,25 +62,17 @@ Il file si può modificare (vedi il capitolo 7 del README e il [capitolo 14](#14
 | `areas` | dove si trova il dungeon | 66 in superficie, 58 sottoterra |
 | `history` | le frasi del racconto e gli elenchi da cui pescano | 97 frasi; 30 scopi, 30 reliquie, 25 visitatori |
 | `name_syllables` | sillabe e desinenze per i nomi | 238 sillabe, 9 famiglie di desinenze |
-| `monsters`, `clues`, `quirks` | i mostri, gli indizi nelle stanze vuote, i motivi dei mostri fuori posto | 245 mostri, 15 tipi di indizi, 11 motivi |
 
 ---
 
 ## 3. I dadi della storia
 
-Ogni dungeon ha un **seme** (per esempio `3-21-2-4-CDK-000F62`). Con lo stesso seme esce sempre la stessa storia.
-
-Il programma però non usa un solo sacchetto di dadi. Ricava dal seme sacchetti diversi:
+Con lo stesso seme (per esempio `3-21-2-4-CDK-000F62`) esce sempre la stessa storia. La storia usa due dei "sacchetti di dadi" separati che il programma ricava dal seme (spiegati nel capitolo 2 di [dungeon_map_generation.md](dungeon_map_generation.md#dadi-separati)):
 
 - uno per gli **ingredienti** della storia e i nomi delle stanze;
-- uno per la **forma e le frasi del racconto**;
-- uno per i **mostri erranti**;
-- uno per la **mappa**.
+- uno per la **forma e le frasi del racconto**.
 
-Per questo:
-
-- se aggiungi o cambi frasi nel file JSON, **la mappa dello stesso seme non cambia**: cambiano solo i testi;
-- le frasi del racconto non cambiano i nomi delle stanze, e viceversa.
+Per questo le frasi del racconto non cambiano i nomi delle stanze, e viceversa; e nessuno dei due cambia la mappa.
 
 ---
 
@@ -100,7 +91,7 @@ Prima di scrivere una riga, il programma sceglie gli **ingredienti**. Ecco quell
 | gli **abitanti di oggi** | `{p}` | uno dei 45 gruppi, con un nome inventato | *i bugbear di Inchalville* |
 | il **titolo** | | uno dei titoli del tipo del livello del suolo, con un nome inventato | *La Cittadella di Sullenis* |
 
-Il **livello del suolo** è quello con l'ingresso principale: il più basso tra i livelli costruiti sopra il suolo (palazzo, torre, castello, accademia, fortezza), oppure il primo livello se il dungeon è tutto sotterraneo. È lui a decidere chi sono i fondatori: in questo esempio la torre sta sopra il castello, ma i fondatori sono quelli di un castello.
+I fondatori vengono dal tipo del **livello del suolo**, quello con l'ingresso principale (spiegato nel capitolo 3 di [dungeon_map_generation.md](dungeon_map_generation.md#il-livello-del-suolo)): in questo esempio la torre sta sopra il castello, ma i fondatori sono quelli di un castello.
 
 Per il racconto servono anche quattro **ingredienti extra**, scelti con i dadi del racconto:
 
@@ -257,7 +248,7 @@ Tra parentesi quadre ci sono i muri con cui ogni epoca appare sulla mappa. Se un
 
 ---
 
-## 11. Cosa c'è in ogni stanza
+## 11. Le descrizioni delle stanze
 
 Ogni stanza ha una **descrizione a strati**: cosa era in origine, e cosa ne hanno fatto le epoche successive.
 
@@ -354,7 +345,7 @@ COLLEGAMENTI TRA LIVELLI
   1-04   ↔ 3-07   portale magico
 ```
 
-Una scala, un pozzo o un portale **nascosto** è indicato come tale: i giocatori non lo vedono sulla loro mappa.
+Una scala, un pozzo o un portale **nascosto** è indicato come tale: i giocatori non lo vedono sulla loro mappa. Come vengono scelti scale, pozzi, portali e ingressi è spiegato nei capitoli 10 e 11 di [dungeon_map_generation.md](dungeon_map_generation.md#10-scale-pozzi-portali-e-sottolivelli); qui conta solo come compaiono nella chiave.
 
 ---
 
@@ -362,7 +353,7 @@ Una scala, un pozzo o un portale **nascosto** è indicato come tale: i giocatori
 
 Se scegli la storia (da sola o con mostri e trappole), il programma scrive due file con lo stesso contenuto:
 
-- **`<seme>_key.txt`**, la chiave in testo semplice, larga 100 lettere: titolo, seme, tipo, scala, storia, strati, ingressi, collegamenti, per ogni livello la tabella dei mostri erranti e tutte le stanze, e infine la verifica dei principi di Jaquays;
+- **`<seme>_key.txt`**, la chiave in testo semplice, larga 100 lettere: titolo, seme, tipo, scala, storia, strati, ingressi, collegamenti, tutte le stanze livello per livello, e infine la verifica dei principi di Jaquays; con i mostri e le trappole, anche quello che spiegano [monsters.md](monsters.md) e [trap.md](trap.md);
 - **`<seme>_story.pdf`**, la stessa chiave come un libro su pagine A4: titoli in **Sebaldus-Gotisch**, testo in **Crimson Text**, numeri delle pagine in fondo.
 
 La lingua è quella che hai scelto all'inizio: ogni testo esiste in italiano e in inglese, e il programma prende la versione giusta.
@@ -391,88 +382,3 @@ Puoi aggiungere frasi a ogni parte di `history`, e voci a ogni elenco, copiando 
 La regola d'oro in italiano: **niente preposizioni davanti a un segnaposto con l'articolo determinativo**, perché il programma non sa trasformare «di i» in «dei» o «a la» in «alla».
 
 Una frase può usare solo i segnaposto che esistono: se ne usa uno sconosciuto (o se manca l'elenco da cui pescarlo), il programma semplicemente non la sceglie. Un file JSON vecchio, con una sola frase per parte e senza le parti nuove, funziona ancora: le parti che mancano vengono saltate.
-
----
-
-## 15. I mostri
-
-All'inizio il programma chiede **cosa vuoi generare**: oltre alle mappe, la storia, i mostri e le trappole, in qualunque combinazione (le trappole sono spiegate nel capitolo 19 di [dungeon_map_generation.md](dungeon_map_generation.md)). Con i mostri, la chiave ha per ogni livello una **tabella d6 di mostri erranti**, e ogni stanza dice **cosa c'è dentro**: dei mostri, un indizio, oppure niente. Anche i mostri hanno dadi propri: la mappa e la storia non cambiano.
-
-Ecco il livello 2 del seme `3-21-2-4-CDK-000F62`, con storia e mostri:
-
-```
-LIVELLO 2 — CASTELLO
-  Mostri erranti (d6)
-    1. I bugbear di Inchalville: gli abitanti di oggi, in giro per le sale.
-    2. Orso: un orso affamato entrato dalle rovine.
-    3. Pantera: un felino nero, a volte tenuto come animale da guardia.
-    4. Mimic: sembra un forziere o una porta, finché non morde.
-    5. Mutaforma: prende l'aspetto di chi ha davanti e si infiltra nel gruppo.
-    6. Lupo mannaro: di giorno una persona come tante, di notte un lupo.
-  2-01 [I] Torre della prigione; III: tana dei bugbear.
-         Mostri: i bugbear di Inchalville (2d6): è la loro tana.
-         uscite: → 2-03 (apertura); → 2-02 (passaggio segreto); > scale giù → 3-02; ingresso A
-  2-02 [I] Torre d'angolo; II: sala dei ricordi.
-         Mostri: Orso (1d6).
-         uscite: → 2-03 (porta); → 2-01 (passaggio segreto); → 2-05 (porta, gradini); > scale giù →
-         2a-01
-  2-03 [I] Cortile delle scuderie.
-         Vuota. Indizio: un mucchio di ossa e di oggetti rubati, il bottino di qualcuno (da 2-01).
-         uscite: → 2-04 (porta); → 2-01 (porta); → 2-05 (porta); → 2-02 (porta); < scale su → 1-03
-  2-04 [I] Torre del vessillo.
-         Vuota.
-         uscite: → 2-03 (porta); < scale su → 1-05
-  2-05 [I] Torrione; II: cucina comune.
-         Vuota. Indizio: orme fresche di zampe nella polvere (da 2-02).
-         uscite: → 2-03 (porta); → 2-02 (porta, gradini); > scale giù → 3-03
-```
-
-### La tabella dei mostri erranti
-
-Si tira un d6 quando i personaggi fanno rumore o perdono tempo.
-
-- **1** sono sempre **gli abitanti di oggi** (lo strato III), in giro per le sale: il dungeon è casa loro.
-- **2–6** sono cinque mostri della tabella `monsters` adatti al **tipo del livello**: ragni e melme nelle grotte, non morti nelle tombe, demoni e golem nel laboratorio arcano, ronde e tagliagole in città. Ogni mostro dice dove può comparire (`where`).
-- **Più si scende, più è pericoloso.** Ogni mostro ha un pericolo (`danger`) da 1 a 4: il primo livello cerca il pericolo 1, poi sale di un punto per livello fino a 4 (più piano se i livelli sono tanti). Se non bastano, il programma prende mostri di un punto sopra o sotto, poi qualunque mostro adatto al tipo.
-- **Niente doppioni** tra un livello e l'altro, finché ce ne sono di nuovi.
-
-### Le stanze: mostri, indizi, stanze vuote
-
-Un buon dungeon non è pieno di mostri: le stanze vuote danno respiro, fanno salire la tensione e lasciano spazio all'esplorazione. Il programma fa così, livello per livello:
-
-1. **Circa un terzo delle stanze** ha dei mostri, e **almeno un terzo resta sempre vuoto**.
-2. **Gli abitanti di oggi** vivono nelle stanze della terza epoca (quelle con `III:` nella descrizione): sono le loro tane.
-3. **Gli altri mostri** della tabella dei mostri erranti abitano le stanze rimaste: la tabella dice chi gira, le stanze dicono dove dorme.
-4. Per **ogni stanza con mostri**, una stanza vuota vicina (collegata da un corridoio, se possibile) riceve un **indizio**: qualcosa che si vede, si sente o si annusa e fa capire che cosa c'è più avanti. L'indizio dipende dal tipo di creatura (`kind`): ossa rosicchiate per i non morti, scie viscide per le creature d'acqua, odore di zolfo per i demoni… e dice da quale stanza viene.
-5. Le altre stanze sono semplicemente **vuote**.
-
-Accanto a ogni mostro c'è **quanti** se ne incontrano (`number`): di solito 2d6 per i mostri deboli, 1d6, 1d3 e infine 1 per i più pericolosi.
-
-### I mostri fuori posto
-
-Un dungeon troppo ordinato è prevedibile. Per questo, **circa un livello su tre** ospita un mostro che **non c'entra** con il tipo del livello, e la chiave dice perché è lì. Il motivo nasce da ciò che il dungeon ha davvero:
-
-| Motivo | Quando può succedere |
-|---|---|
-| le grotte allagate di un altro livello arrivano fin sotto la stanza, o una cisterna comunica con i fiumi sotterranei | se un altro livello ha grotte naturali e acqua; il mostro è una creatura d'acqua |
-| il portale ogni tanto lascia passare qualcosa | se c'è un portale magico |
-| dal livello sotto sale qualcosa a caccia | se il livello sotto è di un altro tipo; il mostro viene da lì |
-| i fondatori lasciarono un guardiano | se il livello ha stanze dei fondatori; il mostro è un costrutto |
-| un incantesimo andato storto ha aperto un varco | demoni ed elementali |
-| gli abitanti di oggi tengono in catene ciò che catturano, o il loro capo tiene qui le sue bestie | bestie e mostri |
-| una battaglia recente, un tesoro nascosto, corridoi in cui è facile perdersi | sempre |
-
-Esempio (seme `4-42-4-2-F-003ADB`, una città di 4 livelli, livello 3):
-
-```
-  1a-01 Mostri: Serpente velenoso gigante (1d6). Fuori posto: in questi corridoi è facile perdersi,
-  e non tutti trovano l'uscita.
-```
-
-È così che può comparire, per esempio, un **aboleth nella vasca di un castello**, risalito dalle grotte allagate del livello sotto. Il mostro fuori posto prende anche l'ultimo posto della tabella d6 del suo livello, con un rimando alla sua stanza.
-
-### Da dove vengono i mostri
-
-L'elenco di 245 mostri è stato ricavato confrontando due bestiari, *OSR Bestiary* (bucolian) e il *Monstrous Bestiary* di *Aketon* (Reese Surles), ed eliminando i doppioni: per esempio il *Ruster* di Aketon è il mostro della ruggine, il *Gel Cube* è il cubo gelatinoso, il *Landshark* è la bulette. I due bestiari non hanno una licenza aperta, quindi da loro vengono solo i nomi delle creature e i Dadi Vita (usati per il pericolo): **tutte le descrizioni sono scritte per WyrmDelve**. L'aboleth viene dall'SRD 5.1 (CC BY 4.0). Sono stati tolti i mostri con nomi registrati da altri, i signori dei demoni con un nome proprio e gli animali che in un dungeon non hanno senso (balene, cavalli, dinosauri…).
-
-Per aggiungere mostri, indizi e motivi: [add_monsters_to_bestiary.md](add_monsters_to_bestiary.md).
