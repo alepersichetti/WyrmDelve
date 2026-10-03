@@ -171,7 +171,7 @@ Il programma ti fa alcune domande. **Ogni domanda ha una risposta già pronta tr
 
 1. **Lingua:** scrivi `1` per l'italiano o `2` per l'inglese (con Invio resta l'italiano). Da qui in poi domande, messaggi e testi sulla mappa sono nella lingua scelta.
 2. **Compare l'orco nel suo dungeon.** Premi **Invio** per un dungeon tutto casuale, scrivi **P** per scegliere tu i parametri, oppure **R** per rifare un dungeon che hai già creato (vedi il capitolo 4).
-3. Con **P** scegli: numero di livelli, numero di stanze (almeno 3 per livello, così ogni livello ha un anello), numero di ingressi/uscite dall'area, numero di porte e passaggi segreti. Poi il **tipo di dungeon** (vedi la tabella in alto; `0` = a caso). Con più di un livello, il programma prima ti chiede se **i livelli sono tutti dello stesso tipo** o se **ogni livello ha il suo tipo**: in questo caso li scegli uno per uno dall'alto, e per ogni livello l'elenco mostra solo i tipi che possono stare sotto quello di sopra.
+3. Con **P** scegli: numero di livelli, numero di stanze (almeno 5 per livello), numero di ingressi/uscite dall'area, numero di porte e passaggi segreti. Poi il **tipo di dungeon** (vedi la tabella in alto; `0` = a caso). Con più di un livello, il programma prima ti chiede se **i livelli sono tutti dello stesso tipo** o se **ogni livello ha il suo tipo**: in questo caso li scegli uno per uno dall'alto, e per ogni livello l'elenco mostra solo i tipi che possono stare sotto quello di sopra.
 
    Con **Invio** (dungeon tutto casuale) i tipi li sceglie il programma, sempre in un ordine coerente.
 4. **Colori:**
@@ -323,7 +323,7 @@ Ogni opzione ha anche un nome inglese (dopo la barra `/`), e puoi mescolarli com
 |---|---|---|
 | `--lingua` / `--language` | Lingua: `it` o `en` | `--lingua en` |
 | `--livelli` / `--levels` | Numero di livelli, da 1 a 10 | `--livelli 3` |
-| `--stanze` / `--rooms` | Numero di stanze, da 3 a 200 (almeno 3 per livello) | `--stanze 24` |
+| `--stanze` / `--rooms` | Numero di stanze, da 5 a 200 (almeno 5 per livello) | `--stanze 24` |
 | `--ingressi` / `--entrances` | Ingressi/uscite dall'area, da 1 a 9 | `--ingressi 2` |
 | `--segreti` / `--secrets` | Porte e passaggi segreti, da 0 a 60 | `--segreti 5` |
 | `--tipo` / `--type` | Tipo di dungeon, da 1 a 11 come nella tabella in alto: un numero per tutti i livelli, oppure uno per livello dall'alto, separati da virgole (i livelli devono stare in un ordine coerente) | `--tipo 4` o `--tipo 3,4,11` |
@@ -344,7 +344,7 @@ Per vedere l'elenco completo, scrivi `python wyrmdelve.py --help`.
 
 ### Limiti
 
-Livelli 1–10, stanze 3–200 (almeno 3 per livello), ingressi 1–9, segreti 0–60. Se chiedi più segreti di quanti corridoi e collegamenti ci siano, il programma te lo dice e mette quelli che può. Alcune tecniche di Jaquays hanno bisogno di spazio: con un solo livello non ci sono collegamenti tra livelli, i sottolivelli servono almeno 3 stanze in più delle 3 per livello (8 stanze con un solo livello), i livelli divisi servono livelli da almeno 6 stanze (3 per metà).
+Livelli 1–10, stanze 5–200 (almeno 5 per livello), ingressi 1–9, segreti 0–60. Se chiedi più segreti di quanti corridoi e collegamenti ci siano, il programma te lo dice e mette quelli che può. Alcune tecniche di Jaquays hanno bisogno di spazio: con un solo livello non ci sono collegamenti tra livelli, un sottolivello (3 stanze) richiede almeno 3 stanze in più delle 5 per livello, i livelli divisi servono livelli da almeno 6 stanze (3 per metà).
 
 Ogni dungeon viene controllato secondo lo Xandering: ogni livello (e ogni metà di un livello diviso, e ogni sottolivello) ha almeno un anello, nessuna stanza è un vicolo cieco (ognuna si raggiunge da almeno due punti), i collegamenti tra due livelli partono da stanze diverse e due stanze non sono mai collegate due volte. La sezione di Jaquays della chiave elenca gli anelli livello per livello.
 
@@ -391,7 +391,7 @@ Il file con le parole dei dungeon non è nella cartella. Mettilo accanto a `wyrm
 Dopo che hai modificato il file, qualcosa è fuori posto: il messaggio dice a che riga e colonna (`line 12 column 5`). Di solito è una virgola mancante tra due righe, una virgola in più dopo l'ultima riga di un elenco, o delle virgolette `"` mancanti. Correggi, oppure rimetti la copia che avevi fatto prima di modificarlo.
 
 **"Questo seme non è valido".**
-Uno dei caratteri del seme è sbagliato o manca. Confrontalo con il nome della cartella del dungeon o con la riga sotto il titolo della mappa. Deve avere sei parti separate da trattini, come `3-24-2-5-CDK-K7Q2MB` (cinque per i semi delle versioni precedenti). Se il messaggio aggiunge un motivo, come «Con 5 livelli servono almeno 15 stanze», il seme viene da una versione precedente che permetteva 2 stanze per livello: quei dungeon non potevano avere un anello su ogni livello, quindi non si possono rifare. Creane uno nuovo con gli stessi livelli e almeno 3 stanze per livello.
+Uno dei caratteri del seme è sbagliato o manca. Confrontalo con il nome della cartella del dungeon o con la riga sotto il titolo della mappa. Deve avere sei parti separate da trattini, come `3-24-2-5-CDK-K7Q2MB` (cinque per i semi delle versioni precedenti). Se il messaggio aggiunge un motivo, come «Con 5 livelli servono almeno 25 stanze», il seme viene da una versione precedente che permetteva meno stanze per livello, quindi non si può rifare. Creane uno nuovo con gli stessi livelli e almeno 5 stanze per livello.
 
 **"Il livello 1 (Castello) non può stare sopra il livello 2 (Torre)".**
 I tipi che hai indicato con `--tipo` non si impilano in modo coerente. Cambia l'ordine o scegli altri tipi: quelli più alti vanno per primi (una torre sopra un castello, un castello sopra una cripta, l'Underdark per ultimo).
