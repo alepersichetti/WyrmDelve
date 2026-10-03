@@ -185,11 +185,18 @@ TEXTS = {
     "q_name": ("  Nome della mappa: ", "  Map name: "),
     "name_empty": ("    Scrivi un nome.", "    Type a name."),
     "content_intro": ("\n  Cosa vuoi generare?", "\n  What do you want to make?"),
-    "content_1": ("    1 = solo le mappe", "    1 = only the maps"),
-    "content_2": ("    2 = mappe e storia (chiave delle stanze in PDF e TXT)", "    2 = maps and story (room key as PDF and TXT)"),
-    "content_3": ("    3 = mappe e mostri (tabelle dei mostri erranti, mostri e indizi nelle stanze)",
-                  "    3 = maps and monsters (wandering monster tables, monsters and clues in the rooms)"),
-    "content_4": ("    4 = mappe, storia e mostri", "    4 = maps, story and monsters"),
+    "content_help": ("    (storia: chiave delle stanze in PDF e TXT; mostri: mostri erranti, mostri e indizi nelle stanze;\n"
+                     "     trappole: segnate con ^ solo sulla mappa del master e descritte nella chiave)",
+                     "    (story: room key as PDF and TXT; monsters: wandering monsters, monsters and clues in the rooms;\n"
+                     "     traps: marked ^ on the game master's map only and described in the key)"),
+    "content_1": ("solo le mappe", "only the maps"),
+    "content_2": ("mappe e storia", "maps and story"),
+    "content_3": ("mappe e mostri", "maps and monsters"),
+    "content_4": ("mappe e trappole", "maps and traps"),
+    "content_5": ("mappe, storia e mostri", "maps, story and monsters"),
+    "content_6": ("mappe, storia e trappole", "maps, story and traps"),
+    "content_7": ("mappe, mostri e trappole", "maps, monsters and traps"),
+    "content_8": ("mappe, storia, mostri e trappole", "maps, story, monsters and traps"),
     "units_intro": ("\n  Unità di misura della griglia (ogni lettera della mappa è una casella)?",
                     "\n  Grid units (every letter of the map is one square)?"),
     "units_1": ("    1 = imperiale (piedi): 1 casella = 5 ft", "    1 = imperial (feet): 1 square = 5 ft"),
@@ -230,10 +237,8 @@ TEXTS = {
     "info_colors": ("Colori: {c}", "Colours: {c}"),
     "info_name_mine": ("Nome della mappa: «{t}»", "Map name: “{t}”"),
     "info_name_none": ("Mappa senza nome", "Map without a name"),
-    "info_content_1": ("Solo le mappe", "Only the maps"),
-    "info_content_2": ("Mappe e storia", "Maps and story"),
-    "info_content_3": ("Mappe e mostri", "Maps and monsters"),
-    "info_content_4": ("Mappe, storia e mostri", "Maps, story and monsters"),
+    "info_content": ("Contenuto: {c}", "Content: {c}"),
+    "info_traps": ("{n} trappole (^ solo sulla mappa del master)", "{n} traps (^ on the game master's map only)"),
     "info_units": ("Griglia: {s}", "Grid: {s}"),
     "info_folder": ("Cartella: {folder}", "Folder: {folder}"),
     "info_font": ("Font: {name}{fake}, cella {a:.2f} volte più alta che larga",
@@ -300,7 +305,7 @@ TEXTS = {
     "saved": ("Salvate: {a}  +  {b}", "Saved: {a}  +  {b}"),
     "saved_key": ("Chiave: {a}", "Key: {a}"),
     "saved_story": ("Storia: {a}", "Story: {a}"),
-    "saved_monsters": ("Mostri: {a}", "Monsters: {a}"),
+    "saved_book": ("Chiave in PDF: {a}", "Key as PDF: {a}"),
     "err_story_fonts": ("ERRORE: manca il font {f} nella cartella {d}, quindi il PDF della storia non viene creato "
                         "(le mappe e la chiave .txt sì). Rimetti il file nella cartella fonts accanto a wyrmdelve.py.",
                         "ERROR: the font {f} is missing from the folder {d}, so the story PDF is not made "
@@ -391,6 +396,12 @@ TEXTS = {
     "room_clue": ("Vuota. Indizio: {c} (da {r}).", "Empty. Clue: {c} (from {r})."),
     "room_empty": ("Vuota.", "Empty."),
     "quirk_from": (" del livello {n}", " of level {n}"),
+    "room_trap": ("Trappola (^): {x}", "Trap (^): {x}"),
+    "trap_parts": ("{n}. Segnale: {t}. Effetto: {e}. Contromisure: {c}.",
+                   "{n}. Tell: {t}. Effect: {e}. Countermeasures: {c}."),
+    "key_corridor_traps": ("Trappole nei corridoi", "Traps in the corridors"),
+    "corridor_trap": ("tra {a} e {b}", "between {a} and {b}"),
+    "lg_trap": ("trappola (solo master)", "trap (GM only)"),
     "key_entrance_line": ("{l}  {kind} (livello {lv}{mid}) → {room}",
                           "{l}  {kind} (level {lv}{mid}) → {room}"),
     "key_midpoint": (", ingresso a metà dungeon", ", midpoint entry"),
@@ -475,12 +486,12 @@ TEXTS = {
     "h_title": ("titolo della mappa (default: il nome del dungeon)", "map title (default: the dungeon's name)"),
     "h_no_title": ("mappa senza nome", "map without a name"),
     "h_no_story": ("solo le mappe, come --contenuto mappa", "only the maps, like --content map"),
-    "h_content": ("cosa generare: mappa (solo le mappe), storia (mappe e storia), mostri (mappe e mostri), "
-                  "tutto (mappe, storia e mostri; di base)",
-                  "what to make: map (only the maps), story (maps and story), monsters (maps and monsters), "
-                  "all (maps, story and monsters; the default)"),
-    "err_content": ("«{s}» non è una scelta valida: usa mappa, storia, mostri o tutto",
-                    "“{s}” is not a valid choice: use map, story, monsters or all"),
+    "h_content": ("cosa generare oltre alle mappe: storia, mostri, trappole, anche insieme separati da virgole "
+                  "(storia,trappole); mappa = solo le mappe; tutto = tutto (di base)",
+                  "what to make besides the maps: story, monsters, traps, also together separated by commas "
+                  "(story,traps); map = only the maps; all = everything (the default)"),
+    "err_content": ("«{s}» non è una scelta valida: usa mappa, tutto, oppure storia, mostri, trappole separati da virgole",
+                    "“{s}” is not a valid choice: use map, all, or story, monsters, traps separated by commas"),
     "h_units": ("unità della griglia: imperiale (1 casella = 5 ft) o metrica (1 casella = 1,5 m); "
                 "di base metrica in italiano, imperiale in inglese",
                 "grid units: imperial (1 square = 5 ft) or metric (1 square = 1.5 m); "
@@ -795,6 +806,8 @@ if missing:
 MONSTERS = [m for m in TABLES.get("monsters", []) if m.get("name") and m.get("text")]
 CLUES = {k: v for k, v in TABLES.get("clues", {}).items() if v}
 QUIRKS = [q for q in TABLES.get("quirks", []) if q.get("text")]
+# traps (optional table): family, stage (0 broken: it teaches, 1 working, 2 cruel), places, builders, where, needs
+TRAPS = [t for t in TABLES.get("traps", []) if t.get("name") and t.get("family")]
 
 ERA_TAGS = {0: "N", 1: "I", 2: "II", 3: "III"}
 
@@ -1106,6 +1119,7 @@ class Level:
         self.inner_tags = []                # (letter, (x, y)) next to a shaft from the surface
         self.split = None                   # column that divides the level, or None
         self.corridors = []
+        self.traps = {}                     # cell index -> trap, drawn as ^ on the GM map only
         for x in range(self.W):
             self.blocked[x] = self.blocked[(self.H - 1) * self.W + x] = 1
         for y in range(self.H):
@@ -2622,6 +2636,8 @@ def panel_canvas(level, gm, G):
             elif shown[i] == 1:
                 if gm and i in level.labels:
                     canvas.put(px, py, level.labels[i], "b")
+                elif gm and i in level.traps:
+                    canvas.put(px, py, "^", "b")
                 elif feat.get(i) == "tag":
                     pass
                 elif i in feat and (gm or (feat[i] != "hidden" and i not in level.hidden_feats)):
@@ -2714,6 +2730,8 @@ def legend_entries(dungeon, gm, G, units):
     if gm:
         mains = dungeon.mains()
         out.append([(f"{mains[0].name}-01", "b"), (" " + tr("lg_room"), "n")])
+    if gm and any(lv.traps for lv in dungeon.levels):
+        out.append([("^", "b"), (" " + tr("lg_trap"), "n")])
     out.append([(tr("lg_scale"), "b"), (" " + scale_text(units), "n")])
     return out
 
@@ -3269,12 +3287,141 @@ def plan_monsters(dungeon, seed):
     return wander, rooms
 
 
-def key_blocks(dungeon, seed, title, units, story_on=True, monsters_on=True):
+def distances(dungeon):
+    """room uid -> steps from the outside (corridors, links, entrances)."""
+    graph = {}
+    for a, b in traversal_graph(dungeon):
+        graph.setdefault(a, set()).add(b)
+        graph.setdefault(b, set()).add(a)
+    dist, todo = {"out": 0}, deque(["out"])
+    while todo:
+        n = todo.popleft()
+        for m in graph.get(n, ()):
+            if m not in dist:
+                dist[m] = dist[n] + 1
+                todo.append(m)
+    return dist
+
+
+def plan_traps(dungeon, seed):
+    """Traps in the spirit of Goblin Punch: whoever built a place trapped it their
+    own way (careful mechanisms in the founders' and second age's work, crude
+    ones where today's dwellers live), mostly around the key rooms; every trap
+    shows its mechanism (the tell) and can be beaten by thinking (the
+    countermeasures); before the first working trap of a kind, the players meet
+    a broken or exposed one that teaches how it works; deeper levels get the
+    cruel variants. Marks the cells (^ on the GM map); its own random numbers.
+    Returns [{"level", "room", "corridor", "cell", "trap"}, ...]."""
+    rng = random.Random(f"wyrmdelve-traps-{seed}")
+    mains = dungeon.mains()
+    dist = distances(dungeon)
+    placed, taken = [], set()
+
+    def spots(level):
+        """(where, room, corridor, distance, weight, builders) for a level."""
+        key = {r.uid for r in level.rooms if r.role}
+        out = []
+        for room in level.rooms:
+            builders = "built" if room.era in (1, 2) else "crude"
+            out.append(("room", room, None, dist.get(room.uid, 99), 3 if room.uid in key else 1, builders))
+        for c in level.corridors:
+            if c.feature or len(c.cells) < 5:
+                continue
+            builders = "built" if c.era in (1, 2) else "crude"
+            near_key = c.a.uid in key or c.b.uid in key
+            d = min(dist.get(c.a.uid, 99), dist.get(c.b.uid, 99)) + 0.5
+            out.append(("corridor", None, c, d, 2 if near_key else 1, builders))
+        return out
+
+    def cell_for(level, where, room, corridor):
+        if where == "room":
+            for _ in range(4):
+                spot = free_spot(level, room, rng)
+                if spot and level.i(*spot) not in level.traps:
+                    return level.i(*spot)
+            return None
+        cells = [level.i(x, y) for x, y in corridor.cells[2:-2]
+                 if level.floor[level.i(x, y)] == CORRIDOR and level.i(x, y) not in level.feat
+                 and level.i(x, y) not in level.traps]
+        return cells[len(cells) // 2] if cells else None
+
+    def fitting(level, where, builders, stage, family=None):
+        below = int(level.depth) + 1 < len(mains)
+        return [t for t in TRAPS if t.get("stage", 1) == stage and where in t.get("places", ["room"])
+                and t.get("builders", "built") == builders and (family is None or t["family"] == family)
+                and ("*" in t.get("where", ["*"]) or level.kind in t.get("where", []))
+                and (t.get("needs") != "below" or below)]
+
+    def put(level, spot, trap):
+        where, room, corridor = spot[0], spot[1], spot[2]
+        cell = cell_for(level, where, room, corridor)
+        if cell is None:
+            return False
+        record = {"level": level, "room": room, "corridor": corridor, "cell": cell, "trap": trap, "dist": spot[3]}
+        level.traps[cell] = record
+        placed.append(record)
+        taken.add(id(room or corridor))
+        return True
+
+    for level in dungeon.levels:
+        level.traps = {}
+        want = max(1, round(len(level.rooms) / 5))
+        cruel = min(0.8, 0.3 * level.depth)         # the deeper, the more often the cruel variant
+        pool = spots(level)
+        while want and pool:
+            spot = rng.choices(pool, weights=[s[4] for s in pool])[0]
+            pool.remove(spot)
+            if id(spot[1] or spot[2]) in taken:
+                continue
+            stage = 2 if spot[5] == "built" and rng.random() < cruel else 1
+            options = fitting(level, spot[0], spot[5], stage) or fitting(level, spot[0], spot[5], 1)
+            if options and put(level, spot, rng.choice(options)):
+                want -= 1
+
+    # teach first: before the nearest working trap of each kind, a broken one of the same kind
+    for family in sorted({r["trap"]["family"] for r in placed if r["trap"].get("stage", 1) >= 1}):
+        working = [r for r in placed if r["trap"]["family"] == family and r["trap"].get("stage", 1) >= 1]
+        if not any(t["family"] == family and t.get("stage") == 0 for t in TRAPS):
+            continue
+        first = min(working, key=lambda r: r["dist"])
+        if any(r["trap"]["family"] == family and r["trap"].get("stage") == 0 and r["dist"] < first["dist"]
+               for r in placed):
+            continue
+        done = False
+        for closer in (lambda d: d < first["dist"], lambda d: d <= first["dist"]):     # before it, or level with it
+            options = [(lv, s) for lv in dungeon.levels for s in spots(lv)
+                       if closer(s[3]) and id(s[1] or s[2]) not in taken]
+            options.sort(key=lambda o: -o[1][3])       # just before it
+            for level, spot in options:
+                lesson = fitting(level, spot[0], "built", 0, family)
+                if lesson and put(level, spot, rng.choice(lesson)):
+                    done = True
+                    break
+            if done:
+                break
+        if not done:
+            # no room before it: the first one itself becomes the broken, teaching one
+            place = "corridor" if first["corridor"] is not None else "room"
+            lesson = [t for t in TRAPS if t["family"] == family and t.get("stage") == 0
+                      and place in t.get("places", ["room"])]
+            if lesson:
+                first["trap"] = rng.choice(lesson)
+    return placed
+
+
+def trap_text(trap, in_room=True):
+    text = tr("trap_parts", n=capitalized(pick(trap["name"])), t=pick(trap["tell"]), e=pick(trap["effect"]),
+              c=pick(trap["counter"]))
+    return tr("room_trap", x=text) if in_room else text
+
+
+def key_blocks(dungeon, seed, title, units, story_on=True, monsters_on=True, traps=None):
     """The dungeon key as blocks, shared by the .txt and the PDF:
     ("title", text) ("meta", text) ("h", txt, pdf) ("p", text) ("stratum", tag, text, walls, note)
     ("entrance", text) ("link", a, b, kind) ("level", txt, pdf, note) ("note", text) ("wander", rows)
     ("room", label, text, exits, extra) ("check", mark, text). Without the story there is no
-    history, no strata and no room descriptions; without monsters, no tables and no room contents."""
+    history, no strata and no room descriptions; without monsters, no tables and no room contents;
+    `traps` (from plan_traps) adds the traps to the rooms and a list of the corridor ones."""
     story = dungeon.story
     blocks = [("title", title), ("meta", f"{tr('key_seed')}: {seed}"),
               ("meta", f"{tr('key_types')}: {types_text(dungeon.params['types'])}"),
@@ -3319,9 +3466,20 @@ def key_blocks(dungeon, seed, title, units, story_on=True, monsters_on=True):
             blocks.append(("note", tr("key_divided")))
         if level.name in wandering:
             blocks.append(("wander", wandering[level.name]))
+        in_corridors = sorted((r for r in traps or [] if r["level"] is level and r["corridor"] is not None),
+                              key=lambda r: r["dist"])
+        if in_corridors:
+            rows = []
+            for r in in_corridors:
+                a, b = sorted((r["corridor"].a, r["corridor"].b), key=lambda x: x.number)
+                rows.append((tr("corridor_trap", a=a.label, b=b.label), trap_text(r["trap"], in_room=False)))
+            blocks.append(("traps", rows))
+        room_traps = {r["room"].uid: r["trap"] for r in traps or [] if r["level"] is level and r["room"] is not None}
         for room in sorted(level.rooms, key=lambda r: r.number):
             text = room_text(room) if story_on else ""
             extra = [contents[room.uid]] if room.uid in contents else []
+            if room.uid in room_traps:
+                extra.append(trap_text(room_traps[room.uid]))
             blocks.append(("room", room.label, text, room_exits(dungeon, room), extra))
     blocks.append(("h", tr("key_jaquays"), tr("pdf_jaquays")))
     for mark, text in jaquays_report(dungeon):
@@ -3360,6 +3518,11 @@ def write_key(blocks, path):
                 lines += wrap(line, width, "         ")
             if exits:
                 lines += wrap(tr("key_exits") + ": " + "; ".join(exits), width, "         ")
+        elif kind == "traps":
+            lines.append("  " + tr("key_corridor_traps"))
+            for where, text in block[1]:
+                rows = wrap(f"{where}: {text}", width - 6, "      ")
+                lines += ["    ^ " + rows[0].strip()] + rows[1:]
         elif kind == "wander":
             lines.append("  " + tr("key_wander"))
             for n, (name, text) in enumerate(block[1], 1):
@@ -3502,6 +3665,14 @@ def write_story_pdf(blocks, path, settings):
                 pdf.set_font("crimson", "I", 10)
                 pdf.multi_cell(width - 8, 5, tr("key_exits").capitalize() + ": " + "; ".join(exits), new_x="LMARGIN", new_y="NEXT")
             pdf.ln(1.2)
+        elif kind == "traps":
+            pdf.set_font("crimson", "BI", 11)
+            pdf.multi_cell(0, 6, tr("key_corridor_traps"), new_x="LMARGIN", new_y="NEXT")
+            pdf.set_font("crimson", "", 10.5)
+            for where, text in block[1]:
+                pdf.set_x(pdf.l_margin + 4)
+                pdf.multi_cell(width - 4, 5.2, f"**^ {where}**: {text}", markdown=True, new_x="LMARGIN", new_y="NEXT")
+            pdf.ln(2)
         elif kind == "wander":
             pdf.set_font("crimson", "BI", 11)
             pdf.multi_cell(0, 6, tr("key_wander"), new_x="LMARGIN", new_y="NEXT")
@@ -3708,23 +3879,34 @@ def ask_name():
         print(tr("name_empty"))
 
 
-CONTENTS = {1: (False, False), 2: (True, False), 3: (False, True), 4: (True, True)}    # (story, monsters)
-CONTENT_NAMES = {"mappa": 1, "map": 1, "storia": 2, "story": 2, "mostri": 3, "monsters": 3, "tutto": 4, "all": 4}
+# what to make besides the maps: (story, monsters, traps)
+CONTENTS = {1: (False, False, False), 2: (True, False, False), 3: (False, True, False), 4: (False, False, True),
+            5: (True, True, False), 6: (True, False, True), 7: (False, True, True), 8: (True, True, True)}
+CONTENT_PARTS = {"storia": 0, "story": 0, "mostri": 1, "monsters": 1, "trappole": 2, "traps": 2}
+
+
+def content_name(content):
+    return tr("content_" + str({v: k for k, v in CONTENTS.items()}[tuple(content)]))
 
 
 def read_content(text):
-    choice = CONTENT_NAMES.get(text.strip().lower())
-    if choice is None:
+    words = [w for w in text.replace("+", ",").replace(" ", ",").lower().split(",") if w]
+    if words in (["mappa"], ["map"], ["mappe"], ["maps"]):
+        return CONTENTS[1]
+    if words in (["tutto"], ["all"]):
+        return CONTENTS[8]
+    if not words or any(w not in CONTENT_PARTS for w in words):
         raise argparse.ArgumentTypeError(tr("err_content", s=text))
-    return choice
+    return tuple(any(CONTENT_PARTS[w] == k for w in words) for k in range(3))
 
 
 def ask_content():
-    """(story, monsters)."""
+    """(story, monsters, traps)."""
     print(tr("content_intro"))
+    print(tr("content_help"))
     for k in CONTENTS:
-        print(tr(f"content_{k}"))
-    return CONTENTS[ask(tr("choice"), 4, int, 1, 4)]
+        print(f"    {k} = {tr(f'content_{k}')}")
+    return CONTENTS[ask(tr("choice"), 8, int, 1, 8)]
 
 
 def ask_units():
@@ -3740,7 +3922,7 @@ def ask_settings():
     mode = show_welcome()
     print(tr("enter_accepts"))
     p = {"title": None, "ascii_only": False, "font": None, "paper": None, "output": OUTPUT_FOLDER, "story": True,
-         "monsters": True,
+         "monsters": True, "traps": True,
          "per_level": None, "pdf": None, "units": None}
     if mode == "rebuild":
         while True:
@@ -3769,7 +3951,7 @@ def ask_settings():
         p["randomized"] = True
     p["colors"] = ask_colors()
     p["title"] = ask_name()
-    p["story"], p["monsters"] = ask_content()
+    p["story"], p["monsters"], p["traps"] = ask_content()
     p["units"] = ask_units()
     p["ask_paper"] = sys.stdin.isatty()
     return p
@@ -3808,7 +3990,7 @@ def settings_from_options(argv):
     naming.add_argument(*names("senza-titolo", "no-title"), dest="title", action="store_const", const="",
                         help=tr("h_no_title"))
     ap.add_argument(*names("contenuto", "content"), dest="content", type=read_content, default=None,
-                    metavar="{map,story,monsters,all}" if LANG == "en" else "{mappa,storia,mostri,tutto}",
+                    metavar="{map,all,story,monsters,traps}" if LANG == "en" else "{mappa,tutto,storia,mostri,trappole}",
                     help=tr("h_content"))
     ap.add_argument(*names("senza-storia", "no-story"), dest="no_story", action="store_true", help=tr("h_no_story"))
     ap.add_argument(*names("unita", "units"), dest="units", type=read_units, default=None,
@@ -3819,7 +4001,7 @@ def settings_from_options(argv):
     a = ap.parse_args(argv)
     p = {"title": a.title, "ascii_only": a.ascii_only, "font": a.font, "paper": a.paper, "output": a.output,
          "colors": a.colors, "per_level": a.per_level, "pdf": a.pdf, "units": a.units}
-    p["story"], p["monsters"] = CONTENTS[1 if a.no_story else a.content or 4]
+    p["story"], p["monsters"], p["traps"] = CONTENTS[1] if a.no_story else a.content or CONTENTS[8]
     fixed = {k: v for k, v in (("levels", a.levels), ("rooms", a.rooms), ("entrances", a.entrances),
                                ("secrets", a.secrets)) if v is not None}
     if a.types:
@@ -3873,8 +4055,8 @@ def main():
         log.info(tr("info_name_none"))
     units = params.get("units") or default_units()
     log.info(tr("info_units", s=scale_text(units)))
-    keyed = params["story"] or params["monsters"]
-    log.info(tr("info_content_" + str({v: k for k, v in CONTENTS.items()}[(params["story"], params["monsters"])])))
+    keyed = params["story"] or params["monsters"] or params["traps"]
+    log.info(tr("info_content", c=content_name((params["story"], params["monsters"], params["traps"]))))
     if keyed and story_pdf_problem():
         log.error(story_pdf_problem())      # say it now too, not only at the end
     if params["title"]:
@@ -3889,6 +4071,7 @@ def main():
 
     # 2-4: story, rooms, corridors
     dungeon = generate(params, log)
+    traps = plan_traps(dungeon, seed) if params["traps"] and TRAPS else None
     loops = sum(1 for c in dungeon.corridors if c.kind == "loop")
     log.info(tr("info_corridors", c=len(dungeon.corridors), l=loops))
 
@@ -3901,6 +4084,8 @@ def main():
     log.step(tr("step_secrets"))
     st = dungeon.stats
     log.info(tr("info_secrets", d=st["secret_doors"], p=st["hidden"], h=st["secret_links"], w=st["water"], r=st["rubble"], s=st["steps"]))
+    if traps is not None:
+        log.info(tr("info_traps", n=len(traps)))
 
     # 7: Jaquays
     log.step(tr("step_check"))
@@ -3968,19 +4153,19 @@ def main():
         pl_pages.append((compose_page(pl_layout), pixel_layout(pl_layout, paper, orientation, char_mm, fonts), suffix))
     save_map(pl_pages, os.path.join(folder, f"{seed}_players"), pdf, params["colors"], settings, log)
     if keyed:
-        blocks = key_blocks(dungeon, seed, title, units, params["story"], params["monsters"])
+        blocks = key_blocks(dungeon, seed, title, units, params["story"], params["monsters"], traps)
         key_path = os.path.join(folder, f"{seed}_key.txt")
         write_key(blocks, key_path)
         log.info(tr("saved_key", a=short_path(key_path)))
         # the book: the story, or (maps and monsters only) the monster key
-        story_path = os.path.join(folder, f"{seed}_{'story' if params['story'] else 'monsters'}.pdf")
+        story_path = os.path.join(folder, f"{seed}_{'story' if params['story'] else 'key'}.pdf")
         problem = story_pdf_problem()
         if problem:
             log.error(problem)
         else:
             try:
                 write_story_pdf(blocks, story_path, settings)
-                log.info(tr("saved_story" if params["story"] else "saved_monsters", a=short_path(story_path)))
+                log.info(tr("saved_story" if params["story"] else "saved_book", a=short_path(story_path)))
             except Exception as e:          # never lose the maps and the key over the PDF
                 log.error(tr("err_story_pdf", e=f"{type(e).__name__}: {e}"))
     if G.missing:

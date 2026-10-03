@@ -179,7 +179,7 @@ Il programma ti fa alcune domande. **Ogni domanda ha una risposta già pronta tr
    2. simboli bianchi su sfondo celeste
    3. simboli bianchi su sfondo nero
 5. **Vuoi un nome per la mappa?** Se no, la mappa esce senza titolo. Se sì, scegli se **generarlo a caso** (es. *Tomba di Zordur*, la risposta già pronta) o **scriverlo tu**.
-6. **Cosa vuoi generare?** `1` = solo le mappe; `2` = mappe e storia; `3` = mappe e mostri; `4` = mappe, storia e mostri (la risposta già pronta). Con la storia o con i mostri ottieni anche la chiave in `.txt` e in PDF. Il programma lo chiede ogni volta, anche per un dungeon tutto casuale.
+6. **Cosa vuoi generare?** Oltre alle mappe puoi avere la **storia**, i **mostri** e le **trappole**, in qualunque combinazione: `1` = solo le mappe; `2` = mappe e storia; `3` = mappe e mostri; `4` = mappe e trappole; `5` = mappe, storia e mostri; `6` = mappe, storia e trappole; `7` = mappe, mostri e trappole; `8` = tutto (la risposta già pronta). Con storia, mostri o trappole ottieni anche la chiave in `.txt` e in PDF. Il programma lo chiede ogni volta, anche per un dungeon tutto casuale.
 7. **Unità di misura della griglia:** `1` = imperiale, **1 casella = 5 ft** (piedi); `2` = metrica, **1 casella = 1,5 m** (la risposta già pronta in italiano). La scala viene scritta nella legenda delle mappe, nella chiave e nel PDF della storia; il dungeon è lo stesso con entrambe le scelte.
 
 A questo punto il programma costruisce il dungeon. Mostra ogni passaggio con una barra che si riempie:
@@ -229,12 +229,14 @@ Tutto va in `dungeons_generated/<seme>/`, una cartella per ogni dungeon:
 | `<seme>_players.png` | la **mappa dei giocatori**: la stessa mappa senza numeri e senza segreti |
 | `<seme>_key.txt` | la **chiave del dungeon**: storia e strati (con la storia), ingressi, collegamenti tra livelli, poi livello per livello la tabella d6 dei mostri erranti (con i mostri) e ogni stanza (descrizione con la storia; mostri, indizio o «vuota» con i mostri), verifica dei principi di Jaquays |
 | `<seme>_story.pdf` | la **storia**: la stessa chiave come un libro su pagine A4, con i titoli in Sebaldus-Gotisch e il testo in Crimson Text, pronta da stampare o da leggere sul tablet |
-| `<seme>_monsters.pdf` | al posto della storia, se scegli **mappe e mostri**: la chiave con le tabelle dei mostri e il contenuto delle stanze |
+| `<seme>_key.pdf` | al posto della storia, se scegli mostri o trappole **senza** la storia: la chiave come PDF |
 | `.txt` accanto a ogni mappa | la stessa mappa come testo semplice, da aprire con qualsiasi editor di testo |
 
 Se scegli **solo le mappe**, la chiave e il PDF non vengono creati.
 
 **I mostri.** Ogni livello ha una tabella d6 di mostri erranti: l'1 sono gli abitanti di oggi, gli altri sono mostri adatti al tipo del livello, più pericolosi man mano che si scende. Circa un terzo delle stanze ospita dei mostri (gli abitanti di oggi nelle loro tane, gli altri mostri della tabella nelle loro); almeno un terzo resta sempre vuoto, e accanto a ogni stanza con mostri c'è una stanza vuota con un **indizio** (ossa rosicchiate, scie viscide, odore di zolfo…) che dice da dove viene. Ogni tanto un mostro è **fuori posto**, con il suo motivo: per esempio un aboleth nella vasca di un castello, risalito dalle grotte allagate del livello sotto. Per aggiungere mostri vedi [docs/add_monsters_to_bestiary.md](docs/add_monsters_to_bestiary.md).
+
+**Le trappole.** Compaiono **solo sulla mappa del master**, con il simbolo `^`, e la chiave le descrive: nome, **segnale** (come si capisce che c'è), **effetto** e **contromisure**. Chi ha costruito un luogo l'ha protetto a modo suo: meccanismi accurati nelle sale dei fondatori e della seconda epoca, trappole rozze dove vivono gli abitanti di oggi, soprattutto attorno alle stanze importanti. Prima di incontrare una trappola funzionante, i giocatori ne incontrano una **rotta o scoperta** dello stesso tipo, che insegna come funziona; più si scende, più le trappole sono crudeli.
 
 I titoli della storia usano **Sebaldus-Gotisch** e il testo **Crimson Text**, entrambi nella cartella `fonts` (vedi `fonts/README.md`).
 
@@ -245,6 +247,7 @@ Con **un livello per foglio** i nomi dei PNG contengono il livello: `<seme>_gm_L
 | Simbolo | Significato | Simbolo | Significato |
 |---|---|---|---|
 | `.` | pavimento | `+` | porta |
+| `^` | trappola (solo master) | | |
 | `$` | porta segreta (solo master) | `░` | passaggio segreto (solo master) |
 | `<` `>` | scale su / giù | `≡` | gradini, stesso livello |
 | `○` | pozzo o camino tra livelli (può saltarne qualcuno) | `Ω` | portale magico |
@@ -283,6 +286,7 @@ La logica del programma sta in `wyrmdelve.py`; le **parole** che pesca a caso st
 | `surface_shaft` | l'ingresso usato quando nessuna parete del livello può ospitarne uno |
 | `monsters` | i mostri: nome, una riga di descrizione, in quali tipi di dungeon compaiono (`where`, `"*"` = tutti), quanto sono pericolosi (`danger`, da 1 a 4: i più pericolosi vanno nei livelli più profondi), che creatura sono (`kind`) e quanti sono (`number`); vedi [docs/add_monsters_to_bestiary.md](docs/add_monsters_to_bestiary.md) |
 | `clues` | gli indizi lasciati nelle stanze vuote, per ogni `kind` di mostro |
+| `traps` | le trappole: famiglia (`family`), grado (`stage`: 0 rotta, che insegna; 1 funzionante; 2 crudele), dove possono stare (`places`: `room`, `corridor`), chi le costruisce (`builders`: `built` o `crude`), in quali tipi (`where`), nome, segnale (`tell`), effetto (`effect`) e contromisure (`counter`) |
 | `quirks` | i motivi per cui un mostro è fuori posto, con la condizione che li rende possibili (`when`) |
 | `history` | le frasi della storia in cima alla chiave: per ogni parte (`founded` la fondazione, `caves` le grotte, `second` la seconda epoca, `fall` la sua fine, `present` gli abitanti di oggi, `crude` i cunicoli recenti) un elenco di frasi tra cui il programma ne sceglie una. La storia può aprirsi con gli abitanti di oggi (`opening`), con una diceria (`opening_legend`) o con il luogo (`opening_place`), e chiudersi con una leggenda (`legend`), un avvertimento (`warning`) o un aggancio per l'avventura (`hook`); otto parti a volte ci sono e a volte no: lo scopo dei fondatori (`purpose`), la loro epoca d'oro (`golden`), i presagi (`omen`), cosa fecero i nuovi arrivati (`second_detail`), l'abbandono (`aftermath`), la sorte dei fondatori (`fate`), chi ci passò in seguito (`interlude`) e un dettaglio sul presente (`present_detail`). In tutto 3.840 forme diverse. `words` contiene gli elenchi da cui pescano: scopi (`goals`), reliquie (`relics`) e visitatori (`visitors`) |
 
@@ -344,7 +348,7 @@ Ogni opzione ha anche un nome inglese (dopo la barra `/`), e puoi mescolarli com
 | `--pdf` / `--png` | Salva in PDF o in PNG | `--pdf` |
 | `--titolo` / `--title` | Nome sulla mappa (default: uno casuale) | `--titolo "La Tana dell'Orco"` |
 | `--senza-titolo` / `--no-title` | Mappa senza nome | `--senza-titolo` |
-| `--contenuto` / `--content` | Cosa generare: `mappa` (solo le mappe), `storia` (mappe e storia), `mostri` (mappe e mostri), `tutto` (di base) | `--contenuto mostri` |
+| `--contenuto` / `--content` | Cosa generare oltre alle mappe: `storia`, `mostri`, `trappole`, anche insieme separati da virgole; `mappa` = solo le mappe; `tutto` = tutto (di base) | `--contenuto storia,trappole` |
 | `--senza-storia` / `--no-story` | Solo le mappe, come `--contenuto mappa` | `--senza-storia` |
 | `--unita` / `--units` | Scala della griglia: `imperiale` (1 casella = 5 ft) o `metrica` (1 casella = 1,5 m); di base metrica in italiano, imperiale in inglese | `--unita imperiale` |
 | `--solo-ascii` / `--ascii-only` | Solo i caratteri della tastiera (`# ~ = o`) | `--solo-ascii` |
@@ -417,7 +421,7 @@ Il font installato sul tuo computer non ha quei simboli. Il programma li sostitu
 La cartella `fonts` non è accanto a `wyrmdelve.py`. Rimettila al suo posto (viene con il programma): le mappe usano il DejaVu Sans Mono che c'è dentro. In alternativa puoi indicare un altro font con tutte le lettere larghe uguali con `--font`, per esempio `--font consola.ttf`.
 
 **Non c'è il PDF della storia.**
-Il programma dice perché, in una riga che comincia con `ERRORE`, subito dopo le impostazioni e di nuovo alla fine. Controlla di aver scelto `2`, `3` o `4` a «Cosa vuoi generare?» (con `1` non c'è nessun PDF), poi:
+Il programma dice perché, in una riga che comincia con `ERRORE`, subito dopo le impostazioni e di nuovo alla fine. Controlla di non aver scelto `1` (solo le mappe) a «Cosa vuoi generare?», poi:
 - **«manca la libreria fpdf2»**: con l'ambiente virtuale attivo, scrivi `pip install -r requirements.txt` (passo 5);
 - **«è installata la vecchia libreria «fpdf» … al posto di «fpdf2»»**: le due librerie si pestano i piedi. Scrivi `pip uninstall -y fpdf fpdf2`, poi `pip install -r requirements.txt`;
 - **«manca il font …»**: rimetti la cartella `fonts` accanto a `wyrmdelve.py`.
@@ -448,6 +452,7 @@ Se vuoi sapere come il programma inventa i dungeon, nella cartella `docs` ci son
 - Justin Alexander, [Xandering the Dungeon](https://thealexandrian.net/wordpress/13085/roleplaying-games/xandering-the-dungeon) (parti 1–5) e [Xandering on the Small Scale](https://thealexandrian.net/wordpress/34950/roleplaying-games/thought-of-the-day-xandering-on-the-small-scale)
 - Alcune voci di `wyrmdelve_tables.json` (caratteristiche delle stanze, grotte, luoghi, nomi dei siti, minacce, guai degli insediamenti) sono tradotte e adattate da *Ironsworn* e *Ironsworn: Delve* di Shawn Tomkin ([ironswornrpg.com](https://ironswornrpg.com)), con licenza [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); i dati sono stati letti da [Datasworn](https://github.com/rsek/datasworn). Dalla stessa fonte vengono le sillabe dei nomi di Ironsworn.
 - L'elenco dei mostri (`monsters` in `wyrmdelve_tables.json`) è stato ricavato confrontando, ed eliminando i doppioni, [*OSR Bestiary* v1.2](https://bucolianblog.wordpress.com) a cura di bucolian e il *Monstrous Bestiary* di *Aketon* di Reese Surles ([ward-against-evil.itch.io](https://ward-against-evil.itch.io)). Poiché questi due PDF non hanno una licenza OGL o Creative Commons, **nessun loro testo è copiato**: ne vengono solo i nomi delle creature, che sono generici, e i Dadi Vita, usati per il livello di pericolo; tutte le descrizioni sono scritte per WyrmDelve. Sono stati esclusi i mostri con nomi registrati da altri e i signori dei demoni con un nome proprio.
+- La logica delle trappole segue i principi di Arnold K., [*Some Traps*](https://goblinpunch.blogspot.com/2018/08/some-traps.html) (Goblin Punch): far conoscere un meccanismo con una versione scoperta prima di quella nascosta, e mostrare il meccanismo invece del pericolo. Le trappole del file sono scritte per WyrmDelve.
 - L'aboleth viene dal [System Reference Document 5.1](https://dnd.wizards.com/resources/systems-reference-document) di Wizards of the Coast LLC, con licenza [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) (descrizione scritta per WyrmDelve).
 - Le sillabe e le desinenze in stile Tolkien sono statistiche di frequenza ricavate dalla lista di nomi di [Angband](https://github.com/angband/angband) (`lib/gamedata/names.txt`); la lista non è copiata.
 

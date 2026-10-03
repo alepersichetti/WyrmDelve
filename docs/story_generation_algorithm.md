@@ -360,14 +360,14 @@ Una scala, un pozzo o un portale **nascosto** è indicato come tale: i giocatori
 
 ## 13. Dove finisce la storia: la chiave e il PDF
 
-Se rispondi "sì" alla domanda sulla storia, il programma scrive due file con lo stesso contenuto:
+Se scegli la storia (da sola o con mostri e trappole), il programma scrive due file con lo stesso contenuto:
 
 - **`<seme>_key.txt`**, la chiave in testo semplice, larga 100 lettere: titolo, seme, tipo, scala, storia, strati, ingressi, collegamenti, per ogni livello la tabella dei mostri erranti e tutte le stanze, e infine la verifica dei principi di Jaquays;
 - **`<seme>_story.pdf`**, la stessa chiave come un libro su pagine A4: titoli in **Sebaldus-Gotisch**, testo in **Crimson Text**, numeri delle pagine in fondo.
 
 La lingua è quella che hai scelto all'inizio: ogni testo esiste in italiano e in inglese, e il programma prende la versione giusta.
 
-Se rispondi "no, solo le mappe", la storia viene comunque inventata (serve per il titolo e per i nomi), ma non viene scritta.
+Se non scegli la storia, viene comunque inventata (serve per il titolo e per i nomi), ma non viene scritta; con mostri o trappole senza storia, la chiave non ha il racconto, gli strati e le descrizioni delle stanze, e il PDF si chiama `<seme>_key.pdf`.
 
 ---
 
@@ -396,7 +396,7 @@ Una frase può usare solo i segnaposto che esistono: se ne usa uno sconosciuto (
 
 ## 15. I mostri
 
-All'inizio il programma chiede **cosa vuoi generare**: solo le mappe, mappe e storia, mappe e mostri, oppure tutto. Con i mostri, la chiave ha per ogni livello una **tabella d6 di mostri erranti**, e ogni stanza dice **cosa c'è dentro**: dei mostri, un indizio, oppure niente. Anche i mostri hanno dadi propri: la mappa e la storia non cambiano.
+All'inizio il programma chiede **cosa vuoi generare**: oltre alle mappe, la storia, i mostri e le trappole, in qualunque combinazione (le trappole sono spiegate nel capitolo 19 di [dungeon_map_generation.md](dungeon_map_generation.md)). Con i mostri, la chiave ha per ogni livello una **tabella d6 di mostri erranti**, e ogni stanza dice **cosa c'è dentro**: dei mostri, un indizio, oppure niente. Anche i mostri hanno dadi propri: la mappa e la storia non cambiano.
 
 Ecco il livello 2 del seme `3-21-2-4-CDK-000F62`, con storia e mostri:
 
