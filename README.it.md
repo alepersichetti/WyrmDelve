@@ -428,6 +428,13 @@ Premi **Ctrl+C**. Non si rompe niente: basta riavviarlo.
 
 ---
 
+## Come funziona
+
+Se vuoi sapere come il programma inventa i dungeon, nella cartella `docs` ci sono due spiegazioni in linguaggio semplice, con molti esempi:
+
+- [Come nasce la mappa del dungeon](docs/dungeon_map_generation.md): seme, tipi, stanze, epoche, corridoi e anelli, scale, ingressi, segreti, disegno e stampa;
+- [Come nasce la storia del dungeon](docs/story_generation_algorithm.md): ingredienti, nomi, le parti del racconto e le loro 3.840 forme, le stanze a strati, la chiave e il PDF.
+
 ## Fonti
 
 - Justin Alexander, [Xandering the Dungeon](https://thealexandrian.net/wordpress/13085/roleplaying-games/xandering-the-dungeon) (parti 1–5) e [Xandering on the Small Scale](https://thealexandrian.net/wordpress/34950/roleplaying-games/thought-of-the-day-xandering-on-the-small-scale)
