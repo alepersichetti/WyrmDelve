@@ -160,7 +160,7 @@
         {"it": "oratorio privato", "en": "private oratory"},
         {"it": "camera del principe", "en": "prince's chamber"},
         {"it": "appartamenti della regina madre", "en": "queen mother's apartments"},
-        {"it": "nursery reale", "en": "royal nursery"},
+        {"it": "stanza dei principini", "en": "royal nursery"},
         {"it": "stanza del precettore", "en": "tutor's room"},
         {"it": "sala delle lezioni", "en": "schoolroom"},
         {"it": "sala dei profumi", "en": "perfume room"},
@@ -3199,7 +3199,7 @@
         {"it": "camera della regina talpa", "en": "mole queen's chamber"},
         {"it": "dispensa di lombrichi", "en": "earthworm larder"},
         {"it": "sala delle radici", "en": "root hall"},
-        {"it": "nursery", "en": "nursery"},
+        {"it": "nido dei piccoli", "en": "nursery"},
         {"it": "sala del consiglio cieco", "en": "blind council hall"},
         {"it": "deposito di gemme grezze", "en": "rough gem store"}
       ]
