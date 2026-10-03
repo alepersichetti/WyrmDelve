@@ -180,6 +180,7 @@ The program asks you a few questions. **Every question has a ready-made answer i
    3. white symbols on black
 5. **Do you want a name on the map?** If not, the map has no title. If so, choose whether it's **randomly generated** (e.g. *Tomb of Zordur*, the ready-made answer) or whether **you type it**.
 6. **Do you also want the dungeon's story?** `1` = maps and story (the ready-made answer: the key as `.txt` and as a PDF), `2` = only the maps. The program asks this every time, also for a fully random dungeon.
+7. **Grid units:** `1` = imperial, **1 square = 5 ft** (the ready-made answer in English); `2` = metric, **1 square = 1.5 m**. The scale is written in the legend of the maps, in the key and in the story PDF; the dungeon is the same with either choice.
 
 Now the program builds the dungeon. It shows each step with a bar that fills up:
 
@@ -246,6 +247,8 @@ With **one level per sheet** the PNG names get the level: `<seed>_gm_L1.png`, `<
 | `○` | shaft or chimney between levels (may skip some) | `Ω` | magic portal |
 | `≈` | water | `∴` | cave-in |
 | `■` | pillar | `[A]` | entrance (solid box on the map) |
+
+**Scale.** Every letter of the map is one grid square: **1 square = 5 ft** (imperial) or **1.5 m** (metric), as written at the end of the legend. Letters are taller than wide, so on paper the squares are rectangles: to measure, count squares, not millimetres.
 
 ---
 
@@ -336,6 +339,7 @@ Without `--language en` the messages and the texts on the map are in Italian. Ev
 | `--title` / `--titolo` | Name on the map (default: a random one) | `--title "The Ogre's Lair"` |
 | `--no-title` / `--senza-titolo` | Map without a name | `--no-title` |
 | `--no-story` / `--senza-storia` | Only the maps: no key and no story PDF | `--no-story` |
+| `--units` / `--unita` | Grid scale: `imperial` (1 square = 5 ft) or `metric` (1 square = 1.5 m); by default imperial in English, metric in Italian | `--units metric` |
 | `--ascii-only` / `--solo-ascii` | Only plain keyboard characters (`# ~ = o`) | `--ascii-only` |
 | `--font` | A font file of your choice (all its letters must be the same width) | `--font consola.ttf` |
 | `--output` / `--uscita` | Folder to save in instead of `dungeons_generated` | `--output my_maps` |
