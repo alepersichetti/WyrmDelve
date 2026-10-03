@@ -1,5 +1,7 @@
 # Come aggiungere mostri al bestiario
 
+*[English version](add_monsters_to_bestiary.en.md)*
+
 Questa guida spiega, passo per passo, come aggiungere i tuoi mostri a WyrmDelve. Non serve saper programmare: basta un editor di testo e un po' di attenzione alle virgolette.
 
 > Come il programma usa i mostri (tabelle dei mostri erranti, stanze, indizi, mostri fuori posto) è spiegato in [monsters.md](monsters.md). Questa guida spiega solo come si scrivono.

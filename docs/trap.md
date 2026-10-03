@@ -1,5 +1,7 @@
 # Come nascono le trappole
 
+*[English version](trap.en.md)*
+
 Questo documento spiega come WyrmDelve sceglie, piazza e descrive le trappole di un dungeon, con esempi veri generati dal programma.
 
 > Le trappole compaiono solo se all'inizio, a «Cosa vuoi generare?», scegli una risposta con le **trappole** (oppure `--contenuto trappole`, anche insieme ad altro: `--contenuto storia,trappole`). Come nasce la mappa su cui vengono messe è spiegato in [dungeon_map_generation.md](dungeon_map_generation.md).

@@ -1,5 +1,7 @@
 # Come nasce la storia del dungeon
 
+*[English version](story_generation_algorithm.en.md)*
+
 Questo documento spiega, con parole semplici ed esempi veri, come WyrmDelve inventa la storia di un dungeon: chi lo costruì, chi venne dopo, chi lo abita oggi, cosa si racconta di lui e cosa c'è in ogni stanza.
 
 Tutti i testi di questo documento sono stati scritti dal programma, non a mano. Puoi rigenerarli con i semi indicati.
