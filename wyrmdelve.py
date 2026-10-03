@@ -184,10 +184,12 @@ TEXTS = {
     "name_mine": ("    2 = lo scelgo io", "    2 = I'll choose it"),
     "q_name": ("  Nome della mappa: ", "  Map name: "),
     "name_empty": ("    Scrivi un nome.", "    Type a name."),
-    "story_intro": ("\n  Vuoi anche la storia del dungeon?", "\n  Do you also want the dungeon's story?"),
-    "story_yes": ("    1 = sì, mappe e storia (chiave delle stanze in PDF e TXT)",
-                  "    1 = yes, maps and story (room key as PDF and TXT)"),
-    "story_no": ("    2 = no, solo le mappe", "    2 = no, only the maps"),
+    "content_intro": ("\n  Cosa vuoi generare?", "\n  What do you want to make?"),
+    "content_1": ("    1 = solo le mappe", "    1 = only the maps"),
+    "content_2": ("    2 = mappe e storia (chiave delle stanze in PDF e TXT)", "    2 = maps and story (room key as PDF and TXT)"),
+    "content_3": ("    3 = mappe e mostri (tabelle dei mostri erranti, mostri e indizi nelle stanze)",
+                  "    3 = maps and monsters (wandering monster tables, monsters and clues in the rooms)"),
+    "content_4": ("    4 = mappe, storia e mostri", "    4 = maps, story and monsters"),
     "units_intro": ("\n  Unità di misura della griglia (ogni lettera della mappa è una casella)?",
                     "\n  Grid units (every letter of the map is one square)?"),
     "units_1": ("    1 = imperiale (piedi): 1 casella = 5 ft", "    1 = imperial (feet): 1 square = 5 ft"),
@@ -228,7 +230,10 @@ TEXTS = {
     "info_colors": ("Colori: {c}", "Colours: {c}"),
     "info_name_mine": ("Nome della mappa: «{t}»", "Map name: “{t}”"),
     "info_name_none": ("Mappa senza nome", "Map without a name"),
-    "info_no_story": ("Solo le mappe, senza storia", "Only the maps, no story"),
+    "info_content_1": ("Solo le mappe", "Only the maps"),
+    "info_content_2": ("Mappe e storia", "Maps and story"),
+    "info_content_3": ("Mappe e mostri", "Maps and monsters"),
+    "info_content_4": ("Mappe, storia e mostri", "Maps, story and monsters"),
     "info_units": ("Griglia: {s}", "Grid: {s}"),
     "info_folder": ("Cartella: {folder}", "Folder: {folder}"),
     "info_font": ("Font: {name}{fake}, cella {a:.2f} volte più alta che larga",
@@ -295,6 +300,7 @@ TEXTS = {
     "saved": ("Salvate: {a}  +  {b}", "Saved: {a}  +  {b}"),
     "saved_key": ("Chiave: {a}", "Key: {a}"),
     "saved_story": ("Storia: {a}", "Story: {a}"),
+    "saved_monsters": ("Mostri: {a}", "Monsters: {a}"),
     "err_story_fonts": ("ERRORE: manca il font {f} nella cartella {d}, quindi il PDF della storia non viene creato "
                         "(le mappe e la chiave .txt sì). Rimetti il file nella cartella fonts accanto a wyrmdelve.py.",
                         "ERROR: the font {f} is missing from the folder {d}, so the story PDF is not made "
@@ -378,6 +384,13 @@ TEXTS = {
     "key_exits": ("uscite", "exits"),
     "key_wander": ("Mostri erranti (d6)", "Wandering monsters (d6)"),
     "wander_dwellers": ("gli abitanti di oggi, in giro per le sale", "today's dwellers, roaming the halls"),
+    "wander_quirk": (" (fuori posto: vedi {r})", " (out of place: see {r})"),
+    "room_monsters": ("Mostri: {m}.", "Monsters: {m}."),
+    "room_lair": ("Mostri: {m}: è la loro tana.", "Monsters: {m}: this is their lair."),
+    "room_quirk": ("Fuori posto: {r}.", "Out of place: {r}."),
+    "room_clue": ("Vuota. Indizio: {c} (da {r}).", "Empty. Clue: {c} (from {r})."),
+    "room_empty": ("Vuota.", "Empty."),
+    "quirk_from": (" del livello {n}", " of level {n}"),
     "key_entrance_line": ("{l}  {kind} (livello {lv}{mid}) → {room}",
                           "{l}  {kind} (level {lv}{mid}) → {room}"),
     "key_midpoint": (", ingresso a metà dungeon", ", midpoint entry"),
@@ -461,7 +474,13 @@ TEXTS = {
                "9 border fortress, 10 tomb, 11 underdark"),
     "h_title": ("titolo della mappa (default: il nome del dungeon)", "map title (default: the dungeon's name)"),
     "h_no_title": ("mappa senza nome", "map without a name"),
-    "h_no_story": ("solo le mappe: niente chiave né PDF della storia", "only the maps: no key and no story PDF"),
+    "h_no_story": ("solo le mappe, come --contenuto mappa", "only the maps, like --content map"),
+    "h_content": ("cosa generare: mappa (solo le mappe), storia (mappe e storia), mostri (mappe e mostri), "
+                  "tutto (mappe, storia e mostri; di base)",
+                  "what to make: map (only the maps), story (maps and story), monsters (maps and monsters), "
+                  "all (maps, story and monsters; the default)"),
+    "err_content": ("«{s}» non è una scelta valida: usa mappa, storia, mostri o tutto",
+                    "“{s}” is not a valid choice: use map, story, monsters or all"),
     "h_units": ("unità della griglia: imperiale (1 casella = 5 ft) o metrica (1 casella = 1,5 m); "
                 "di base metrica in italiano, imperiale in inglese",
                 "grid units: imperial (1 square = 5 ft) or metric (1 square = 1.5 m); "
@@ -771,8 +790,11 @@ if missing:
     sys.exit(f"Nel file {os.path.basename(TABLES_FILE)} mancano / {os.path.basename(TABLES_FILE)} lacks: "
              + ", ".join("history." + k for k in missing))
 
-# wandering monsters (optional table): name, text, where (type ids or "*"), danger 1-4
+# monsters (optional tables): name, text, where (type ids or "*"), danger 1-4, kind, number;
+# clues by kind, for the empty rooms near a monster; quirks: why an unexpected monster is here
 MONSTERS = [m for m in TABLES.get("monsters", []) if m.get("name") and m.get("text")]
+CLUES = {k: v for k, v in TABLES.get("clues", {}).items() if v}
+QUIRKS = [q for q in TABLES.get("quirks", []) if q.get("text")]
 
 ERA_TAGS = {0: "N", 1: "I", 2: "II", 3: "III"}
 
@@ -3112,18 +3134,76 @@ def room_exits(dungeon, room):
     return out
 
 
-def wandering_monsters(dungeon, seed):
-    """level name -> d6 table [(name, text), ...]: today's dwellers first, then
-    monsters that fit the level's type, more dangerous the deeper the level.
-    Its own random numbers: the map and the rooms never change with it."""
+def fits_level(monster, kind):
+    where = monster.get("where", ["*"])
+    return "*" in where or kind in where
+
+
+def monster_label(monster):
+    name = capitalized(pick(monster["name"]))
+    return f"{name} ({monster['number']})" if monster.get("number") else name
+
+
+def find_quirk(dungeon, level, danger, taken, rng):
+    """An unexpected monster for this level and the reason it is here, from
+    what the dungeon really has (flooded caves, a portal, a deeper level...):
+    (monster index, reason (it, en)) or None."""
+    mains = dungeon.mains()
+    wet = sorted((lv for lv in dungeon.levels if lv is not level and "water" in lv.feat.values()
+                  and any(r.era == 0 for r in lv.rooms)),
+                 key=lambda lv: (lv.depth < level.depth, abs(lv.depth - level.depth)))   # deeper ones first
+    portals = [r for k in dungeon.links if k.kind == "portal" for r in (k.a, k.b) if r.level is not level]
+    d = int(level.depth)
+    below = mains[d + 1] if d + 1 < len(mains) and mains[d + 1].kind != level.kind else None
+    options = []
+    for quirk in QUIRKS:
+        when, values = quirk.get("when", "any"), {"from": ("", ""), "room": ("", ""), "level": ("", "")}
+        home = None
+        if when == "water":
+            if not wet:
+                continue
+            values["from"] = tuple(TEXTS["quirk_from"][i].format(n=wet[0].name) for i in range(2))
+        elif when == "portal":
+            if not portals:
+                continue
+            values["room"] = (portals[0].label, portals[0].label)
+        elif when == "below":
+            if below is None:
+                continue
+            values["level"] = (below.name, below.name)
+            home = below.kind
+        elif when == "founders":
+            if not any(r.era == 1 for r in level.rooms):
+                continue
+        elif when != "any":
+            continue
+        options.append((quirk, values, home))
+    rng.shuffle(options)
+    for quirk, values, home in options:
+        kinds = quirk.get("kinds") or []
+        pool = [k for k, m in enumerate(MONSTERS) if k not in taken and (not kinds or m.get("kind") in kinds)
+                and not fits_level(m, level.kind) and (home is None or fits_level(m, home))
+                and m.get("danger", 2) <= danger + 2]
+        if pool:
+            reason = tuple(quirk["text"][i].format(**{k: v[i] for k, v in values.items()}) for i in range(2))
+            return rng.choice(sorted(pool)), reason
+    return None
+
+
+def plan_monsters(dungeon, seed):
+    """For every level: a d6 table of wandering monsters (today's dwellers, then
+    monsters that fit the level's type, more dangerous the deeper the level,
+    sometimes one out of place) and what is in every room: monsters (in about a
+    third of the rooms, never in all), a clue in an empty room near each of
+    them, or nothing. Its own random numbers: map and story never change."""
     rng = random.Random(f"wyrmdelve-monsters-{seed}")
     step = min(1.0, 3 / max(1, len(dungeon.mains()) - 1))     # danger grows by at most one per level
+    dwellers = capitalized(pick(dungeon.story["p_who"]))
     used = set()
-    tables = {}
+    wander, rooms = {}, {}
     for level in dungeon.levels:
         danger = 1 + round(level.depth * step)
-        fits = [k for k, m in enumerate(MONSTERS) if "*" in m.get("where", ["*"]) or level.kind in m.get("where", [])]
-        rows = [(capitalized(pick(dungeon.story["p_who"])), tr("wander_dwellers"))]
+        fits = [k for k, m in enumerate(MONSTERS) if fits_level(m, level.kind)]
         chosen = []
         # the right danger first, then one step off, then anything of this type, then anything at all
         for pool in ([k for k in fits if MONSTERS[k].get("danger", 2) == danger],
@@ -3135,31 +3215,81 @@ def wandering_monsters(dungeon, seed):
                 chosen += group[:5 - len(chosen)]
             if len(chosen) >= 5:
                 break
+        quirk = find_quirk(dungeon, level, danger, used | set(chosen), rng) if rng.random() < 0.3 else None
         used.update(chosen)
+
+        # rooms: about a third with monsters, at least a third always empty
+        order = sorted(level.rooms, key=lambda r: r.number)
+        rng.shuffle(order)
+        n = len(order)
+        busy = min(max(1, round(n * 0.35)), n - max(1, math.ceil(n / 3)))
+        homes = []                                  # (room, what, kind, reason)
+        lairs = [r for r in order if any(era == 3 for era, _ in r.layers)]
+        for room in lairs[:max(1, busy // 2) - (1 if quirk and busy == 1 else 0)]:     # an odd guest needs a room too
+            homes.append((room, ("dwellers", dwellers), "dwellers", None))
+        free = [r for r in order if r not in [h[0] for h in homes]]
+        if quirk and len(homes) < busy and free:
+            k, reason = quirk
+            built = [r for r in free if r.era in (1, 2)] or free
+            homes.append((built[0], ("monster", k), MONSTERS[k].get("kind"), reason))
+            used.add(k)
+            free.remove(built[0])
+        for k in chosen:
+            if len(homes) >= busy or not free:
+                break
+            homes.append((free.pop(0), ("monster", k), MONSTERS[k].get("kind"), None))
+        for room, what, kind, reason in homes:
+            if what[0] == "dwellers":
+                text = tr("room_lair", m=f"{pick(dungeon.story['p_who'])} (2d6)")
+            else:
+                text = tr("room_monsters", m=monster_label(MONSTERS[what[1]]))
+                if reason:
+                    text += " " + tr("room_quirk", r=pick(reason))
+            rooms[room.uid] = text
+        # a clue in an empty room close to every monster: joined by a corridor if possible
+        for room, what, kind, _ in homes:
+            near = {c.other(room) for c in level.corridors if room in (c.a, c.b)}
+            empty = [r for r in order if r.uid not in rooms]
+            if not empty or not CLUES.get(kind):
+                continue
+            spot = min(empty, key=lambda r: (r not in near, r.comp != room.comp,
+                                             math.dist(r.physical(), room.physical())))
+            rooms[spot.uid] = tr("room_clue", c=pick(rng.choice(CLUES[kind])), r=room.label)
+        for room in order:
+            rooms.setdefault(room.uid, tr("room_empty"))
+
+        rows = [(dwellers, tr("wander_dwellers"))]
         rows += [(capitalized(pick(MONSTERS[k]["name"])), pick(MONSTERS[k]["text"])) for k in chosen]
-        tables[level.name] = rows
-    return tables
+        if quirk:
+            k = quirk[0]
+            home = next(r.label for r, what, _, _ in homes if what == ("monster", k)) if any(
+                what == ("monster", k) for _, what, _, _ in homes) else level.name
+            rows[-1] = (capitalized(pick(MONSTERS[k]["name"])), pick(MONSTERS[k]["text"]) + tr("wander_quirk", r=home))
+        wander[level.name] = rows
+    return wander, rooms
 
 
-def key_blocks(dungeon, seed, title, units):
-    """The dungeon key as blocks, shared by the .txt and the story PDF:
+def key_blocks(dungeon, seed, title, units, story_on=True, monsters_on=True):
+    """The dungeon key as blocks, shared by the .txt and the PDF:
     ("title", text) ("meta", text) ("h", txt, pdf) ("p", text) ("stratum", tag, text, walls, note)
-    ("entrance", text) ("link", a, b, kind) ("level", txt, pdf, note) ("note", text)
-    ("room", label, text, exits) ("check", mark, text)"""
+    ("entrance", text) ("link", a, b, kind) ("level", txt, pdf, note) ("note", text) ("wander", rows)
+    ("room", label, text, exits, extra) ("check", mark, text). Without the story there is no
+    history, no strata and no room descriptions; without monsters, no tables and no room contents."""
     story = dungeon.story
     blocks = [("title", title), ("meta", f"{tr('key_seed')}: {seed}"),
               ("meta", f"{tr('key_types')}: {types_text(dungeon.params['types'])}"),
               ("meta", f"{tr('key_scale')}: {scale_text(units)}")]
-    blocks += [("h", tr("key_history"), tr("pdf_history")), ("p", pick(history_text(dungeon)))]
-    blocks.append(("h", tr("key_strata"), tr("pdf_strata")))
-    eras = {r.era for r in dungeon.rooms}
-    strata = [(0, pick(("Grotte naturali, più antiche di ogni costruzione", "Natural caves, older than any building")), "#"),
-              (1, pick(story["f_who"]) + " — " + pick(story["built"]), "═║"),
-              (2, pick(story["s_who"]), "─│"),
-              (3, pick(("oggi: ", "today: ")) + pick(story["p_who"]), "#")]
-    for era, text, walls in strata:
-        note = "" if era in eras or era == 3 else pick(("nessuna stanza", "no rooms"))
-        blocks.append(("stratum", ERA_TAGS[era], text, walls, note))
+    if story_on:
+        blocks += [("h", tr("key_history"), tr("pdf_history")), ("p", pick(history_text(dungeon)))]
+        blocks.append(("h", tr("key_strata"), tr("pdf_strata")))
+        eras = {r.era for r in dungeon.rooms}
+        strata = [(0, pick(("Grotte naturali, più antiche di ogni costruzione", "Natural caves, older than any building")), "#"),
+                  (1, pick(story["f_who"]) + " — " + pick(story["built"]), "═║"),
+                  (2, pick(story["s_who"]), "─│"),
+                  (3, pick(("oggi: ", "today: ")) + pick(story["p_who"]), "#")]
+        for era, text, walls in strata:
+            note = "" if era in eras or era == 3 else pick(("nessuna stanza", "no rooms"))
+            blocks.append(("stratum", ERA_TAGS[era], text, walls, note))
     blocks.append(("h", tr("key_entrances"), tr("pdf_entrances")))
     for e in dungeon.entrances:
         mid = tr("key_midpoint") if e["midpoint"] else ""
@@ -3172,7 +3302,7 @@ def key_blocks(dungeon, seed, title, units):
             hidden = tr("ex_hidden_link") if link.secret else ""
             blocks.append(("link", a.label, b.label, tr("link_" + link.kind) + hidden))
     mains = dungeon.mains()
-    wandering = wandering_monsters(dungeon, seed) if MONSTERS else {}
+    wandering, contents = plan_monsters(dungeon, seed) if monsters_on and MONSTERS else ({}, {})
     for level in dungeon.levels:
         kind = type_name(level.kind)
         if level.sub:
@@ -3190,7 +3320,9 @@ def key_blocks(dungeon, seed, title, units):
         if level.name in wandering:
             blocks.append(("wander", wandering[level.name]))
         for room in sorted(level.rooms, key=lambda r: r.number):
-            blocks.append(("room", room.label, room_text(room), room_exits(dungeon, room)))
+            text = room_text(room) if story_on else ""
+            extra = [contents[room.uid]] if room.uid in contents else []
+            blocks.append(("room", room.label, text, room_exits(dungeon, room), extra))
     blocks.append(("h", tr("key_jaquays"), tr("pdf_jaquays")))
     for mark, text in jaquays_report(dungeon):
         blocks.append(("check", mark, text))
@@ -3220,8 +3352,12 @@ def write_key(blocks, path):
             _, a, b, what = block
             lines.append(f"  {a:<6} ↔ {b:<6} {what}")
         elif kind == "room":
-            _, label, text, exits = block
+            _, label, text, exits, extra = block
+            if not text and extra:
+                text, extra = extra[0], extra[1:]
             lines += wrap(f"{label:<6} {text}", width, "  ")
+            for line in extra:
+                lines += wrap(line, width, "         ")
             if exits:
                 lines += wrap(tr("key_exits") + ": " + "; ".join(exits), width, "         ")
         elif kind == "wander":
@@ -3352,9 +3488,15 @@ def write_story_pdf(blocks, path, settings):
             pdf.set_font("crimson", "", 11.5)
             pdf.multi_cell(0, 6, f"**{a}** ↔ **{b}**  {what}", markdown=True, new_x="LMARGIN", new_y="NEXT")
         elif kind == "room":
-            _, label, text, exits = block
+            _, label, text, exits, extra = block
+            if not text and extra:
+                text, extra = extra[0], extra[1:]
             pdf.set_font("crimson", "", 11.5)
             pdf.multi_cell(0, 5.8, f"**{label}**  {text}", markdown=True, new_x="LMARGIN", new_y="NEXT")
+            for line in extra:
+                pdf.set_x(pdf.l_margin + 8)
+                pdf.set_font("crimson", "", 10.5)
+                pdf.multi_cell(width - 8, 5.2, line, new_x="LMARGIN", new_y="NEXT")
             if exits:
                 pdf.set_x(pdf.l_margin + 8)
                 pdf.set_font("crimson", "I", 10)
@@ -3566,11 +3708,23 @@ def ask_name():
         print(tr("name_empty"))
 
 
-def ask_story():
-    print(tr("story_intro"))
-    print(tr("story_yes"))
-    print(tr("story_no"))
-    return ask(tr("choice"), 1, int, 1, 2) == 1
+CONTENTS = {1: (False, False), 2: (True, False), 3: (False, True), 4: (True, True)}    # (story, monsters)
+CONTENT_NAMES = {"mappa": 1, "map": 1, "storia": 2, "story": 2, "mostri": 3, "monsters": 3, "tutto": 4, "all": 4}
+
+
+def read_content(text):
+    choice = CONTENT_NAMES.get(text.strip().lower())
+    if choice is None:
+        raise argparse.ArgumentTypeError(tr("err_content", s=text))
+    return choice
+
+
+def ask_content():
+    """(story, monsters)."""
+    print(tr("content_intro"))
+    for k in CONTENTS:
+        print(tr(f"content_{k}"))
+    return CONTENTS[ask(tr("choice"), 4, int, 1, 4)]
 
 
 def ask_units():
@@ -3586,6 +3740,7 @@ def ask_settings():
     mode = show_welcome()
     print(tr("enter_accepts"))
     p = {"title": None, "ascii_only": False, "font": None, "paper": None, "output": OUTPUT_FOLDER, "story": True,
+         "monsters": True,
          "per_level": None, "pdf": None, "units": None}
     if mode == "rebuild":
         while True:
@@ -3614,7 +3769,7 @@ def ask_settings():
         p["randomized"] = True
     p["colors"] = ask_colors()
     p["title"] = ask_name()
-    p["story"] = ask_story()
+    p["story"], p["monsters"] = ask_content()
     p["units"] = ask_units()
     p["ask_paper"] = sys.stdin.isatty()
     return p
@@ -3652,6 +3807,9 @@ def settings_from_options(argv):
     naming.add_argument(*names("titolo", "title"), dest="title", default=None, help=tr("h_title"))
     naming.add_argument(*names("senza-titolo", "no-title"), dest="title", action="store_const", const="",
                         help=tr("h_no_title"))
+    ap.add_argument(*names("contenuto", "content"), dest="content", type=read_content, default=None,
+                    metavar="{map,story,monsters,all}" if LANG == "en" else "{mappa,storia,mostri,tutto}",
+                    help=tr("h_content"))
     ap.add_argument(*names("senza-storia", "no-story"), dest="no_story", action="store_true", help=tr("h_no_story"))
     ap.add_argument(*names("unita", "units"), dest="units", type=read_units, default=None,
                     metavar="{imperial,metric}" if LANG == "en" else "{imperiale,metrica}", help=tr("h_units"))
@@ -3660,7 +3818,8 @@ def settings_from_options(argv):
     ap.add_argument(*names("uscita", "output"), dest="output", default=OUTPUT_FOLDER, help=tr("h_output"))
     a = ap.parse_args(argv)
     p = {"title": a.title, "ascii_only": a.ascii_only, "font": a.font, "paper": a.paper, "output": a.output,
-         "colors": a.colors, "per_level": a.per_level, "pdf": a.pdf, "story": not a.no_story, "units": a.units}
+         "colors": a.colors, "per_level": a.per_level, "pdf": a.pdf, "units": a.units}
+    p["story"], p["monsters"] = CONTENTS[1 if a.no_story else a.content or 4]
     fixed = {k: v for k, v in (("levels", a.levels), ("rooms", a.rooms), ("entrances", a.entrances),
                                ("secrets", a.secrets)) if v is not None}
     if a.types:
@@ -3714,11 +3873,11 @@ def main():
         log.info(tr("info_name_none"))
     units = params.get("units") or default_units()
     log.info(tr("info_units", s=scale_text(units)))
-    if not params["story"]:
-        log.info(tr("info_no_story"))
-    elif story_pdf_problem():
+    keyed = params["story"] or params["monsters"]
+    log.info(tr("info_content_" + str({v: k for k, v in CONTENTS.items()}[(params["story"], params["monsters"])])))
+    if keyed and story_pdf_problem():
         log.error(story_pdf_problem())      # say it now too, not only at the end
-    elif params["title"]:
+    if params["title"]:
         log.info(tr("info_name_mine", t=params["title"]))
     folder = os.path.join(params["output"], seed)
     os.makedirs(folder, exist_ok=True)
@@ -3799,7 +3958,7 @@ def main():
     del gm_pages
 
     # 10: players' map (same layout and letter size) and key
-    log.step(tr("step_players" if params["story"] else "step_players_only"))
+    log.step(tr("step_players" if keyed else "step_players_only"))
     pl_panels = [trim_panel(panel_canvas(lv, False, G), b) for lv, b in zip(dungeon.levels, bounds)]
     pl_legend = legend_entries(dungeon, False, G, units)
     pl_pages = []
@@ -3808,19 +3967,20 @@ def main():
                            tr("players_title", t=title) if title else tr("players_title_plain"), subtitle)
         pl_pages.append((compose_page(pl_layout), pixel_layout(pl_layout, paper, orientation, char_mm, fonts), suffix))
     save_map(pl_pages, os.path.join(folder, f"{seed}_players"), pdf, params["colors"], settings, log)
-    if params["story"]:
-        blocks = key_blocks(dungeon, seed, title, units)
+    if keyed:
+        blocks = key_blocks(dungeon, seed, title, units, params["story"], params["monsters"])
         key_path = os.path.join(folder, f"{seed}_key.txt")
         write_key(blocks, key_path)
         log.info(tr("saved_key", a=short_path(key_path)))
-        story_path = os.path.join(folder, f"{seed}_story.pdf")
+        # the book: the story, or (maps and monsters only) the monster key
+        story_path = os.path.join(folder, f"{seed}_{'story' if params['story'] else 'monsters'}.pdf")
         problem = story_pdf_problem()
         if problem:
             log.error(problem)
         else:
             try:
                 write_story_pdf(blocks, story_path, settings)
-                log.info(tr("saved_story", a=short_path(story_path)))
+                log.info(tr("saved_story" if params["story"] else "saved_monsters", a=short_path(story_path)))
             except Exception as e:          # never lose the maps and the key over the PDF
                 log.error(tr("err_story_pdf", e=f"{type(e).__name__}: {e}"))
     if G.missing:
