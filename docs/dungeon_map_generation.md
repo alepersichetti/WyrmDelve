@@ -1,5 +1,7 @@
 # Come nasce la mappa del dungeon
 
+*[English version](dungeon_map_generation.en.md)*
+
 Questo documento spiega, passo per passo e con esempi veri, come WyrmDelve costruisce la mappa ASCII di un dungeon: dalle stanze ai corridoi, dalle scale agli ingressi, fino al foglio stampato. Non serve saper programmare: dove compare un nome tecnico, viene spiegato con parole semplici.
 
 Tutte le mappe di questo documento sono state generate dal programma, non disegnate a mano. Puoi rigenerarle con i semi indicati.

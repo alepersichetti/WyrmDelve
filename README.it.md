@@ -441,7 +441,7 @@ Premi **Ctrl+C**. Non si rompe niente: basta riavviarlo.
 
 ## Come funziona
 
-Se vuoi sapere come il programma inventa i dungeon, nella cartella `docs` ci sono due spiegazioni in linguaggio semplice, con molti esempi:
+Se vuoi sapere come il programma inventa i dungeon, nella cartella `docs` ci sono spiegazioni in linguaggio semplice, con molti esempi (ognuna anche in inglese):
 
 - [Come nasce la mappa del dungeon](docs/dungeon_map_generation.md): seme, tipi, stanze, epoche, corridoi e anelli, scale, ingressi, segreti, disegno e stampa;
 - [Come nasce la storia del dungeon](docs/story_generation_algorithm.md): ingredienti, nomi, le parti del racconto e le loro 3.840 forme, le stanze a strati, la chiave e il PDF;
