@@ -227,12 +227,12 @@ Everything goes in `dungeons_generated/<seed>/`, one folder per dungeon:
 | `<seed>_gm.png` | the **game master's map**: room numbers, secret doors `S` and secret passages `░` |
 | `<seed>_players.png` | the **players' map**: same map, without numbers and secrets |
 | `<seed>_key.txt` | the **dungeon key**: history, strata, entrances, level connections, what's in each room, Jaquays check |
-| `<seed>_story.pdf` | the **story**: the same key as a book on A4 pages, with blackletter headings and the text in Crimson Text, ready to print or read on a tablet |
+| `<seed>_story.pdf` | the **story**: the same key as a book on A4 pages, with headings in Sebaldus-Gotisch and the text in Crimson Text, ready to print or read on a tablet |
 | `.txt` next to each map | the same map as plain text, to open with any text editor |
 
 If you choose **only the maps**, the key and the story PDF are not made.
 
-The headings of the story use **Sebaldus-Gotisch**, which is in the `fonts` folder; if you remove it, they use UnifrakturMaguntia, a similar blackletter that also comes with the program (see `fonts/README.md`).
+The headings of the story use **Sebaldus-Gotisch** and the text uses **Crimson Text**, both in the `fonts` folder (see `fonts/README.md`).
 
 With **one level per sheet** the PNG names get the level: `<seed>_gm_L1.png`, `<seed>_gm_L2a.png`… All sheets use the same letter size, so the levels keep the same scale. With **PDF** you get `<seed>_gm.pdf` and `<seed>_players.pdf` instead (one page per sheet, 600 dpi, no loss of quality), each with its `.txt`.
 
@@ -403,6 +403,9 @@ The font installed on your computer doesn't have those symbols. The program swap
 **"No monospaced font found".**
 The `fonts` folder isn't next to `wyrmdelve.py`. Put it back (it comes with the program): the maps use the DejaVu Sans Mono inside it. As a last resort you can give another font whose letters are all the same width with `--font`, for example `--font consola.ttf`.
 
+**"ERROR: the font … is missing from the folder fonts, so the story PDF was not made".**
+A file of the `fonts` folder (usually `Sebaldus-Gotisch.ttf`) isn't there. The maps and the `.txt` key are made anyway. Put the file back in the `fonts` folder next to `wyrmdelve.py` (download WyrmDelve again if you no longer have it) and make the dungeon again from its seed.
+
 **"The fpdf2 library is missing, so no story PDF".**
 The maps and the `.txt` key are made, but not the story PDF. With the virtual environment active, run `pip install -r requirements.txt` again (step 5).
 
@@ -425,4 +428,4 @@ Press **Ctrl+C**. Nothing breaks: just start it again.
 
 ## License
 
-WyrmDelve is free software under the [GNU General Public License v3.0](LICENSE). The parts of `wyrmdelve_tables.json` adapted from Ironsworn keep their CC BY 4.0 attribution (see Sources above). > **The fonts are not covered by the GPL 3.0.** In particular **Sebaldus-Gotisch** (© Typographer Mediengestaltung 2002, digitized by Dieter Steffmann, "All rights reserved") and **Crimson Text** (SIL Open Font License 1.1) keep their own terms; so do UnifrakturMaguntia (SIL Open Font License 1.1) and DejaVu (DejaVu / Bitstream Vera license). The GPL 3.0 applies to the program and the tables, not to the files in `fonts/`: see `fonts/README.md`.
+WyrmDelve is free software under the [GNU General Public License v3.0](LICENSE). The parts of `wyrmdelve_tables.json` adapted from Ironsworn keep their CC BY 4.0 attribution (see Sources above). > **The fonts are not covered by the GPL 3.0.** In particular **Sebaldus-Gotisch** (© Typographer Mediengestaltung 2002, digitized by Dieter Steffmann, "All rights reserved") and **Crimson Text** (SIL Open Font License 1.1) keep their own terms; so does DejaVu (DejaVu / Bitstream Vera license). The GPL 3.0 applies to the program and the tables, not to the files in `fonts/`: see `fonts/README.md`.

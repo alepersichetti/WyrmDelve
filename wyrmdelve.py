@@ -27,7 +27,7 @@ Output goes to dungeons_generated/<seed>/ next to this file (or --output):
   <seed>_gm.png/.txt        game master map: room numbers and secrets
   <seed>_players.png/.txt   same map without numbers and secrets
   <seed>_key.txt            history, room key, level connections, Jaquays check
-  <seed>_story.pdf          the same key as an A4 book page (blackletter headings, Crimson Text)
+  <seed>_story.pdf          the same key as an A4 book page (Sebaldus-Gotisch headings, Crimson Text)
 All fonts come from the fonts/ folder next to this file.
 One level per sheet adds the level to the PNG names (<seed>_gm_L1.png ...);
 with PDF every map is a single <seed>_gm.pdf / <seed>_players.pdf.
@@ -286,6 +286,10 @@ TEXTS = {
     "saved": ("Salvate: {a}  +  {b}", "Saved: {a}  +  {b}"),
     "saved_key": ("Chiave: {a}", "Key: {a}"),
     "saved_story": ("Storia: {a}", "Story: {a}"),
+    "err_story_fonts": ("ERRORE: manca il font {f} nella cartella {d}, quindi il PDF della storia non è stato creato "
+                        "(le mappe e la chiave .txt sì). Rimetti il file nella cartella fonts accanto a wyrmdelve.py.",
+                        "ERROR: the font {f} is missing from the folder {d}, so the story PDF was not made "
+                        "(the maps and the .txt key were). Put the file back in the fonts folder next to wyrmdelve.py."),
     "warn_no_fpdf": ("Manca la libreria fpdf2, quindi niente PDF della storia (la chiave .txt c'è). "
                      "Installala con: pip install -r requirements.txt",
                      "The fpdf2 library is missing, so no story PDF (the .txt key is there). "
@@ -526,6 +530,9 @@ class Log:
 
     def warn(self, message):
         print(f"        ! {message}")
+
+    def error(self, message):
+        print(f"        ✗ {message}")
 
     def done(self):
         print("\n" + tr("done", s=time.perf_counter() - self.start_time))
@@ -2998,20 +3005,16 @@ def font_file(name):
     return os.path.join(FONT_DIR, name)
 
 
-def heading_font():
-    """Sebaldus-Gotisch (in fonts/), or the free blackletter if it was removed."""
-    try:
-        names = sorted(os.listdir(FONT_DIR))
-    except OSError:
-        names = []
-    for name in names:
-        if name.lower().startswith("sebaldus") and name.lower().endswith((".ttf", ".otf")):
-            return font_file(name)
-    return font_file("UnifrakturMaguntia-Book.ttf")
+STORY_FONTS = ("Sebaldus-Gotisch.ttf", "CrimsonText-Regular.ttf", "CrimsonText-Italic.ttf", "CrimsonText-Bold.ttf",
+               "CrimsonText-BoldItalic.ttf", "DejaVuSans.ttf")
+
+
+def missing_story_fonts():
+    return [name for name in STORY_FONTS if not os.path.isfile(font_file(name))]
 
 
 def write_story_pdf(blocks, path, settings):
-    """The key as an A4 book page: blackletter headings, Crimson Text body.
+    """The key as an A4 book page: Sebaldus-Gotisch headings, Crimson Text body.
     Needs fpdf2 (in requirements.txt); fonts come only from fonts/."""
     from fpdf import FPDF
 
@@ -3026,7 +3029,7 @@ def write_story_pdf(blocks, path, settings):
     pdf = Page(format="A4", unit="mm")
     pdf.set_margins(22, 20, 22)
     pdf.set_auto_page_break(True, 20)
-    pdf.add_font("gothic", "", heading_font())
+    pdf.add_font("gothic", "", font_file("Sebaldus-Gotisch.ttf"))
     for style, name in (("", "Regular"), ("I", "Italic"), ("B", "Bold"), ("BI", "BoldItalic")):
         pdf.add_font("crimson", style, font_file(f"CrimsonText-{name}.ttf"))
     pdf.add_font("dejavu", "", font_file("DejaVuSans.ttf"))
@@ -3522,11 +3525,15 @@ def main():
         write_key(blocks, key_path)
         log.info(tr("saved_key", a=short_path(key_path)))
         story_path = os.path.join(folder, f"{seed}_story.pdf")
-        try:
-            write_story_pdf(blocks, story_path, settings)
-            log.info(tr("saved_story", a=short_path(story_path)))
-        except ImportError:
-            log.warn(tr("warn_no_fpdf"))
+        missing = missing_story_fonts()
+        if missing:
+            log.error(tr("err_story_fonts", f=", ".join(missing), d=short_path(FONT_DIR)))
+        else:
+            try:
+                write_story_pdf(blocks, story_path, settings)
+                log.info(tr("saved_story", a=short_path(story_path)))
+            except ImportError:
+                log.warn(tr("warn_no_fpdf"))
     if G.missing:
         log.warn(tr("warn_missing_glyphs", g=" ".join(sorted(G.missing))))
     log.done()

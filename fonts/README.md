@@ -10,9 +10,8 @@
 | `DejaVuSans.ttf` | i simboli nel PDF della storia (frecce, ✓, muri) | `LICENSE-DejaVu.txt` |
 | `CrimsonText-*.ttf` | il testo del PDF della storia | `LICENSE-CrimsonText.txt` (SIL Open Font License 1.1) |
 | `Sebaldus-Gotisch.ttf` | i titoli del PDF della storia | © Typographer Mediengestaltung 2002, digitalizzato da Dieter Steffmann (www.steffmann.de); il file non contiene una licenza |
-| `UnifrakturMaguntia-Book.ttf` | titoli del PDF della storia, se manca Sebaldus-Gotisch | `LICENSE-UnifrakturMaguntia.txt` (SIL Open Font License 1.1) |
 
-**Sebaldus-Gotisch** è distribuito gratuitamente dall'autore sui siti di font; il file riporta «All rights reserved» e non include un testo di licenza. Se lo togli da questa cartella, i titoli usano UnifrakturMaguntia.
+**Sebaldus-Gotisch** è distribuito gratuitamente dall'autore sui siti di font; il file riporta «All rights reserved» e non include un testo di licenza. Se manca da questa cartella, il programma lo segnala con un errore e non crea il PDF della storia (le mappe sì).
 
 ---
 
@@ -26,6 +25,5 @@
 | `DejaVuSans.ttf` | symbols in the story PDF (arrows, ✓, walls) | `LICENSE-DejaVu.txt` |
 | `CrimsonText-*.ttf` | the text of the story PDF | `LICENSE-CrimsonText.txt` (SIL Open Font License 1.1) |
 | `Sebaldus-Gotisch.ttf` | the headings of the story PDF | © Typographer Mediengestaltung 2002, digitized by Dieter Steffmann (www.steffmann.de); the file carries no license |
-| `UnifrakturMaguntia-Book.ttf` | headings of the story PDF, when Sebaldus-Gotisch is missing | `LICENSE-UnifrakturMaguntia.txt` (SIL Open Font License 1.1) |
 
-**Sebaldus-Gotisch** is given away for free by its author on font sites; the file says "All rights reserved" and comes with no license text. If you remove it from this folder, the headings use UnifrakturMaguntia.
+**Sebaldus-Gotisch** is given away for free by its author on font sites; the file says "All rights reserved" and comes with no license text. If it is missing from this folder, the program reports an error and doesn't make the story PDF (the maps are still made).

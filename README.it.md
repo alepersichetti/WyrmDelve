@@ -227,12 +227,12 @@ Tutto va in `dungeons_generated/<seme>/`, una cartella per ogni dungeon:
 | `<seme>_gm.png` | la **mappa del master**: numeri delle stanze, porte `S` e passaggi `░` segreti |
 | `<seme>_players.png` | la **mappa dei giocatori**: la stessa mappa senza numeri e senza segreti |
 | `<seme>_key.txt` | la **chiave del dungeon**: storia, strati, ingressi, collegamenti tra livelli, cosa c'è in ogni stanza, verifica dei principi di Jaquays |
-| `<seme>_story.pdf` | la **storia**: la stessa chiave come un libro su pagine A4, con i titoli in gotico e il testo in Crimson Text, pronta da stampare o da leggere sul tablet |
+| `<seme>_story.pdf` | la **storia**: la stessa chiave come un libro su pagine A4, con i titoli in Sebaldus-Gotisch e il testo in Crimson Text, pronta da stampare o da leggere sul tablet |
 | `.txt` accanto a ogni mappa | la stessa mappa come testo semplice, da aprire con qualsiasi editor di testo |
 
 Se scegli **solo le mappe**, la chiave e il PDF della storia non vengono creati.
 
-I titoli della storia usano **Sebaldus-Gotisch**, che è nella cartella `fonts`; se lo togli, usano UnifrakturMaguntia, un gotico simile che viene anch'esso con il programma (vedi `fonts/README.md`).
+I titoli della storia usano **Sebaldus-Gotisch** e il testo **Crimson Text**, entrambi nella cartella `fonts` (vedi `fonts/README.md`).
 
 Con **un livello per foglio** i nomi dei PNG contengono il livello: `<seme>_gm_L1.png`, `<seme>_gm_L2a.png`… Tutti i fogli usano caratteri della stessa grandezza, così i livelli restano in scala. Con il **PDF** ottieni invece `<seme>_gm.pdf` e `<seme>_players.pdf` (una pagina per foglio, 600 dpi, senza perdita di qualità), ognuno con il suo `.txt`.
 
@@ -403,6 +403,9 @@ Il font installato sul tuo computer non ha quei simboli. Il programma li sostitu
 **"Nessun font monospazio trovato".**
 La cartella `fonts` non è accanto a `wyrmdelve.py`. Rimettila al suo posto (viene con il programma): le mappe usano il DejaVu Sans Mono che c'è dentro. In alternativa puoi indicare un altro font con tutte le lettere larghe uguali con `--font`, per esempio `--font consola.ttf`.
 
+**"ERRORE: manca il font … nella cartella fonts, quindi il PDF della storia non è stato creato".**
+Un file della cartella `fonts` (di solito `Sebaldus-Gotisch.ttf`) non c'è. Le mappe e la chiave `.txt` vengono create comunque. Rimetti il file nella cartella `fonts` accanto a `wyrmdelve.py` (riscarica WyrmDelve se non ce l'hai più) e rifai il dungeon dal suo seme.
+
 **"Manca la libreria fpdf2, quindi niente PDF della storia".**
 Le mappe e la chiave `.txt` vengono create, il PDF della storia no. Con l'ambiente virtuale attivo, ripeti `pip install -r requirements.txt` (passo 5).
 
@@ -425,4 +428,4 @@ Premi **Ctrl+C**. Non si rompe niente: basta riavviarlo.
 
 ## Licenza
 
-WyrmDelve è software libero con licenza [GNU General Public License v3.0](LICENSE). Le parti di `wyrmdelve_tables.json` adattate da Ironsworn mantengono la loro attribuzione CC BY 4.0 (vedi Fonti qui sopra). > **I font non ricadono nella licenza GPL 3.0.** In particolare **Sebaldus-Gotisch** (© Typographer Mediengestaltung 2002, digitalizzato da Dieter Steffmann, «All rights reserved») e **Crimson Text** (SIL Open Font License 1.1) mantengono le loro condizioni; lo stesso vale per UnifrakturMaguntia (SIL Open Font License 1.1) e DejaVu (licenza DejaVu / Bitstream Vera). La GPL 3.0 vale per il programma e per le tabelle, non per i file della cartella `fonts/`: vedi `fonts/README.md`.
+WyrmDelve è software libero con licenza [GNU General Public License v3.0](LICENSE). Le parti di `wyrmdelve_tables.json` adattate da Ironsworn mantengono la loro attribuzione CC BY 4.0 (vedi Fonti qui sopra). > **I font non ricadono nella licenza GPL 3.0.** In particolare **Sebaldus-Gotisch** (© Typographer Mediengestaltung 2002, digitalizzato da Dieter Steffmann, «All rights reserved») e **Crimson Text** (SIL Open Font License 1.1) mantengono le loro condizioni; lo stesso vale per DejaVu (licenza DejaVu / Bitstream Vera). La GPL 3.0 vale per il programma e per le tabelle, non per i file della cartella `fonts/`: vedi `fonts/README.md`.
