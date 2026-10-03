@@ -171,7 +171,7 @@ The program asks you a few questions. **Every question has a ready-made answer i
 
 1. **Language:** type `1` for Italian or `2` for English (pressing Enter keeps Italian). From then on the questions, the messages and the texts on the map are in the language you chose.
 2. **The ogre shows up in his dungeon.** Press **Enter** for a fully random dungeon, type **P** to choose the parameters yourself, or **R** to rebuild a dungeon you already made (see chapter 4).
-3. With **P** you choose: number of levels, number of rooms (at least 2 per level), number of entrances/exits to the area, number of secret doors and passages. Then the **dungeon type** (see the table at the top; `0` = at random). With more than one level, the program first asks whether **all levels are of the same type** or **each level has its own type**: in that case you choose them one by one from the top, and for each level the list only shows the types that can stand below the one above.
+3. With **P** you choose: number of levels, number of rooms (at least 3 per level, so that every level has a loop), number of entrances/exits to the area, number of secret doors and passages. Then the **dungeon type** (see the table at the top; `0` = at random). With more than one level, the program first asks whether **all levels are of the same type** or **each level has its own type**: in that case you choose them one by one from the top, and for each level the list only shows the types that can stand below the one above.
 
    With **Enter** (fully random dungeon) the program chooses the types by itself, always in a coherent order.
 4. **Colours:**
@@ -323,7 +323,7 @@ Without `--language en` the messages and the texts on the map are in Italian. Ev
 |---|---|---|
 | `--language` / `--lingua` | Language: `en` or `it` | `--language en` |
 | `--levels` / `--livelli` | Number of levels, 1 to 10 | `--levels 3` |
-| `--rooms` / `--stanze` | Number of rooms, 3 to 200 (at least 2 per level) | `--rooms 24` |
+| `--rooms` / `--stanze` | Number of rooms, 3 to 200 (at least 3 per level) | `--rooms 24` |
 | `--entrances` / `--ingressi` | Entrances/exits to the area, 1 to 9 | `--entrances 2` |
 | `--secrets` / `--segreti` | Secret doors and passages, 0 to 60 | `--secrets 5` |
 | `--type` / `--tipo` | Dungeon type, 1 to 11 as in the table at the top: one number for every level, or one per level from the top, separated by commas (the levels must stack coherently) | `--type 4` or `--type 3,4,11` |
@@ -344,7 +344,9 @@ To see the full list, type `python wyrmdelve.py --language en --help`.
 
 ### Limits
 
-Levels 1–10, rooms 3–200 (at least 2 per level), entrances 1–9, secrets 0–60. If you ask for more secrets than there are corridors and connections, the program says so and places what it can. Some Jaquays techniques need room: one level has no level connections, sub-levels appear from 8 rooms up, divided levels need levels with 6+ rooms.
+Levels 1–10, rooms 3–200 (at least 3 per level), entrances 1–9, secrets 0–60. If you ask for more secrets than there are corridors and connections, the program says so and places what it can. Some Jaquays techniques need room: one level has no level connections, sub-levels need at least 3 rooms more than 3 per level (8 rooms with a single level), divided levels need levels with 6+ rooms (3 per half).
+
+Every dungeon is checked against Xandering: every level (and every half of a divided level, and every sub-level) has at least one loop, no room is a dead end (each can be reached from at least two places), the connections between two levels start from different rooms, and no two rooms are joined twice. The key's Jaquays section lists the loops level by level.
 
 ---
 
@@ -389,7 +391,7 @@ The file with the words of the dungeons isn't in the folder. Put it next to `wyr
 After you edited the file, something is out of place: the message says at which line and column (`line 12 column 5`). Usually it's a missing comma between two lines, an extra comma after the last line in a list, or a missing quote `"`. Fix it, or put back the copy you made before editing.
 
 **"This seed is not valid".**
-One of the characters of the seed is wrong or missing. Compare it with the name of the dungeon's folder or with the line under the map's title. It must have six parts separated by dashes, like `3-24-2-5-CDK-K7Q2MB` (five for seeds from older versions).
+One of the characters of the seed is wrong or missing. Compare it with the name of the dungeon's folder or with the line under the map's title. It must have six parts separated by dashes, like `3-24-2-5-CDK-K7Q2MB` (five for seeds from older versions). If the message adds a reason, such as "5 levels need at least 15 rooms", the seed comes from an older version that allowed 2 rooms per level: those dungeons couldn't have a loop on every level, so they can't be rebuilt. Make a new one with the same levels and at least 3 rooms per level.
 
 **"Level 1 (Castle) can't stand above level 2 (Tower)".**
 The types you chose with `--type` don't stack coherently. Change their order or choose other types: the higher ones go first (a tower above a castle, a castle above a crypt, the Underdark last).
