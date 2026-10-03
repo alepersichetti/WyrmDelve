@@ -27,6 +27,8 @@ Output goes to dungeons_generated/<seed>/ next to this file (or --output):
   <seed>_gm.png/.txt        game master map: room numbers and secrets
   <seed>_players.png/.txt   same map without numbers and secrets
   <seed>_key.txt            history, room key, level connections, Jaquays check
+  <seed>_story.pdf          the same key as an A4 book page (Sebaldus-Gotisch headings, Crimson Text)
+All fonts come from the fonts/ folder next to this file.
 One level per sheet adds the level to the PNG names (<seed>_gm_L1.png ...);
 with PDF every map is a single <seed>_gm.pdf / <seed>_players.pdf.
 
@@ -48,6 +50,7 @@ Usage. Every option has an Italian and an English name, use whichever:
   python wyrmdelve.py --pdf                         / --png
   python wyrmdelve.py --titolo "La Tana dell'Orco"  / --title "The Ogre's Lair"
   python wyrmdelve.py --senza-titolo                / --no-title  (map without a name)
+  python wyrmdelve.py --senza-storia                / --no-story  (only the maps, no key and no story PDF)
   python wyrmdelve.py --solo-ascii                  / --ascii-only
   python wyrmdelve.py --lingua en                   / --language en  (default: Italian)
   python wyrmdelve.py --help
@@ -178,6 +181,10 @@ TEXTS = {
     "name_mine": ("    2 = lo scelgo io", "    2 = I'll choose it"),
     "q_name": ("  Nome della mappa: ", "  Map name: "),
     "name_empty": ("    Scrivi un nome.", "    Type a name."),
+    "story_intro": ("\n  Vuoi anche la storia del dungeon?", "\n  Do you also want the dungeon's story?"),
+    "story_yes": ("    1 = sì, mappe e storia (chiave delle stanze in PDF e TXT)",
+                  "    1 = yes, maps and story (room key as PDF and TXT)"),
+    "story_no": ("    2 = no, solo le mappe", "    2 = no, only the maps"),
     # parameter names and checks
     "name_levels": ("livelli", "levels"),
     "name_rooms": ("stanze", "rooms"),
@@ -195,7 +202,8 @@ TEXTS = {
                         "Level {i} ({a}) can't stand above level {j} ({b})."),
     "err_type_value": ("Tipo di dungeon non valido: {s} (usa numeri da 1 a {n}, separati da virgole).",
                        "Invalid dungeon type: {s} (use numbers from 1 to {n}, separated by commas)."),
-    "err_no_font": ("Nessun font monospazio trovato. Indica un file .ttf con --font (es. DejaVuSansMono.ttf).",
+    "err_no_font": ("Nessun font monospazio trovato: controlla che la cartella fonts sia accanto a wyrmdelve.py, "
+                    "oppure indica un file .ttf con --font (es. DejaVuSansMono.ttf).",
                     "No monospaced font found. Give a .ttf file with --font (e.g. DejaVuSansMono.ttf)."),
     "err_size": ("{path}: {size} non è un foglio A4, A3, A2 o A1 a 600 dpi",
                  "{path}: {size} is not an A4, A3, A2 or A1 sheet at 600 dpi"),
@@ -212,6 +220,7 @@ TEXTS = {
     "info_colors": ("Colori: {c}", "Colours: {c}"),
     "info_name_mine": ("Nome della mappa: «{t}»", "Map name: “{t}”"),
     "info_name_none": ("Mappa senza nome", "Map without a name"),
+    "info_no_story": ("Solo le mappe, senza storia", "Only the maps, no story"),
     "info_folder": ("Cartella: {folder}", "Folder: {folder}"),
     "info_font": ("Font: {name}{fake}, cella {a:.2f} volte più alta che larga",
                   "Font: {name}{fake}, letter cell {a:.2f} times taller than wide"),
@@ -273,8 +282,27 @@ TEXTS = {
                   "Very small letters: choose a bigger format if you can."),
     "step_gm": ("Mappa del master ({paper}, {dpi} dpi, {f} + TXT)", "Game master map ({paper}, {dpi} dpi, {f} + TXT)"),
     "step_players": ("Mappa dei giocatori e chiave del dungeon", "Players' map and dungeon key"),
+    "step_players_only": ("Mappa dei giocatori", "Players' map"),
     "saved": ("Salvate: {a}  +  {b}", "Saved: {a}  +  {b}"),
     "saved_key": ("Chiave: {a}", "Key: {a}"),
+    "saved_story": ("Storia: {a}", "Story: {a}"),
+    "err_story_fonts": ("ERRORE: manca il font {f} nella cartella {d}, quindi il PDF della storia non è stato creato "
+                        "(le mappe e la chiave .txt sì). Rimetti il file nella cartella fonts accanto a wyrmdelve.py.",
+                        "ERROR: the font {f} is missing from the folder {d}, so the story PDF was not made "
+                        "(the maps and the .txt key were). Put the file back in the fonts folder next to wyrmdelve.py."),
+    "warn_no_fpdf": ("Manca la libreria fpdf2, quindi niente PDF della storia (la chiave .txt c'è). "
+                     "Installala con: pip install -r requirements.txt",
+                     "The fpdf2 library is missing, so no story PDF (the .txt key is there). "
+                     "Install it with: pip install -r requirements.txt"),
+    "pdf_history": ("Storia", "History"),
+    "pdf_strata": ("Strati, dal più antico", "Strata, oldest first"),
+    "pdf_entrances": ("Ingressi e uscite", "Entrances and exits"),
+    "pdf_links": ("Collegamenti tra livelli", "Level connections"),
+    "pdf_jaquays": ("I principi di Jaquays", "Jaquays' principles"),
+    "pdf_level": ("Livello {n}", "Level {n}"),
+    "pdf_sublevel": ("Sottolivello {n}", "Sub-level {n}"),
+    "pdf_sub_between": ("tra il livello {a} e il livello {b}", "between level {a} and level {b}"),
+    "pdf_sub_below": ("sotto il livello 1", "below level 1"),
     "warn_missing_glyphs": ("Il font non ha questi glifi, sostituiti con ASCII: {g}",
                             "The font lacks these symbols, replaced with ASCII: {g}"),
     "pb_drawing": ("disegno", "drawing"),
@@ -410,6 +438,7 @@ TEXTS = {
                "9 border fortress, 10 tomb, 11 underdark"),
     "h_title": ("titolo della mappa (default: il nome del dungeon)", "map title (default: the dungeon's name)"),
     "h_no_title": ("mappa senza nome", "map without a name"),
+    "h_no_story": ("solo le mappe: niente chiave né PDF della storia", "only the maps: no key and no story PDF"),
     "h_ascii": ("solo caratteri base della tastiera", "only basic keyboard characters"),
     "h_font": ("file .ttf monospazio da usare", "monospaced .ttf font file to use"),
     "h_output": ("cartella in cui salvare (default: dungeons_generated accanto allo script)",
@@ -501,6 +530,9 @@ class Log:
 
     def warn(self, message):
         print(f"        ! {message}")
+
+    def error(self, message):
+        print(f"        ✗ {message}")
 
     def done(self):
         print("\n" + tr("done", s=time.perf_counter() - self.start_time))
@@ -2210,6 +2242,7 @@ def find_font(chosen=None):
     candidates = []
     if chosen:
         candidates.append((chosen, None))
+    candidates.append((font_file("DejaVuSansMono.ttf"), font_file("DejaVuSansMono-Bold.ttf")))    # fonts/
     candidates += MONO_FONTS
     try:
         import matplotlib
@@ -2878,56 +2911,201 @@ def room_exits(dungeon, room):
     return out
 
 
-def write_key(dungeon, path, seed, title):
+def key_blocks(dungeon, seed, title):
+    """The dungeon key as blocks, shared by the .txt and the story PDF:
+    ("title", text) ("meta", text) ("h", txt, pdf) ("p", text) ("stratum", tag, text, walls, note)
+    ("entrance", text) ("link", a, b, kind) ("level", txt, pdf, note) ("note", text)
+    ("room", label, text, exits) ("check", mark, text)"""
     story = dungeon.story
-    width = 100
-    lines = [f"WyrmDelve v{VERSION}" + (f" — {title}" if title else ""), f"{tr('key_seed')}: {seed}",
-             f"{tr('key_types')}: {types_text(dungeon.params['types'])}", ""]
-    lines += [tr("key_history"), *wrap(pick(history_text(dungeon)), width, "  "), ""]
-    lines.append(tr("key_strata"))
+    blocks = [("title", title), ("meta", f"{tr('key_seed')}: {seed}"),
+              ("meta", f"{tr('key_types')}: {types_text(dungeon.params['types'])}")]
+    blocks += [("h", tr("key_history"), tr("pdf_history")), ("p", pick(history_text(dungeon)))]
+    blocks.append(("h", tr("key_strata"), tr("pdf_strata")))
     eras = {r.era for r in dungeon.rooms}
     strata = [(0, pick(("Grotte naturali, più antiche di ogni costruzione", "Natural caves, older than any building")), "#"),
               (1, pick(story["f_who"]) + " — " + pick(story["built"]), "═║"),
               (2, pick(story["s_who"]), "─│"),
               (3, pick(("oggi: ", "today: ")) + pick(story["p_who"]), "#")]
     for era, text, walls in strata:
-        mark = "" if era in eras or era == 3 else pick(("  (nessuna stanza)", "  (no rooms)"))
-        lines.append(f"  {ERA_TAGS[era]:<4}{text}  [{walls}]{mark}")
-    lines += ["", tr("key_entrances")]
+        note = "" if era in eras or era == 3 else pick(("nessuna stanza", "no rooms"))
+        blocks.append(("stratum", ERA_TAGS[era], text, walls, note))
+    blocks.append(("h", tr("key_entrances"), tr("pdf_entrances")))
     for e in dungeon.entrances:
         mid = tr("key_midpoint") if e["midpoint"] else ""
-        lines.append("  " + tr("key_entrance_line", l=e["letter"], kind=pick(e["kind"]), lv=e["level"].name, mid=mid,
-                                room=e["room"].label))
+        blocks.append(("entrance", tr("key_entrance_line", l=e["letter"], kind=pick(e["kind"]), lv=e["level"].name,
+                                      mid=mid, room=e["room"].label)))
     if dungeon.links:
-        lines += ["", tr("key_links")]
+        blocks.append(("h", tr("key_links"), tr("pdf_links")))
         for link in dungeon.links:
             a, b = sorted((link.a, link.b), key=lambda r: r.level.depth)
             hidden = tr("ex_hidden_link") if link.secret else ""
-            lines.append(f"  {a.label:<6} ↔ {b.label:<6} {tr('link_' + link.kind)}{hidden}")
+            blocks.append(("link", a.label, b.label, tr("link_" + link.kind) + hidden))
     mains = dungeon.mains()
     for level in dungeon.levels:
-        lines.append("")
+        kind = type_name(level.kind)
         if level.sub:
             d = int(level.depth)
-            if d + 1 < len(mains):
-                lines.append(tr("key_sublevel", n=level.name, a=mains[d].name, b=mains[d + 1].name)
-                             + " — " + type_name(level.kind).upper())
-            else:
-                lines.append(tr("key_sublevel_one", n=level.name) + " — " + type_name(level.kind).upper())
+            txt = (tr("key_sublevel", n=level.name, a=mains[d].name, b=mains[d + 1].name) if d + 1 < len(mains)
+                   else tr("key_sublevel_one", n=level.name))
+            note = (tr("pdf_sub_between", a=mains[d].name, b=mains[d + 1].name) if d + 1 < len(mains)
+                    else tr("pdf_sub_below"))
+            blocks.append(("level", txt + " — " + kind.upper(), tr("pdf_sublevel", n=level.name) + " — " + kind, note))
         else:
-            lines.append(tr("key_level", n=level.name) + " — " + type_name(level.kind).upper())
+            blocks.append(("level", tr("key_level", n=level.name) + " — " + kind.upper(),
+                           tr("pdf_level", n=level.name) + " — " + kind, ""))
         if level.split is not None:
-            lines += wrap(tr("key_divided"), width, "  ")
+            blocks.append(("note", tr("key_divided")))
         for room in sorted(level.rooms, key=lambda r: r.number):
-            lines += wrap(f"{room.label:<6} {room_text(room)}", width, "  ")
-            exits = room_exits(dungeon, room)
+            blocks.append(("room", room.label, room_text(room), room_exits(dungeon, room)))
+    blocks.append(("h", tr("key_jaquays"), tr("pdf_jaquays")))
+    for mark, text in jaquays_report(dungeon):
+        blocks.append(("check", mark, text))
+    return blocks
+
+
+def write_key(blocks, path):
+    """The key as plain text, 100 letters wide."""
+    width = 100
+    lines = []
+    for block in blocks:
+        kind = block[0]
+        if kind in ("h", "level"):
+            lines += ["", block[1]]
+        elif kind == "title":
+            lines.append(f"WyrmDelve v{VERSION}" + (f" — {block[1]}" if block[1] else ""))
+        elif kind == "meta":
+            lines.append(block[1])
+        elif kind in ("p", "note"):
+            lines += wrap(block[1], width, "  ")
+        elif kind == "stratum":
+            _, tag, text, walls, note = block
+            lines.append(f"  {tag:<4}{text}  [{walls}]" + (f"  ({note})" if note else ""))
+        elif kind == "entrance":
+            lines.append("  " + block[1])
+        elif kind == "link":
+            _, a, b, what = block
+            lines.append(f"  {a:<6} ↔ {b:<6} {what}")
+        elif kind == "room":
+            _, label, text, exits = block
+            lines += wrap(f"{label:<6} {text}", width, "  ")
             if exits:
                 lines += wrap(tr("key_exits") + ": " + "; ".join(exits), width, "         ")
-    lines += ["", tr("key_jaquays")]
-    for mark, text in jaquays_report(dungeon):
-        lines.append(f"  {'✓' if mark == 'ok' else '~' if mark == '~' else '–'} {text}")
+        elif kind == "check":
+            mark, text = block[1], block[2]
+            lines.append(f"  {'✓' if mark == 'ok' else '~' if mark == '~' else '–'} {text}")
     with open(path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
+
+
+# --- the story PDF ---
+FONT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fonts")
+
+
+def font_file(name):
+    return os.path.join(FONT_DIR, name)
+
+
+STORY_FONTS = ("Sebaldus-Gotisch.ttf", "CrimsonText-Regular.ttf", "CrimsonText-Italic.ttf", "CrimsonText-Bold.ttf",
+               "CrimsonText-BoldItalic.ttf", "DejaVuSans.ttf")
+
+
+def missing_story_fonts():
+    return [name for name in STORY_FONTS if not os.path.isfile(font_file(name))]
+
+
+def write_story_pdf(blocks, path, settings):
+    """The key as an A4 book page: Sebaldus-Gotisch headings, Crimson Text body.
+    Needs fpdf2 (in requirements.txt); fonts come only from fonts/."""
+    from fpdf import FPDF
+
+    class Page(FPDF):
+        def footer(self):
+            self.set_y(-14)
+            self.set_font("crimson", "I", 9)
+            self.set_text_color(90)
+            self.cell(0, 6, f"WyrmDelve v{VERSION} · {self.page_no()}", align="C")
+            self.set_text_color(0)
+
+    pdf = Page(format="A4", unit="mm")
+    pdf.set_margins(22, 20, 22)
+    pdf.set_auto_page_break(True, 20)
+    pdf.add_font("gothic", "", font_file("Sebaldus-Gotisch.ttf"))
+    for style, name in (("", "Regular"), ("I", "Italic"), ("B", "Bold"), ("BI", "BoldItalic")):
+        pdf.add_font("crimson", style, font_file(f"CrimsonText-{name}.ttf"))
+    pdf.add_font("dejavu", "", font_file("DejaVuSans.ttf"))
+    pdf.set_fallback_fonts(["dejavu"], exact_match=False)
+    pdf.set_creator(f"WyrmDelve v{VERSION}")
+    pdf.set_subject(json.dumps(settings, ensure_ascii=False))
+    pdf.add_page()
+    width = pdf.w - pdf.l_margin - pdf.r_margin
+
+    def rule():
+        y = pdf.get_y() + 1
+        pdf.set_draw_color(120)
+        pdf.line(pdf.l_margin + width * 0.3, y, pdf.l_margin + width * 0.7, y)
+        pdf.set_draw_color(0)
+        pdf.ln(4)
+
+    for block in blocks:
+        kind = block[0]
+        if kind == "title":
+            pdf.set_title(block[1] or "WyrmDelve")
+            pdf.set_font("gothic", "", 30)
+            pdf.multi_cell(0, 13, block[1] or "WyrmDelve", align="C", new_x="LMARGIN", new_y="NEXT")
+            pdf.ln(2)
+        elif kind == "meta":
+            pdf.set_font("crimson", "I", 11)
+            pdf.multi_cell(0, 5.5, block[1], align="C", new_x="LMARGIN", new_y="NEXT")
+        elif kind == "h":
+            if block[1] == tr("key_history"):
+                pdf.ln(2)
+                rule()
+            pdf.ln(3)
+            pdf.set_font("gothic", "", 19)
+            pdf.multi_cell(0, 9, block[2], new_x="LMARGIN", new_y="NEXT")
+            pdf.ln(1)
+        elif kind == "level":
+            pdf.ln(4)
+            pdf.set_font("gothic", "", 16)
+            pdf.multi_cell(0, 8, block[2], new_x="LMARGIN", new_y="NEXT")
+            if block[3]:
+                pdf.set_font("crimson", "I", 10.5)
+                pdf.multi_cell(0, 5, block[3], new_x="LMARGIN", new_y="NEXT")
+            pdf.ln(1)
+        elif kind == "p":
+            pdf.set_font("crimson", "", 12)
+            pdf.multi_cell(0, 6, block[1], align="J", new_x="LMARGIN", new_y="NEXT")
+            pdf.ln(1)
+        elif kind == "note":
+            pdf.set_font("crimson", "I", 10.5)
+            pdf.multi_cell(0, 5, block[1], new_x="LMARGIN", new_y="NEXT")
+            pdf.ln(1)
+        elif kind == "stratum":
+            _, tag, text, walls, note = block
+            pdf.set_font("crimson", "", 11.5)
+            extra = f"  __({note})__" if note else ""
+            pdf.multi_cell(0, 6, f"**{tag}**  {text}  {walls}{extra}", markdown=True, new_x="LMARGIN", new_y="NEXT")
+        elif kind == "entrance":
+            pdf.set_font("crimson", "", 11.5)
+            pdf.multi_cell(0, 6, block[1], new_x="LMARGIN", new_y="NEXT")
+        elif kind == "link":
+            _, a, b, what = block
+            pdf.set_font("crimson", "", 11.5)
+            pdf.multi_cell(0, 6, f"**{a}** ↔ **{b}**  {what}", markdown=True, new_x="LMARGIN", new_y="NEXT")
+        elif kind == "room":
+            _, label, text, exits = block
+            pdf.set_font("crimson", "", 11.5)
+            pdf.multi_cell(0, 5.8, f"**{label}**  {text}", markdown=True, new_x="LMARGIN", new_y="NEXT")
+            if exits:
+                pdf.set_x(pdf.l_margin + 8)
+                pdf.set_font("crimson", "I", 10)
+                pdf.multi_cell(width - 8, 5, tr("key_exits").capitalize() + ": " + "; ".join(exits), new_x="LMARGIN", new_y="NEXT")
+            pdf.ln(1.2)
+        elif kind == "check":
+            mark, text = block[1], block[2]
+            pdf.set_font("crimson", "", 10.5)
+            pdf.multi_cell(0, 5.2, f"{'✓' if mark == 'ok' else '~' if mark == '~' else '–'} {text}", new_x="LMARGIN", new_y="NEXT")
+    pdf.output(path)
 
 
 # --- files and folders ---
@@ -3120,11 +3298,18 @@ def ask_name():
         print(tr("name_empty"))
 
 
+def ask_story():
+    print(tr("story_intro"))
+    print(tr("story_yes"))
+    print(tr("story_no"))
+    return ask(tr("choice"), 1, int, 1, 2) == 1
+
+
 def ask_settings():
     ask_language()
     mode = show_welcome()
     print(tr("enter_accepts"))
-    p = {"title": None, "ascii_only": False, "font": None, "paper": None, "output": OUTPUT_FOLDER,
+    p = {"title": None, "ascii_only": False, "font": None, "paper": None, "output": OUTPUT_FOLDER, "story": True,
          "per_level": None, "pdf": None}
     if mode == "rebuild":
         while True:
@@ -3148,6 +3333,7 @@ def ask_settings():
         p["randomized"] = True
     p["colors"] = ask_colors()
     p["title"] = ask_name()
+    p["story"] = ask_story()
     p["ask_paper"] = sys.stdin.isatty()
     return p
 
@@ -3184,12 +3370,13 @@ def settings_from_options(argv):
     naming.add_argument(*names("titolo", "title"), dest="title", default=None, help=tr("h_title"))
     naming.add_argument(*names("senza-titolo", "no-title"), dest="title", action="store_const", const="",
                         help=tr("h_no_title"))
+    ap.add_argument(*names("senza-storia", "no-story"), dest="no_story", action="store_true", help=tr("h_no_story"))
     ap.add_argument(*names("solo-ascii", "ascii-only"), dest="ascii_only", action="store_true", help=tr("h_ascii"))
     ap.add_argument("--font", default=None, metavar="FILE", help=tr("h_font"))
     ap.add_argument(*names("uscita", "output"), dest="output", default=OUTPUT_FOLDER, help=tr("h_output"))
     a = ap.parse_args(argv)
     p = {"title": a.title, "ascii_only": a.ascii_only, "font": a.font, "paper": a.paper, "output": a.output,
-         "colors": a.colors, "per_level": a.per_level, "pdf": a.pdf}
+         "colors": a.colors, "per_level": a.per_level, "pdf": a.pdf, "story": not a.no_story}
     fixed = {k: v for k, v in (("levels", a.levels), ("rooms", a.rooms), ("entrances", a.entrances),
                                ("secrets", a.secrets)) if v is not None}
     if a.types:
@@ -3240,6 +3427,8 @@ def main():
     log.info(tr("info_colors", c=tr(f"color_name_{params['colors']}")))
     if params["title"] == "":
         log.info(tr("info_name_none"))
+    if not params["story"]:
+        log.info(tr("info_no_story"))
     elif params["title"]:
         log.info(tr("info_name_mine", t=params["title"]))
     folder = os.path.join(params["output"], seed)
@@ -3321,7 +3510,7 @@ def main():
     del gm_pages
 
     # 10: players' map (same layout and letter size) and key
-    log.step(tr("step_players"))
+    log.step(tr("step_players" if params["story"] else "step_players_only"))
     pl_panels = [trim_panel(panel_canvas(lv, False, G), b) for lv, b in zip(dungeon.levels, bounds)]
     pl_legend = legend_entries(dungeon, False, G)
     pl_pages = []
@@ -3330,9 +3519,21 @@ def main():
                            tr("players_title", t=title) if title else tr("players_title_plain"), subtitle)
         pl_pages.append((compose_page(pl_layout), pixel_layout(pl_layout, paper, orientation, char_mm, fonts), suffix))
     save_map(pl_pages, os.path.join(folder, f"{seed}_players"), pdf, params["colors"], settings, log)
-    key_path = os.path.join(folder, f"{seed}_key.txt")
-    write_key(dungeon, key_path, seed, title)
-    log.info(tr("saved_key", a=short_path(key_path)))
+    if params["story"]:
+        blocks = key_blocks(dungeon, seed, title)
+        key_path = os.path.join(folder, f"{seed}_key.txt")
+        write_key(blocks, key_path)
+        log.info(tr("saved_key", a=short_path(key_path)))
+        story_path = os.path.join(folder, f"{seed}_story.pdf")
+        missing = missing_story_fonts()
+        if missing:
+            log.error(tr("err_story_fonts", f=", ".join(missing), d=short_path(FONT_DIR)))
+        else:
+            try:
+                write_story_pdf(blocks, story_path, settings)
+                log.info(tr("saved_story", a=short_path(story_path)))
+            except ImportError:
+                log.warn(tr("warn_no_fpdf"))
     if G.missing:
         log.warn(tr("warn_missing_glyphs", g=" ".join(sorted(G.missing))))
     log.done()
