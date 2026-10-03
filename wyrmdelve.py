@@ -103,8 +103,9 @@ COLOR_SCHEMES = {
     3: ((255, 255, 255), (0, 0, 0)),          # white symbols on black
 }
 
-MIN_PER_LEVEL = 3          # a level needs 3 rooms for a loop (Jaquays/Xandering)
-LIMITS = {"levels": (1, 10), "rooms": (3, 200), "entrances": (1, 9), "secrets": (0, 60)}
+MIN_PER_LEVEL = 5          # rooms on every main level
+LOOP_ROOMS = 3             # a loop needs 3 rooms: the least for a sub-level or half a divided level
+LIMITS = {"levels": (1, 10), "rooms": (MIN_PER_LEVEL, 200), "entrances": (1, 9), "secrets": (0, 60)}
 DEFAULTS = {"levels": 3, "rooms": 20, "entrances": 2, "secrets": 4}
 
 # Each level is a grid of slots; a slot holds at most one room. Letters are
@@ -153,7 +154,7 @@ TEXTS = {
     "enter_accepts": ("  Premi Invio per accettare il valore tra parentesi\n",
                       "  Press Enter to accept the value in brackets\n"),
     "q_levels": ("Numero di livelli del dungeon", "Number of dungeon levels"),
-    "q_rooms": ("Numero di stanze (almeno 3 per livello)", "Number of rooms (at least 3 per level)"),
+    "q_rooms": ("Numero di stanze (almeno 5 per livello)", "Number of rooms (at least 5 per level)"),
     "q_entrances": ("Numero di ingressi/uscite dall'area", "Number of entrances/exits to the area"),
     "q_secrets": ("Numero di porte e passaggi segreti", "Number of secret doors and passages"),
     "ask_seed": ("  Seme del dungeon da rifare (è anche il nome della sua cartella, es. {example}): ",
@@ -192,8 +193,8 @@ TEXTS = {
     "name_entrances": ("ingressi", "entrances"),
     "name_secrets": ("segreti", "secrets"),
     "err_range": ("Il numero di {what} deve essere tra {lo} e {hi}.", "The number of {what} must be between {lo} and {hi}."),
-    "err_rooms_levels": ("Con {l} livelli servono almeno {n} stanze (3 per livello, perché ogni livello abbia un anello).",
-                         "{l} levels need at least {n} rooms (3 per level, so that every level has a loop)."),
+    "err_rooms_levels": ("Con {l} livelli servono almeno {n} stanze (almeno 5 per livello).",
+                         "{l} levels need at least {n} rooms (at least 5 per level)."),
     "err_entrances": ("Gli ingressi non possono essere più delle stanze.",
                       "There can't be more entrances than rooms."),
     "err_seed": ("Seme non valido: {s}", "Invalid seed: {s}"),
@@ -421,7 +422,7 @@ TEXTS = {
     "h_epilog": ("Senza opzioni parte la modalità interattiva. I parametri non indicati sono scelti a caso.",
                  "Without options the interactive mode starts. Parameters you leave out are chosen at random."),
     "h_levels": ("numero di livelli (1-10)", "number of levels (1-10)"),
-    "h_rooms": ("numero di stanze (3-200, almeno 3 per livello)", "number of rooms (3-200, at least 3 per level)"),
+    "h_rooms": ("numero di stanze (5-200, almeno 5 per livello)", "number of rooms (5-200, at least 5 per level)"),
     "h_entrances": ("ingressi/uscite dall'area (1-9)", "entrances/exits to the area (1-9)"),
     "h_secrets": ("porte e passaggi segreti (0-60)", "secret doors and passages (0-60)"),
     "h_colors": ("1 nero su bianco (default), 2 bianco su celeste, 3 bianco su nero",
@@ -651,11 +652,11 @@ def random_params(number, fixed=None):
     r = random.Random(f"wyrmdelve-params-{number}")
     p = {"levels": r.choices([1, 2, 3, 4, 5, 6], weights=[2, 4, 4, 3, 1, 1])[0]}
     p.update({k: v for k, v in fixed.items() if k == "levels"})
-    p["rooms"] = p["levels"] * r.randint(4, 9) + r.randint(0, 3)
+    p["rooms"] = p["levels"] * r.randint(MIN_PER_LEVEL, 10) + r.randint(0, 3)
     p["entrances"] = r.choices([1, 2, 3, 4], weights=[1, 4, 3, 2])[0]
     p.update(fixed)
     if "rooms" not in fixed:
-        p["rooms"] = max(3, MIN_PER_LEVEL * p["levels"], min(p["rooms"], LIMITS["rooms"][1]))
+        p["rooms"] = max(MIN_PER_LEVEL * p["levels"], min(p["rooms"], LIMITS["rooms"][1]))
     if "levels" not in fixed and p["rooms"] < MIN_PER_LEVEL * p["levels"]:
         p["levels"] = max(1, p["rooms"] // MIN_PER_LEVEL)
     if "entrances" not in fixed:
@@ -1466,7 +1467,7 @@ def divide(specs, cols):
         if spec.slot[0] < half < spec.slot[0] + spec.span[0]:
             spec.span = (half - spec.slot[0], spec.span[1])
     comps = [0 if spec.slot[0] < half else 1 for spec in specs]
-    return comps if min(comps.count(0), comps.count(1)) >= MIN_PER_LEVEL else None
+    return comps if min(comps.count(0), comps.count(1)) >= LOOP_ROOMS else None
 
 
 # --- room layout and strata ---
@@ -1474,16 +1475,16 @@ def split_rooms(params, rng):
     """Rooms per main level and on the sub-level (0 if none)."""
     levels, rooms = params["levels"], params["rooms"]
     sub = 0
-    if (levels >= 2 and rooms >= MIN_PER_LEVEL * levels + 3) or (levels == 1 and rooms >= 8):
-        sub = 3                             # 3 rooms, so the sub-level has its own loop
+    if rooms >= MIN_PER_LEVEL * levels + LOOP_ROOMS:
+        sub = LOOP_ROOMS                    # a small hideout, still with its own loop
     rest = rooms - sub
     counts = [rest // levels] * levels
     for k in rng.sample(range(levels), rest % levels):
         counts[k] += 1
-    # a little variety, never below 3
+    # a little variety, never below MIN_PER_LEVEL
     for _ in range(levels):
         a, b = rng.randrange(levels), rng.randrange(levels)
-        if a != b and counts[a] > 3:
+        if a != b and counts[a] > MIN_PER_LEVEL:
             counts[a] -= 1
             counts[b] += 1
     return counts, sub
