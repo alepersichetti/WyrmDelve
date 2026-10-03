@@ -68,6 +68,7 @@ import json
 import math
 import os
 import random
+import string
 import sys
 import time
 import zlib
@@ -753,9 +754,16 @@ NATURAL_ROOMS = TABLES["natural_rooms"]
 EVENTS = TABLES["events"]
 AREAS = TABLES["areas"]
 SURFACE_SHAFT = TABLES["surface_shaft"]
-# every part of the history is a list of variants (older files: a single sentence)
-HISTORY = {k: v if isinstance(v, list) else [v] for k, v in TABLES["history"].items()}
+# every part of the history is a list of variants (older files: a single sentence);
+# "words" holds the lists its sentences draw from: {goal}, {relic}, {visitors}
+HISTORY = {k: v if isinstance(v, list) else [v] for k, v in TABLES["history"].items() if k != "words"}
+HISTORY_WORDS = TABLES["history"].get("words", {})
 HISTORY_PARTS = ("founded", "caves", "second", "fall", "present", "crude")
+HISTORY_OPENINGS = ("opening", "opening_legend", "opening_place")    # or none
+HISTORY_CLOSINGS = ("legend", "warning", "hook")                     # or none
+HISTORY_EXTRAS = ("purpose", "golden", "omen", "second_detail", "fate", "aftermath", "interlude", "present_detail")
+WORD_TABLES = {"goal": "goals", "relic": "relics", "visitors": "visitors"}
+STORY_FIELDS = {"f", "built", "area", "e1", "s", "e2", "p"}
 missing = [k for k in HISTORY_PARTS if not HISTORY.get(k)]
 if missing:
     sys.exit(f"Nel file {os.path.basename(TABLES_FILE)} mancano / {os.path.basename(TABLES_FILE)} lacks: "
@@ -895,14 +903,41 @@ def make_story(rng, types):
     return story
 
 
+def fields(pair):
+    """The {names} a sentence needs."""
+    return {name for text in pair for _, name, _, _ in string.Formatter().parse(text) if name}
+
+
 def plan_history(rng):
-    """Which sentence tells each part of the history, and whether it opens with
-    today's dwellers, dwells on the founders' age, ends with a legend. It has
-    its own random numbers, so the maps and the rooms never change with it."""
-    plan = {k: rng.choice(v) for k, v in HISTORY.items() if v}
-    plan["shape"] = {k for k, chance in (("opening", 0.3), ("golden", 0.5), ("legend", 0.5))
-                     if k in plan and rng.random() < chance}
+    """The shape of the history (how it opens, which extra parts it tells, how
+    it ends) and the sentence for each part. It has its own random numbers, so
+    the maps and the rooms never change with it."""
+    hero = make_name(rng, set())
+    words = {"hero": (hero, hero)}
+    for key, table in WORD_TABLES.items():
+        if HISTORY_WORDS.get(table):
+            words[key] = rng.choice(HISTORY_WORDS[table])
+    known = STORY_FIELDS | set(words)
+    plan = {"words": words}
+    for part, variants in HISTORY.items():
+        usable = [v for v in variants if fields(v) <= known]
+        if usable:
+            plan[part] = rng.choice(usable)
+    opening = rng.choice([None, None] + [k for k in HISTORY_OPENINGS if k in plan])
+    closings = [k for k in HISTORY_CLOSINGS if k in plan and not (k == "legend" and opening == "opening_legend")]
+    closing = rng.choice([None] + closings)
+    extras = {k for k in HISTORY_EXTRAS if k in plan and rng.random() < 0.4}
+    plan["shape"] = {"opening": opening, "closing": closing, "extras": extras}
     return plan
+
+
+def history_patterns():
+    """How many shapes the history can take (caves and crude tunnels aside)."""
+    openings = [k for k in HISTORY_OPENINGS if HISTORY.get(k)]
+    closings = [k for k in HISTORY_CLOSINGS if HISTORY.get(k)]
+    pairs = sum(1 + len([c for c in closings if not (c == "legend" and o == "opening_legend")])
+                for o in [None] + openings)
+    return pairs * 2 ** len([k for k in HISTORY_EXTRAS if HISTORY.get(k)])
 
 
 def capitalized(text):
@@ -915,14 +950,20 @@ def history_text(dungeon):
     s, plan = dungeon.story, dungeon.story["history"]
     shape = plan["shape"]
     eras = {r.era for r in dungeon.rooms}
-    parts = (["opening"] if "opening" in shape else []) + ["founded"] + (["caves"] if 0 in eras else [])
-    parts += (["golden"] if "golden" in shape else []) + ["second", "fall"]
-    parts += ([] if "opening" in shape else ["present"]) + (["crude"] if 3 in eras else [])
-    parts += ["legend"] if "legend" in shape else []
+
+    def extra(*names):
+        return [k for k in names if k in shape["extras"]]
+    parts = [shape["opening"]] if shape["opening"] else []
+    parts += ["founded"] + extra("purpose") + (["caves"] if 0 in eras else []) + extra("golden", "omen")
+    parts += ["second"] + extra("second_detail") + ["fall"] + extra("aftermath", "fate", "interlude")
+    parts += [] if shape["opening"] == "opening" else ["present"]    # that opening already says who lives there
+    parts += extra("present_detail") + (["crude"] if 3 in eras else [])
+    parts += [shape["closing"]] if shape["closing"] else []
     out = []
     for i in range(2):
         values = dict(f=s["f_who"][i], built=s["built"][i], area=s["area"][i], e1=s["e1"][i], s=s["s_who"][i],
                       e2=s["e2"][i], p=s["p_who"][i])
+        values.update({k: v[i] for k, v in plan["words"].items()})
         out.append(" ".join(capitalized(plan[k][i].format(**values)) for k in parts))
     return tuple(out)
 
