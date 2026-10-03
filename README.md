@@ -224,7 +224,7 @@ Everything goes in `dungeons_generated/<seed>/`, one folder per dungeon:
 
 | File | What's in it |
 |---|---|
-| `<seed>_gm.png` | the **game master's map**: room numbers, secret doors and secret passages `$` |
+| `<seed>_gm.png` | the **game master's map**: room numbers, secret doors `$` |
 | `<seed>_players.png` | the **players' map**: same map, without numbers and secrets |
 | `<seed>_key.txt` | the **dungeon key**: history, strata, entrances, level connections, what's in each room, Jaquays check |
 | `<seed>_story.pdf` | the **story**: the same key as a book on A4 pages, with headings in Sebaldus-Gotisch and the text in Crimson Text, ready to print or read on a tablet |
@@ -241,7 +241,7 @@ With **one level per sheet** the PNG names get the level: `<seed>_gm_L1.png`, `<
 | Symbol | Meaning | Symbol | Meaning |
 |---|---|---|---|
 | `.` | floor | `+` | door |
-| `$` (bold) | secret door (GM only) | `$` | secret passage, every square of it (GM only) |
+| `$` | secret door (GM only) | `$...$` | secret passage: a corridor with a secret door at each end (GM only) |
 | `<` `>` | stairs up / down | `≡` | steps, same level |
 | `○` | shaft or chimney between levels (may skip some) | `Ω` | magic portal |
 | `≈` | water | `∴` | cave-in |

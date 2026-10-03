@@ -224,7 +224,7 @@ Tutto va in `dungeons_generated/<seme>/`, una cartella per ogni dungeon:
 
 | File | Cosa contiene |
 |---|---|
-| `<seme>_gm.png` | la **mappa del master**: numeri delle stanze, porte e passaggi segreti `$` |
+| `<seme>_gm.png` | la **mappa del master**: numeri delle stanze, porte segrete `$` |
 | `<seme>_players.png` | la **mappa dei giocatori**: la stessa mappa senza numeri e senza segreti |
 | `<seme>_key.txt` | la **chiave del dungeon**: storia, strati, ingressi, collegamenti tra livelli, cosa c'è in ogni stanza, verifica dei principi di Jaquays |
 | `<seme>_story.pdf` | la **storia**: la stessa chiave come un libro su pagine A4, con i titoli in Sebaldus-Gotisch e il testo in Crimson Text, pronta da stampare o da leggere sul tablet |
@@ -241,7 +241,7 @@ Con **un livello per foglio** i nomi dei PNG contengono il livello: `<seme>_gm_L
 | Simbolo | Significato | Simbolo | Significato |
 |---|---|---|---|
 | `.` | pavimento | `+` | porta |
-| `$` (grassetto) | porta segreta (solo master) | `$` | passaggio segreto, ogni sua casella (solo master) |
+| `$` | porta segreta (solo master) | `$...$` | passaggio segreto: un corridoio con una porta segreta a ogni estremità (solo master) |
 | `<` `>` | scale su / giù | `≡` | gradini, stesso livello |
 | `○` | pozzo o camino tra livelli (può saltarne qualcuno) | `Ω` | portale magico |
 | `≈` | acqua | `∴` | crollo |

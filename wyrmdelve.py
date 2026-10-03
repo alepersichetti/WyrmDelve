@@ -327,7 +327,6 @@ TEXTS = {
     "lg_floor": ("pavimento", "floor"),
     "lg_door": ("porta", "door"),
     "lg_secret_door": ("porta segreta", "secret door"),
-    "lg_hidden": ("passaggio segreto", "secret passage"),
     "lg_stairs": ("scale su/giù", "stairs up/down"),
     "lg_steps": ("gradini (stesso livello)", "steps (same level)"),
     "lg_shaft": ("pozzo/camino tra livelli", "shaft/chimney between levels"),
@@ -2340,7 +2339,7 @@ WALL_DEFAULTS = {1: "═", 2: "─"}
 
 FEATURE_GLYPHS = {
     "up": ("<", "<"), "down": (">", ">"), "shaft": ("○", "o"), "portal": ("Ω", "&"),
-    "pillar": ("■", "O"), "water": ("≈", "~"), "rubble": ("∴", "%"), "steps": ("≡", "="), "hidden": ("$", "$"),
+    "pillar": ("■", "O"), "water": ("≈", "~"), "rubble": ("∴", "%"), "steps": ("≡", "="),
 }
 
 
@@ -2423,7 +2422,9 @@ def panel_canvas(level, gm, G):
                     canvas.put(px, py, level.labels[i], "b")
                 elif feat.get(i) == "tag":
                     pass
-                elif i in feat and (gm or (feat[i] != "hidden" and i not in level.hidden_feats)):
+                elif feat.get(i) == "hidden":
+                    canvas.put(px, py, ".")         # a secret passage looks like any corridor: its doors are $
+                elif i in feat and (gm or i not in level.hidden_feats):
                     fancy, plain = FEATURE_GLYPHS[feat[i]]
                     canvas.put(px, py, G(fancy, plain), "b" if feat[i] in ("up", "down", "shaft", "portal") else "n")
                 else:
@@ -2479,8 +2480,6 @@ def legend_entries(dungeon, gm, G):
         out.append([("+", "n"), (" " + tr("lg_door"), "n")])
     if gm and "secret" in kinds:
         out.append([("$", "b"), (" " + tr("lg_secret_door"), "n")])
-    if gm and "hidden" in feats:
-        out.append([("$", "n"), (" " + tr("lg_hidden"), "n")])
     if feats & {"up", "down"}:
         out.append([("< >", "b"), (" " + tr("lg_stairs"), "n")])
     for key, label in (("steps", "lg_steps"), ("shaft", "lg_shaft"), ("portal", "lg_portal"), ("water", "lg_water"),
