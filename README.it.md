@@ -405,11 +405,13 @@ Il font installato sul tuo computer non ha quei simboli. Il programma li sostitu
 **"Nessun font monospazio trovato".**
 La cartella `fonts` non è accanto a `wyrmdelve.py`. Rimettila al suo posto (viene con il programma): le mappe usano il DejaVu Sans Mono che c'è dentro. In alternativa puoi indicare un altro font con tutte le lettere larghe uguali con `--font`, per esempio `--font consola.ttf`.
 
-**"ERRORE: manca il font … nella cartella fonts, quindi il PDF della storia non è stato creato".**
-Un file della cartella `fonts` (di solito `Sebaldus-Gotisch.ttf`) non c'è. Le mappe e la chiave `.txt` vengono create comunque. Rimetti il file nella cartella `fonts` accanto a `wyrmdelve.py` (riscarica WyrmDelve se non ce l'hai più) e rifai il dungeon dal suo seme.
+**Non c'è il PDF della storia.**
+Il programma dice perché, in una riga che comincia con `ERRORE`, subito dopo le impostazioni e di nuovo alla fine. Controlla di aver risposto `1` (mappe e storia) a «Vuoi anche la storia del dungeon?», poi:
+- **«manca la libreria fpdf2»**: con l'ambiente virtuale attivo, scrivi `pip install -r requirements.txt` (passo 5);
+- **«è installata la vecchia libreria «fpdf» … al posto di «fpdf2»»**: le due librerie si pestano i piedi. Scrivi `pip uninstall -y fpdf fpdf2`, poi `pip install -r requirements.txt`;
+- **«manca il font …»**: rimetti la cartella `fonts` accanto a `wyrmdelve.py`.
 
-**"Manca la libreria fpdf2, quindi niente PDF della storia".**
-Le mappe e la chiave `.txt` vengono create, il PDF della storia no. Con l'ambiente virtuale attivo, ripeti `pip install -r requirements.txt` (passo 5).
+Le mappe e la chiave `.txt` vengono create comunque.
 
 **La mappa stampata è più piccola del foglio, o non è centrata.**
 Nelle opzioni di stampa scegli "Dimensioni effettive" o "100%", non "Adatta alla pagina".

@@ -405,11 +405,13 @@ The font installed on your computer doesn't have those symbols. The program swap
 **"No monospaced font found".**
 The `fonts` folder isn't next to `wyrmdelve.py`. Put it back (it comes with the program): the maps use the DejaVu Sans Mono inside it. As a last resort you can give another font whose letters are all the same width with `--font`, for example `--font consola.ttf`.
 
-**"ERROR: the font … is missing from the folder fonts, so the story PDF was not made".**
-A file of the `fonts` folder (usually `Sebaldus-Gotisch.ttf`) isn't there. The maps and the `.txt` key are made anyway. Put the file back in the `fonts` folder next to `wyrmdelve.py` (download WyrmDelve again if you no longer have it) and make the dungeon again from its seed.
+**There is no story PDF.**
+The program says why, in a line starting with `ERROR`, right after the settings and again at the end. Check you answered `1` (maps and story) to "Do you also want the dungeon's story?", then:
+- **"the fpdf2 library is missing"**: with the virtual environment active, run `pip install -r requirements.txt` (step 5);
+- **"the old «fpdf» library … is installed instead of «fpdf2»"**: the two libraries clash. Run `pip uninstall -y fpdf fpdf2`, then `pip install -r requirements.txt`;
+- **"the font … is missing"**: put the `fonts` folder back next to `wyrmdelve.py`.
 
-**"The fpdf2 library is missing, so no story PDF".**
-The maps and the `.txt` key are made, but not the story PDF. With the virtual environment active, run `pip install -r requirements.txt` again (step 5).
+The maps and the `.txt` key are made anyway.
 
 **The printed map is smaller than the sheet, or off-center.**
 In the print options choose "Actual size" or "100%", not "Fit to page".
