@@ -376,6 +376,8 @@ TEXTS = {
                     "Divided level: the west and east parts are not connected on this level; "
                     "you can only cross through other levels."),
     "key_exits": ("uscite", "exits"),
+    "key_wander": ("Mostri erranti (d6)", "Wandering monsters (d6)"),
+    "wander_dwellers": ("gli abitanti di oggi, in giro per le sale", "today's dwellers, roaming the halls"),
     "key_entrance_line": ("{l}  {kind} (livello {lv}{mid}) → {room}",
                           "{l}  {kind} (level {lv}{mid}) → {room}"),
     "key_midpoint": (", ingresso a metà dungeon", ", midpoint entry"),
@@ -768,6 +770,9 @@ missing = [k for k in HISTORY_PARTS if not HISTORY.get(k)]
 if missing:
     sys.exit(f"Nel file {os.path.basename(TABLES_FILE)} mancano / {os.path.basename(TABLES_FILE)} lacks: "
              + ", ".join("history." + k for k in missing))
+
+# wandering monsters (optional table): name, text, where (type ids or "*"), danger 1-4
+MONSTERS = [m for m in TABLES.get("monsters", []) if m.get("name") and m.get("text")]
 
 ERA_TAGS = {0: "N", 1: "I", 2: "II", 3: "III"}
 
@@ -3107,6 +3112,35 @@ def room_exits(dungeon, room):
     return out
 
 
+def wandering_monsters(dungeon, seed):
+    """level name -> d6 table [(name, text), ...]: today's dwellers first, then
+    monsters that fit the level's type, more dangerous the deeper the level.
+    Its own random numbers: the map and the rooms never change with it."""
+    rng = random.Random(f"wyrmdelve-monsters-{seed}")
+    step = min(1.0, 3 / max(1, len(dungeon.mains()) - 1))     # danger grows by at most one per level
+    used = set()
+    tables = {}
+    for level in dungeon.levels:
+        danger = 1 + round(level.depth * step)
+        fits = [k for k, m in enumerate(MONSTERS) if "*" in m.get("where", ["*"]) or level.kind in m.get("where", [])]
+        rows = [(capitalized(pick(dungeon.story["p_who"])), tr("wander_dwellers"))]
+        chosen = []
+        # the right danger first, then one step off, then anything of this type, then anything at all
+        for pool in ([k for k in fits if MONSTERS[k].get("danger", 2) == danger],
+                     [k for k in fits if abs(MONSTERS[k].get("danger", 2) - danger) == 1], fits, range(len(MONSTERS))):
+            fresh = [k for k in pool if k not in chosen and k not in used]
+            again = [k for k in pool if k not in chosen and k in used]
+            for group in (fresh, again):
+                rng.shuffle(group)
+                chosen += group[:5 - len(chosen)]
+            if len(chosen) >= 5:
+                break
+        used.update(chosen)
+        rows += [(capitalized(pick(MONSTERS[k]["name"])), pick(MONSTERS[k]["text"])) for k in chosen]
+        tables[level.name] = rows
+    return tables
+
+
 def key_blocks(dungeon, seed, title, units):
     """The dungeon key as blocks, shared by the .txt and the story PDF:
     ("title", text) ("meta", text) ("h", txt, pdf) ("p", text) ("stratum", tag, text, walls, note)
@@ -3138,6 +3172,7 @@ def key_blocks(dungeon, seed, title, units):
             hidden = tr("ex_hidden_link") if link.secret else ""
             blocks.append(("link", a.label, b.label, tr("link_" + link.kind) + hidden))
     mains = dungeon.mains()
+    wandering = wandering_monsters(dungeon, seed) if MONSTERS else {}
     for level in dungeon.levels:
         kind = type_name(level.kind)
         if level.sub:
@@ -3152,6 +3187,8 @@ def key_blocks(dungeon, seed, title, units):
                            tr("pdf_level", n=level.name) + " — " + kind, ""))
         if level.split is not None:
             blocks.append(("note", tr("key_divided")))
+        if level.name in wandering:
+            blocks.append(("wander", wandering[level.name]))
         for room in sorted(level.rooms, key=lambda r: r.number):
             blocks.append(("room", room.label, room_text(room), room_exits(dungeon, room)))
     blocks.append(("h", tr("key_jaquays"), tr("pdf_jaquays")))
@@ -3187,6 +3224,11 @@ def write_key(blocks, path):
             lines += wrap(f"{label:<6} {text}", width, "  ")
             if exits:
                 lines += wrap(tr("key_exits") + ": " + "; ".join(exits), width, "         ")
+        elif kind == "wander":
+            lines.append("  " + tr("key_wander"))
+            for n, (name, text) in enumerate(block[1], 1):
+                rows = wrap(f"{name}: {text}.", width - 7, "       ")
+                lines += [f"    {n}. " + rows[0].strip()] + rows[1:]
         elif kind == "check":
             mark, text = block[1], block[2]
             lines.append(f"  {'✓' if mark == 'ok' else '~' if mark == '~' else '–'} {text}")
@@ -3318,6 +3360,15 @@ def write_story_pdf(blocks, path, settings):
                 pdf.set_font("crimson", "I", 10)
                 pdf.multi_cell(width - 8, 5, tr("key_exits").capitalize() + ": " + "; ".join(exits), new_x="LMARGIN", new_y="NEXT")
             pdf.ln(1.2)
+        elif kind == "wander":
+            pdf.set_font("crimson", "BI", 11)
+            pdf.multi_cell(0, 6, tr("key_wander"), new_x="LMARGIN", new_y="NEXT")
+            pdf.set_font("crimson", "", 10.5)
+            for n, (name, text) in enumerate(block[1], 1):
+                pdf.set_x(pdf.l_margin + 4)
+                pdf.multi_cell(width - 4, 5.2, f"**{n}.** {name}: {text}.", markdown=True,
+                               new_x="LMARGIN", new_y="NEXT")
+            pdf.ln(2)
         elif kind == "check":
             mark, text = block[1], block[2]
             pdf.set_font("crimson", "", 10.5)

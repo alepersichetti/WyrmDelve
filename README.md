@@ -227,7 +227,7 @@ Everything goes in `dungeons_generated/<seed>/`, one folder per dungeon:
 |---|---|
 | `<seed>_gm.png` | the **game master's map**: room numbers, secret doors `$` and secret passages `░` |
 | `<seed>_players.png` | the **players' map**: same map, without numbers and secrets |
-| `<seed>_key.txt` | the **dungeon key**: history, strata, entrances, level connections, what's in each room, Jaquays check |
+| `<seed>_key.txt` | the **dungeon key**: history, strata, entrances, level connections, a d6 wandering monster table for each level, what's in each room, Jaquays check |
 | `<seed>_story.pdf` | the **story**: the same key as a book on A4 pages, with headings in Sebaldus-Gotisch and the text in Crimson Text, ready to print or read on a tablet |
 | `.txt` next to each map | the same map as plain text, to open with any text editor |
 
@@ -278,6 +278,7 @@ The program's logic is in `wyrmdelve.py`; the **words** it draws at random are i
 | `events` | what ended each age |
 | `areas` | where the dungeon is: `surface` for buildings above ground, `underground` for the others |
 | `surface_shaft` | the entrance used when no wall of the level can take one |
+| `monsters` | the wandering monsters: name, a one-line description, which dungeon types they appear in (`where`, `"*"` = all) and how dangerous they are (`danger`, 1 to 4: the most dangerous go to the deepest levels) |
 | `history` | the sentences of the story at the top of the key: for each part (`founded` the founding, `caves` the caves, `second` the second age, `fall` its end, `present` today's dwellers, `crude` the newer tunnels) a list of sentences the program picks one from. The story can open with today's dwellers (`opening`), a rumour (`opening_legend`) or the place (`opening_place`), and close with a legend (`legend`), a warning (`warning`) or an adventure hook (`hook`); eight parts are sometimes there and sometimes not: the founders' purpose (`purpose`), their golden age (`golden`), ill omens (`omen`), what the newcomers did (`second_detail`), the abandonment (`aftermath`), the founders' fate (`fate`), who passed through later (`interlude`) and a detail about the present (`present_detail`). 3,840 different shapes in all. `words` holds the lists they draw from: goals (`goals`), relics (`relics`) and visitors (`visitors`) |
 
 Each type in `dungeon_types` has:
@@ -439,8 +440,9 @@ If you want to know how the program invents the dungeons, the `docs` folder has 
 
 - Justin Alexander, [Xandering the Dungeon](https://thealexandrian.net/wordpress/13085/roleplaying-games/xandering-the-dungeon) (parts 1–5) and [Xandering on the Small Scale](https://thealexandrian.net/wordpress/34950/roleplaying-games/thought-of-the-day-xandering-on-the-small-scale)
 - Some entries of `wyrmdelve_tables.json` (room features, caves, places, site names, threats, settlement troubles) are translated and adapted from *Ironsworn* and *Ironsworn: Delve* by Shawn Tomkin ([ironswornrpg.com](https://ironswornrpg.com)), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); the data was read from [Datasworn](https://github.com/rsek/datasworn). Syllables from Ironsworn's names come from the same source.
+- The monster list (`monsters` in `wyrmdelve_tables.json`) was drawn up by comparing, and removing duplicates from, [*OSR Bestiary* v1.2](https://bucolianblog.wordpress.com) edited by bucolian and *Aketon*'s *Monstrous Bestiary* by Reese Surles ([ward-against-evil.itch.io](https://ward-against-evil.itch.io)). Since these two PDFs carry no OGL or Creative Commons license, **none of their text is copied**: only the creatures' names, which are generic, and their Hit Dice, used for the danger level, come from them; every description is written for WyrmDelve. Monsters whose names are trademarks of others, and named demon lords, were left out.
 - The Tolkien-style syllables and endings are frequency statistics derived from the name list of [Angband](https://github.com/angband/angband) (`lib/gamedata/names.txt`); the list itself is not copied.
 
 ## License
 
-WyrmDelve is free software under the [GNU General Public License v3.0](LICENSE). The parts of `wyrmdelve_tables.json` adapted from Ironsworn keep their CC BY 4.0 attribution (see Sources above). > **The fonts are not covered by the GPL 3.0.** In particular **Sebaldus-Gotisch** (© Typographer Mediengestaltung 2002, digitized by Dieter Steffmann, "All rights reserved") and **Crimson Text** (SIL Open Font License 1.1) keep their own terms; so does DejaVu (DejaVu / Bitstream Vera license). The GPL 3.0 applies to the program and the tables, not to the files in `fonts/`: see `fonts/README.md`.
+WyrmDelve is free software under the [GNU General Public License v3.0](LICENSE). The parts of `wyrmdelve_tables.json` adapted from Ironsworn keep their CC BY 4.0 attribution (see Sources above). The monster list is inspired by *OSR Bestiary* (bucolian) and *Aketon*'s *Monstrous Bestiary* (Reese Surles), credited in Sources: the descriptions are original and fall under the GPL 3.0 like the rest of the tables. > **The fonts are not covered by the GPL 3.0.** In particular **Sebaldus-Gotisch** (© Typographer Mediengestaltung 2002, digitized by Dieter Steffmann, "All rights reserved") and **Crimson Text** (SIL Open Font License 1.1) keep their own terms; so does DejaVu (DejaVu / Bitstream Vera license). The GPL 3.0 applies to the program and the tables, not to the files in `fonts/`: see `fonts/README.md`.

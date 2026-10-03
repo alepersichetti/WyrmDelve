@@ -22,6 +22,7 @@ Tutti i testi di questo documento sono stati scritti dal programma, non a mano. 
 12. [Ingressi, uscite e collegamenti](#12-ingressi-uscite-e-collegamenti)
 13. [Dove finisce la storia: la chiave e il PDF](#13-dove-finisce-la-storia-la-chiave-e-il-pdf)
 14. [Scrivere frasi nuove senza errori](#14-scrivere-frasi-nuove-senza-errori)
+15. [I mostri erranti](#15-i-mostri-erranti)
 
 ---
 
@@ -62,6 +63,7 @@ Il file si può modificare (vedi il capitolo 7 del README e il [capitolo 14](#14
 | `areas` | dove si trova il dungeon | 66 in superficie, 58 sottoterra |
 | `history` | le frasi del racconto e gli elenchi da cui pescano | 97 frasi; 30 scopi, 30 reliquie, 25 visitatori |
 | `name_syllables` | sillabe e desinenze per i nomi | 238 sillabe, 9 famiglie di desinenze |
+| `monsters` | i mostri erranti | 239 mostri |
 
 ---
 
@@ -73,6 +75,7 @@ Il programma però non usa un solo sacchetto di dadi. Ricava dal seme sacchetti 
 
 - uno per gli **ingredienti** della storia e i nomi delle stanze;
 - uno per la **forma e le frasi del racconto**;
+- uno per i **mostri erranti**;
 - uno per la **mappa**.
 
 Per questo:
@@ -359,7 +362,7 @@ Una scala, un pozzo o un portale **nascosto** è indicato come tale: i giocatori
 
 Se rispondi "sì" alla domanda sulla storia, il programma scrive due file con lo stesso contenuto:
 
-- **`<seme>_key.txt`**, la chiave in testo semplice, larga 100 lettere: titolo, seme, tipo, scala, storia, strati, ingressi, collegamenti, tutte le stanze livello per livello e la verifica dei principi di Jaquays;
+- **`<seme>_key.txt`**, la chiave in testo semplice, larga 100 lettere: titolo, seme, tipo, scala, storia, strati, ingressi, collegamenti, per ogni livello la tabella dei mostri erranti e tutte le stanze, e infine la verifica dei principi di Jaquays;
 - **`<seme>_story.pdf`**, la stessa chiave come un libro su pagine A4: titoli in **Sebaldus-Gotisch**, testo in **Crimson Text**, numeri delle pagine in fondo.
 
 La lingua è quella che hai scelto all'inizio: ogni testo esiste in italiano e in inglese, e il programma prende la versione giusta.
@@ -388,3 +391,40 @@ Puoi aggiungere frasi a ogni parte di `history`, e voci a ogni elenco, copiando 
 La regola d'oro in italiano: **niente preposizioni davanti a un segnaposto con l'articolo determinativo**, perché il programma non sa trasformare «di i» in «dei» o «a la» in «alla».
 
 Una frase può usare solo i segnaposto che esistono: se ne usa uno sconosciuto (o se manca l'elenco da cui pescarlo), il programma semplicemente non la sceglie. Un file JSON vecchio, con una sola frase per parte e senza le parti nuove, funziona ancora: le parti che mancano vengono saltate.
+
+---
+
+## 15. I mostri erranti
+
+Sotto il titolo di ogni livello, la chiave ha una **tabella d6 di mostri erranti**: si tira un dado a sei facce quando i personaggi fanno rumore o perdono tempo, e il risultato dice chi arriva.
+
+```
+Mostri erranti (d6)
+  1. I bugbear di Inchalville: gli abitanti di oggi, in giro per le sale.
+  2. Api assassine: api grandi come un pugno, con l'alveare dentro i muri.
+  3. Pipistrelli: un nugolo di pipistrelli che si alza e spegne le torce.
+  4. Pipistrello gigante: un pipistrello grande come un'aquila che morde e beve sangue.
+  5. Sciame d'insetti: una nuvola ronzante che punge, si infila ovunque e spegne le torce.
+  6. Centopiedi gigante: lungo come un braccio, con un morso che fa venire la febbre.
+```
+
+### Come si compone la tabella
+
+- **1** sono sempre **gli abitanti di oggi** (lo strato III), in giro per le sale: il dungeon è casa loro.
+- **2–6** sono cinque mostri scelti dalla tabella `monsters` del file JSON, tra quelli adatti al **tipo del livello**: ragni e melme nelle grotte, non morti nelle tombe, demoni e golem nel laboratorio arcano, ronde e tagliagole in città. Ogni mostro dice dove può comparire (`where`, con `"*"` per "ovunque").
+- **Più si scende, più è pericoloso.** Ogni mostro ha un livello di pericolo (`danger`) da 1 a 4. Il primo livello cerca mostri di pericolo 1, e il pericolo cresce di un punto per livello fino a 4. Con molti livelli cresce più piano. Se i mostri del pericolo giusto non bastano, il programma prende quelli di un punto sopra o sotto, poi qualunque mostro del tipo.
+- **Niente doppioni:** finché ce ne sono di nuovi, un mostro già uscito su un livello non torna su un altro.
+
+Nell'esempio: al livello 1, la torre, ci sono insetti e pipistrelli; al 2, il castello, non morti, un cavaliere e un lupo mannaro; nel sottolivello `2a` e al livello 3, gli spettri più pericolosi e le belve delle caverne.
+
+### Da dove vengono i mostri
+
+L'elenco di 239 mostri è stato ricavato confrontando due bestiari, *OSR Bestiary* (bucolian) e il *Monstrous Bestiary* di *Aketon* (Reese Surles), ed eliminando i doppioni: per esempio il *Ruster* di Aketon è il mostro della ruggine, il *Gel Cube* è il cubo gelatinoso, il *Landshark* è la bulette. I due bestiari non hanno una licenza aperta, quindi da loro vengono solo i nomi delle creature e i Dadi Vita (usati per il livello di pericolo): **tutte le descrizioni sono scritte per WyrmDelve**. Sono stati tolti i mostri con nomi registrati da altri, i signori dei demoni con un nome proprio e gli animali che non hanno senso in un dungeon (balene, cavalli, dinosauri…).
+
+Puoi aggiungere mostri copiando una riga:
+
+```json
+{"name": {"it": "ratti giganti", "en": "giant rats"}, "text": {"it": "ratti grandi come cani, portatori di malattie", "en": "rats the size of dogs, carrying disease"}, "where": ["*"], "danger": 1}
+```
+
+I mostri usano dadi propri: aggiungerli o toglierli non cambia né la mappa né la storia.
