@@ -3788,11 +3788,66 @@
   },
   "surface_shaft": {"it": "pozzo dalla superficie", "en": "shaft from the surface"},
   "history": {
-    "founded": {"it": "In un'epoca remota {f} costruirono {built} {area}.", "en": "Long ago {f} built {built} {area}."},
-    "caves": {"it": "Sfruttarono le grotte naturali che già si aprivano nella roccia, allargandole e collegandole alle loro sale.", "en": "They made use of the natural caves that already opened in the rock, widening them and joining them to their halls."},
-    "second": {"it": "Dopo {e1} il luogo fu abbandonato; più tardi {s} se ne impadronirono, riadattarono le vecchie sale e aprirono nuovi passaggi, alcuni dei quali tenuti segreti.", "en": "After {e1} the place was abandoned; later {s} took it over, refitted the old halls and opened new passages, some of them kept secret."},
-    "fall": {"it": "Poi {e2} segnò la fine anche di questa epoca, e alcuni passaggi crollarono.", "en": "Then {e2} ended that age too, and some passages collapsed."},
-    "present": {"it": "Gli attuali abitanti sono {p}.", "en": "Its current dwellers are {p}."},
-    "crude": {"it": "I cunicoli più grezzi e gli ingressi più recenti risalgono a quest'ultima epoca.", "en": "The roughest tunnels and the newest entrances date from this last age."}
+    "opening": [
+      {"it": "Oggi chi osa scendere laggiù incontra {p}, ma le pietre raccontano una storia molto più antica.", "en": "Today whoever dares to go down there meets {p}, but the stones tell a much older story."},
+      {"it": "Gli attuali abitanti sono {p}; eppure il luogo è molto più antico di chi lo abita.", "en": "Its current dwellers are {p}; yet the place is far older than those who dwell there."},
+      {"it": "Chi vi entra oggi trova {p}, ma per capire queste sale bisogna tornare indietro di secoli.", "en": "Those who enter today find {p}, but to understand these halls one must go back centuries."},
+      {"it": "I cacciatori di tesori sanno bene chi abita oggi quei corridoi: {p}. Pochi però ne conoscono le origini.", "en": "Treasure hunters know well who haunts those corridors today: {p}. Few, though, know how it all began."}
+    ],
+    "founded": [
+      {"it": "In un'epoca remota {f} costruirono {built} {area}.", "en": "Long ago {f} built {built} {area}."},
+      {"it": "Secoli fa {f} eressero {built} {area}.", "en": "Centuries ago {f} raised {built} {area}."},
+      {"it": "Tutto cominciò quando {f} scelsero di costruire {built} {area}.", "en": "It all began when {f} chose to build {built} {area}."},
+      {"it": "{f} vollero {built} {area}, e lavorarono per generazioni per completarne le sale.", "en": "{f} wanted {built} {area}, and worked for generations to finish its halls."},
+      {"it": "Le cronache più antiche ricordano che {f} costruirono {built} {area}.", "en": "The oldest chronicles recall that {f} built {built} {area}."},
+      {"it": "Nessuno sa con certezza quando, ma {f} costruirono {built} {area}.", "en": "No one knows exactly when, but {f} built {built} {area}."},
+      {"it": "Molte generazioni fa, {area}, {f} costruirono {built}.", "en": "Many generations ago, {area}, {f} built {built}."}
+    ],
+    "caves": [
+      {"it": "Sfruttarono le grotte naturali che già si aprivano nella roccia, allargandole e collegandole alle loro sale.", "en": "They made use of the natural caves that already opened in the rock, widening them and joining them to their halls."},
+      {"it": "Gli scavatori trovarono la roccia già traforata da grotte naturali e le inglobarono nella costruzione.", "en": "The diggers found the rock already riddled with natural caves and took them into the building."},
+      {"it": "Sotto le fondamenta si aprivano grotte più antiche di ogni memoria: i costruttori le collegarono alle loro sale invece di murarle.", "en": "Below the foundations opened caves older than any memory: the builders joined them to their halls instead of walling them up."},
+      {"it": "Alcune sale non furono mai scavate da mano umana: sono grotte naturali, adattate e unite al resto.", "en": "Some halls were never dug by any hand: they are natural caves, adapted and joined to the rest."}
+    ],
+    "golden": [
+      {"it": "Per generazioni il luogo prosperò, e le sue sale si riempirono di vita.", "en": "For generations the place thrived, and its halls filled with life."},
+      {"it": "Le sale più grandi e le mura più solide risalgono a quel tempo.", "en": "The largest halls and the strongest walls date from that time."},
+      {"it": "I fondatori vi lasciarono il segno: stemmi, iscrizioni e simboli si vedono ancora sulle pareti più antiche.", "en": "The founders left their mark there: crests, inscriptions and symbols can still be seen on the oldest walls."},
+      {"it": "Per un certo tempo fu un luogo potente e temuto.", "en": "For a while it was a place of power, and feared."}
+    ],
+    "second": [
+      {"it": "Dopo {e1} il luogo fu abbandonato; più tardi {s} se ne impadronirono, riadattarono le vecchie sale e aprirono nuovi passaggi, alcuni dei quali tenuti segreti.", "en": "After {e1} the place was abandoned; later {s} took it over, refitted the old halls and opened new passages, some of them kept secret."},
+      {"it": "{e1} svuotò il luogo, che restò deserto per generazioni, finché {s} non vi si stabilirono, riadattando le sale e scavando passaggi segreti.", "en": "{e1} emptied the place, which lay deserted for generations, until {s} settled there, refitting the halls and digging secret passages."},
+      {"it": "Con {e1}, i fondatori scomparvero. Al loro posto giunsero {s}, che aprirono nuovi passaggi e ne nascosero alcuni.", "en": "With {e1}, the founders vanished. In their place came {s}, who opened new passages and hid some of them."},
+      {"it": "Dopo {e1} le sale rimasero vuote; {s} le trovarono così, le occuparono e vi aprirono passaggi tenuti nascosti.", "en": "After {e1} the halls stood empty; {s} found them so, took them over and opened passages kept hidden."},
+      {"it": "Fu {e1} a cacciare i fondatori. Poco dopo arrivarono {s}: riadattarono le vecchie sale e scavarono nuovi cunicoli, alcuni segreti.", "en": "It was {e1} that drove the founders out. Soon after came {s}: they refitted the old halls and dug new tunnels, some of them secret."},
+      {"it": "Quando {e1} pose fine al dominio dei fondatori, {s} presero possesso del luogo e lo trasformarono, aprendo passaggi noti solo a loro.", "en": "When {e1} ended the founders' rule, {s} took possession of the place and changed it, opening passages known only to them."}
+    ],
+    "fall": [
+      {"it": "Poi {e2} segnò la fine anche di questa epoca, e alcuni passaggi crollarono.", "en": "Then {e2} ended that age too, and some passages collapsed."},
+      {"it": "Anche il loro tempo finì: con {e2}, quell'epoca si chiuse, e parte dei passaggi crollò.", "en": "Their time ended too: with {e2}, that age came to a close, and part of the passages collapsed."},
+      {"it": "{e2} chiuse anche quest'epoca; molte gallerie franarono e alcune sale restarono sepolte.", "en": "{e2} closed that age too; many tunnels caved in and some halls were left buried."},
+      {"it": "Il loro dominio non durò: dopo {e2} il luogo cadde in rovina e alcuni passaggi crollarono.", "en": "Their rule did not last: after {e2} the place fell into ruin and some passages collapsed."},
+      {"it": "Poi venne {e2}: da allora alcuni passaggi sono crollati e nessuno li ha più riaperti.", "en": "Then came {e2}: since then some passages have collapsed and no one has reopened them."}
+    ],
+    "present": [
+      {"it": "Gli attuali abitanti sono {p}.", "en": "Its current dwellers are {p}."},
+      {"it": "Oggi chi vi scende incontra {p}.", "en": "Today whoever goes down there meets {p}."},
+      {"it": "Ora quelle sale appartengono a chi le ha prese per ultimo: {p}.", "en": "Now those halls belong to whoever took them last: {p}."},
+      {"it": "I pochi tornati a raccontarlo dicono che gli abitanti di oggi sono {p}.", "en": "The few who came back to tell say that today's dwellers are {p}."}
+    ],
+    "crude": [
+      {"it": "I cunicoli più grezzi e gli ingressi più recenti risalgono a quest'ultima epoca.", "en": "The roughest tunnels and the newest entrances date from this last age."},
+      {"it": "Ai nuovi occupanti si devono i cunicoli più rozzi e gli ingressi più recenti.", "en": "The newest occupants dug the roughest tunnels and the latest entrances."},
+      {"it": "I cunicoli scavati alla buona e gli ingressi più recenti sono opera degli occupanti attuali.", "en": "The roughly dug tunnels and the newest entrances are the current occupants' work."}
+    ],
+    "legend": [
+      {"it": "Si racconta che {f} abbiano nascosto qualcosa nelle sale più profonde, e che nessuno l'abbia ancora trovato.", "en": "It is said that {f} hid something in the deepest halls, and that no one has found it yet."},
+      {"it": "Nei villaggi vicini si dice che, nelle notti senza luna, dal sottosuolo salgano voci.", "en": "In the nearby villages they say that on moonless nights voices rise from below."},
+      {"it": "Qualcuno giura che {s} abbiano lasciato passaggi segreti che nessuno ha ancora scoperto.", "en": "Some swear that {s} left secret passages no one has found yet."},
+      {"it": "Le leggende parlano di un tesoro mai trovato, sepolto da qualche parte sotto le prime pietre.", "en": "Legends speak of a treasure never found, buried somewhere under the first stones."},
+      {"it": "Chi conosce il luogo avverte: le mappe dei vecchi abitanti non sono affidabili.", "en": "Those who know the place warn: the old dwellers' maps cannot be trusted."},
+      {"it": "Gli anziani raccontano che {f} non se ne andarono mai davvero.", "en": "The elders say that {f} never truly left."}
+    ]
   }
 }
