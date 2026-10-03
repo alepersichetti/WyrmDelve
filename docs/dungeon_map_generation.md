@@ -26,6 +26,7 @@ Tutte le mappe di questo documento sono state generate dal programma, non disegn
 16. [Dal disegno al foglio](#16-dal-disegno-al-foglio)
 17. [Un esempio completo su più livelli](#17-un-esempio-completo-su-più-livelli)
 18. [Cosa puoi cambiare nel file JSON](#18-cosa-puoi-cambiare-nel-file-json)
+19. [Le trappole](#19-le-trappole)
 
 ---
 
@@ -838,6 +839,7 @@ fondatori (I)  seconda (II)   grotta o terza epoca (N, III)
 | `○` | pozzo o camino | `Ω` | portale magico |
 | `≈` | acqua | `∴` | crollo |
 | `■` | colonna | `[A]` | ingresso |
+| `^` | trappola (solo master, se scegli le trappole) | | |
 
 Con l'opzione `--solo-ascii` (o se il font non ha un simbolo) si usano solo caratteri della tastiera: `#` per tutti i muri, `o` pozzo, `&` portale, `~` acqua, `%` crollo, `=` gradini, `O` colonna, `:` passaggio segreto.
 
@@ -851,6 +853,7 @@ Il programma disegna ogni livello due volte:
 | porte segrete `$` | sì | diventano muro |
 | passaggi segreti `░` | sì | diventano roccia |
 | scale e pozzi nascosti | sì | non si vedono |
+| trappole `^` | sì | no |
 | tutto il resto | sì | sì |
 
 La mappa dei giocatori della tomba: la porta segreta sotto `1-01` è un muro, il passaggio segreto è sparito, ma l'acqua, il crollo e i gradini si vedono.
@@ -1150,3 +1153,102 @@ Il file `wyrmdelve_tables.json` contiene soprattutto parole, ma per ogni tipo di
 | `surface` | se il tipo sta sopra il suolo | `true` / `false` |
 
 Attenzione: cambiando questi numeri, **lo stesso seme darà una mappa diversa** da prima. Le parole invece (nomi delle stanze, storia, ingressi…) cambiano solo i testi.
+
+---
+
+## 19. Le trappole
+
+Se all'inizio scegli anche le **trappole**, il programma le aggiunge **dopo** aver costruito il dungeon, con dadi propri: la mappa non cambia, ma sulla **mappa del master** compare il simbolo `^` dove c'è una trappola. Sulla mappa dei giocatori non c'è niente.
+
+La logica segue i principi del post [*Some Traps*](https://goblinpunch.blogspot.com/2018/08/some-traps.html) di Goblin Punch: una trappola non è un tiro di dado a sorpresa, è un **problema da risolvere** con quello che i giocatori vedono.
+
+### 1. Prima si impara, poi si rischia
+
+Ogni famiglia di trappole ha tre gradi:
+
+| Grado | Cosa è | Esempio (fosse) |
+|---|---|---|
+| 0 | **rotta o scoperta**: non fa danni, ma mostra come funziona il meccanismo | una fossa con il coperchio crollato e le ossa sul fondo |
+| 1 | **funzionante**: il meccanismo nascosto | una fossa coperta, con le lastre che suonano vuote |
+| 2 | **crudele**: una variante che punisce chi crede di aver capito | una doppia fossa: chi salta la prima cade nella seconda |
+
+Per ogni famiglia usata, il programma mette una trappola di grado 0 **prima** della prima trappola funzionante, cioè più vicina a un ingresso, contando i passi dalla superficie lungo corridoi, scale e pozzi. Così quando i giocatori vedono di nuovo quelle fessure nel pavimento, sanno cosa significano.
+
+### 2. Si annuncia il meccanismo, non il pericolo
+
+Ogni trappola ha un **segnale** che si vede, si sente o si annusa (fessure, fori, ugelli di ottone, una leva troppo oliata) e delle **contromisure** che si trovano ragionando: sondare il pavimento con un'asta, tirare la leva da lontano con una corda, tappare gli ugelli con la cera. Il master le trova scritte nella chiave.
+
+### 3. Chi costruisce, sceglie la trappola
+
+- Nelle stanze e nei corridoi dei **fondatori** e della **seconda epoca** ci sono meccanismi accurati: fosse, lastre che cadono, dardi, lame, leve, pavimenti che si inclinano verso il livello di sotto, gas, rune (solo nei luoghi di magia e di culto), stanze che si allagano.
+- Dove vivono gli **abitanti di oggi** (grotte e stanze della terza epoca) ci sono trappole rozze: campanelli d'allarme, tagliole, lacci, sacchi di sassi sopra le porte, cocci di vetro.
+- Le trappole stanno di preferenza **nelle stanze importanti** (il sepolcro, il laboratorio, la sala del trono…) e nei corridoi che ci portano: si protegge ciò che vale.
+- I pavimenti che si inclinano compaiono solo dove c'è un livello sotto in cui cadere.
+
+### 4. Più si scende, più sono crudeli
+
+Circa una trappola ogni 5 stanze per livello. Al primo livello sono di grado 1; più in basso, sempre più spesso di grado 2.
+
+### Esempio
+
+Il livello 2 del seme `3-21-2-4-CDK-000F62`, mappa del master: i due `^` sono nei corridoi.
+
+```
+        [A]
+        ║.║
+        ║.║
+  ╔═════╩+╩═╗
+ ╔╝....>....╚╗                                ╔═════════╗
+╔╝...........╚╗                              ╔╝....>....╚╗
+║.............╠═════════════════════════════╦╝...........╚╗
+║....2-01.....$░░░░░░░░░░░░░░░░░░░░░░░░░░░░░$....2-02.....║
+╚╗...........╔╩═════════════════════════════╣.............║
+ ╚╗.........╔╝                              ╚╗...........╔╝
+  ╚═══════╦.╩═══════╗                        ╚╗.........╔╝
+          ║.....^...║             ╔═══════════╩══+╦═════╝
+          ╚═══════╗.║             ║...............║
+                  ║.║             ║.╔══════════╗≡╔╝
+                  ║.║             ║.║          ║≡║
+                 ╔╩+╩═════════════╩+╩╗         ║.║
+                 ║...................║         ║.║
+                 ║...................║         ║.║
+                 ║...................║         ║.║
+                 ║.......2-03........║         ║.║
+                 ║.................<.║         ║.║
+                 ║...................║         ║.║
+                 ╚╦+╦══════════════╦+╣         ║.║
+                  ║.║              ║.╚═════════╝.║
+          ╔═══════╝.║              ║......^......║
+          ║.........║              ╚═══════════╦+╩══════╗
+    ╔═════╩+╦═══════╝                        ╔═╝........╚═╗
+  ╔═╝.......╚═╗                             ╔╝...>........╚╗
+  ║...........║                             ║..............║
+  ║....2-04...║                             ║.....2-05.....║
+  ║...........║                             ║..............║
+  ║.......<...║                             ╚╗............╔╝
+  ╚═╗.......╔═╝                              ╚═╗........╔═╝
+    ╚═══════╝                                  ╚════════╝
+```
+
+Nella chiave, sotto il titolo del livello, le trappole dei corridoi sono in ordine di distanza dall'ingresso. La fossa scoperta, vicino all'ingresso **A**, insegna a riconoscere la fossa nascosta più avanti:
+
+```
+Trappole nei corridoi
+  ^ tra 2-01 e 2-03: Fossa scoperta. Segnale: il coperchio di una fossa è crollato: si vede
+    il fondo, pieno di ossa. Effetto: nessuno, se la si guarda: insegna che qui ci sono
+    fosse nascoste. Contromisure: girarle intorno lungo il bordo.
+  ^ tra 2-03 e 2-05: Fossa nascosta. Segnale: le lastre del pavimento hanno fessure dritte
+    e suonano vuote. Effetto: il pavimento si apre: una caduta profonda su un fondo di
+    pietra. Contromisure: sondare il pavimento con un'asta; saltarla; bloccare il coperchio
+    con dei chiodi.
+```
+
+Le trappole nelle stanze sono scritte sotto la stanza:
+
+```
+3-02 Trappola (^): Fossa nascosta. Segnale: le lastre del pavimento hanno fessure dritte e
+suonano vuote. Effetto: il pavimento si apre: una caduta profonda su un fondo di pietra.
+Contromisure: sondare il pavimento con un'asta; saltarla; bloccare il coperchio con dei chiodi.
+```
+
+Le trappole stanno nella tabella `traps` del file `wyrmdelve_tables.json`: puoi aggiungerne copiando una riga e cambiando le parole (grado, famiglia, segnale, effetto, contromisure).
