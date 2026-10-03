@@ -288,14 +288,21 @@ TEXTS = {
     "saved": ("Salvate: {a}  +  {b}", "Saved: {a}  +  {b}"),
     "saved_key": ("Chiave: {a}", "Key: {a}"),
     "saved_story": ("Storia: {a}", "Story: {a}"),
-    "err_story_fonts": ("ERRORE: manca il font {f} nella cartella {d}, quindi il PDF della storia non è stato creato "
+    "err_story_fonts": ("ERRORE: manca il font {f} nella cartella {d}, quindi il PDF della storia non viene creato "
                         "(le mappe e la chiave .txt sì). Rimetti il file nella cartella fonts accanto a wyrmdelve.py.",
-                        "ERROR: the font {f} is missing from the folder {d}, so the story PDF was not made "
-                        "(the maps and the .txt key were). Put the file back in the fonts folder next to wyrmdelve.py."),
-    "warn_no_fpdf": ("Manca la libreria fpdf2, quindi niente PDF della storia (la chiave .txt c'è). "
-                     "Installala con: pip install -r requirements.txt",
-                     "The fpdf2 library is missing, so no story PDF (the .txt key is there). "
-                     "Install it with: pip install -r requirements.txt"),
+                        "ERROR: the font {f} is missing from the folder {d}, so the story PDF is not made "
+                        "(the maps and the .txt key are). Put the file back in the fonts folder next to wyrmdelve.py."),
+    "err_no_fpdf": ("ERRORE: manca la libreria fpdf2, quindi il PDF della storia non viene creato (la chiave .txt sì). "
+                    "Con l'ambiente virtuale attivo scrivi: pip install -r requirements.txt",
+                    "ERROR: the fpdf2 library is missing, so the story PDF is not made (the .txt key is). "
+                    "With the virtual environment active, type: pip install -r requirements.txt"),
+    "err_old_fpdf": ("ERRORE: è installata la vecchia libreria «fpdf» {v} al posto di «fpdf2», quindi il PDF della storia "
+                     "non viene creato. Con l'ambiente virtuale attivo scrivi: pip uninstall -y fpdf fpdf2  e poi: "
+                     "pip install -r requirements.txt",
+                     "ERROR: the old «fpdf» library {v} is installed instead of «fpdf2», so the story PDF is not made. "
+                     "With the virtual environment active, type: pip uninstall -y fpdf fpdf2  and then: "
+                     "pip install -r requirements.txt"),
+    "err_story_pdf": ("ERRORE: il PDF della storia non è stato creato: {e}", "ERROR: the story PDF was not made: {e}"),
     "pdf_history": ("Storia", "History"),
     "pdf_strata": ("Strati, dal più antico", "Strata, oldest first"),
     "pdf_entrances": ("Ingressi e uscite", "Entrances and exits"),
@@ -3101,6 +3108,26 @@ def missing_story_fonts():
     return [name for name in STORY_FONTS if not os.path.isfile(font_file(name))]
 
 
+def story_pdf_problem():
+    """Why the story PDF can't be made (missing fonts, missing or old fpdf2), or None."""
+    missing = missing_story_fonts()
+    if missing:
+        return tr("err_story_fonts", f=", ".join(missing), d=short_path(FONT_DIR))
+    try:
+        import fpdf
+    except ImportError:
+        return tr("err_no_fpdf")
+    version = getattr(fpdf, "__version__", None) or getattr(fpdf, "FPDF_VERSION", "")
+    try:
+        numbers = tuple(int(x) for x in version.split(".")[:3])
+    except ValueError:
+        numbers = (0,)
+    # the old PyFPDF uses the same module name; fpdf2 2.7.6+ has what we need
+    if numbers < (2, 7, 6) or not hasattr(fpdf.FPDF, "set_fallback_fonts"):
+        return tr("err_old_fpdf", v=version or "?")
+    return None
+
+
 def write_story_pdf(blocks, path, settings):
     """The key as an A4 book page: Sebaldus-Gotisch headings, Crimson Text body.
     Needs fpdf2 (in requirements.txt); fonts come only from fonts/."""
@@ -3523,6 +3550,8 @@ def main():
         log.info(tr("info_name_none"))
     if not params["story"]:
         log.info(tr("info_no_story"))
+    elif story_pdf_problem():
+        log.error(story_pdf_problem())      # say it now too, not only at the end
     elif params["title"]:
         log.info(tr("info_name_mine", t=params["title"]))
     folder = os.path.join(params["output"], seed)
@@ -3619,15 +3648,15 @@ def main():
         write_key(blocks, key_path)
         log.info(tr("saved_key", a=short_path(key_path)))
         story_path = os.path.join(folder, f"{seed}_story.pdf")
-        missing = missing_story_fonts()
-        if missing:
-            log.error(tr("err_story_fonts", f=", ".join(missing), d=short_path(FONT_DIR)))
+        problem = story_pdf_problem()
+        if problem:
+            log.error(problem)
         else:
             try:
                 write_story_pdf(blocks, story_path, settings)
                 log.info(tr("saved_story", a=short_path(story_path)))
-            except ImportError:
-                log.warn(tr("warn_no_fpdf"))
+            except Exception as e:          # never lose the maps and the key over the PDF
+                log.error(tr("err_story_pdf", e=f"{type(e).__name__}: {e}"))
     if G.missing:
         log.warn(tr("warn_missing_glyphs", g=" ".join(sorted(G.missing))))
     log.done()
