@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-WyrmDelve v0.0.1 - random dungeons and labyrinths for OSR games, all in ASCII.
+WyrmDelve v1.0.0 - random dungeons and labyrinths for OSR games, all in ASCII.
 
 WyrmHex's sibling. It looks like an old roguelike (NetHack, Angband, ADOM,
 Brogue, Caves of Qud, Dwarf Fortress). Every dungeon has a layered history
@@ -96,7 +96,7 @@ Image.MAX_IMAGE_PIXELS = None
 
 # --- settings ---
 
-VERSION = "0.0.1"
+VERSION = "1.0.0"
 DPI = 600
 MARGIN_MM = 10.0
 MAX_CHAR_MM = 3.2           # cap on A4; bigger sheets scale it up
