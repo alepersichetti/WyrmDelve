@@ -1,0 +1,65 @@
+{
+  "name_syllables": {
+    "syllables": [
+      "kha", "zad", "mor", "goth", "ul", "dar", "vex", "ra", "thal", "in", "gor", "mund", "ash",
+      "kar", "yr", "sel", "bal", "dur", "nek", "ro", "ish", "tar", "vol", "em", "drak", "un",
+      "zor", "il", "bri", "gan", "sha", "ost", "mel", "keth", "ar", "bel", "cor", "dra", "el",
+      "fen", "gal", "hel", "ith", "jor", "kel", "lor", "mar", "nor", "or", "pel", "quel", "rin",
+      "sar", "tor", "ur", "var", "wen", "xan", "yl", "zen", "ath", "brun", "cyr", "dol", "esk",
+      "far", "grim", "hal", "ivo", "lum", "myr", "nar", "oth", "aga", "bor", "cal", "dun", "ek",
+      "fal", "hun", "ik", "jas", "kor", "lin", "nal", "ob", "pra", "quin", "ros", "sul", "tal",
+      "ven", "wyr", "xar", "yor", "zal", "ard", "bra", "chal", "dor", "eth", "fyr", "glo", "hra",
+      "irn", "jal", "krag", "lyr", "mok", "nyx", "orm", "phel", "ruk", "sky", "thor", "umb",
+      "vrak", "wol", "zek", "ael", "bryn", "cael", "dorn", "eir", "frost", "gwen", "hael", "ilm",
+      "jarn", "kael", "luth", "morn", "nim", "oryn", "pyr", "qar", "rhun", "syl", "thane", "uln",
+      "vael", "wyth", "xen", "yrr", "zhar", "aun", "bek", "dax", "eon", "bael", "dryn", "esh",
+      "hyr", "isk", "jun", "kesh", "lom", "an", "la", "va", "lo", "ta", "ca", "da", "ma", "le",
+      "me", "be", "na", "do", "ha", "li", "ru", "ba", "ce", "go", "len", "mi", "fin", "nu",
+      "quen", "re", "lu", "al", "du", "fa", "ga", "lan", "ne", "ti", "ran", "ri", "men", "ae",
+      "car", "ci", "cu", "ear", "es", "gi", "nel", "pe", "sil", "si", "tu", "leb", "ag", "am",
+      "brit", "de", "ec", "eg", "en", "faug", "ka", "se", "su", "di", "mu", "vi", "ken", "mo",
+      "te", "lee", "sa", "ku", "ko", "nai", "tis", "mat", "so", "kat", "ni", "zu", "we", "ree",
+      "he", "bi"
+    ],
+    "endings": {
+      "arabic": [
+        "ad", "an", "ar", "id", "im", "ir", "iz", "ah", "iya", "un", "ul", "uddin", "ullah", "ani",
+        "ari", "aziz", "amir"
+      ],
+      "danish": [
+        "sen", "gaard", "holm", "strup", "rup", "bjerg", "borg", "lund", "by", "toft", "dal",
+        "vig", "skov", "havn"
+      ],
+      "old_french": [
+        "ard", "ault", "eau", "elle", "ette", "ier", "ois", "ont", "ville", "mont", "court",
+        "bert", "aud", "enne"
+      ],
+      "persian": [
+        "ab", "an", "ar", "ush", "esh", "dad", "zad", "pur", "var", "mehr", "yar", "abad", "stan",
+        "nar"
+      ],
+      "greek": [
+        "os", "is", "as", "ides", "ias", "eus", "ion", "on", "ikos", "anes", "ena", "ope", "aia",
+        "ippos"
+      ],
+      "latin": [
+        "us", "ius", "um", "ia", "ianus", "inus", "ax", "ex", "or", "ilis", "atus", "ina", "ella",
+        "aria"
+      ],
+      "german": [
+        "berg", "burg", "stein", "wald", "hold", "hard", "mann", "rich", "fried", "brand", "heim",
+        "dorf", "bach", "ulf"
+      ],
+      "russian": [
+        "ov", "ova", "ev", "eva", "in", "ina", "sky", "skaya", "ich", "ovich", "enko", "grad",
+        "slav", "mir"
+      ],
+      "tolkien": [
+        "dor", "ri", "we", "lin", "lion", "nor", "rin", "dil", "na", "dir", "hel", "ron", "bar",
+        "rien", "ros", "hil", "mar", "los", "luin", "nar", "rion", "wen", "mir", "las", "di",
+        "dur", "re", "rim", "nen", "lad", "reth", "le", "de", "ras", "gon", "duin", "tar", "nath",
+        "te", "har", "roth", "me", "mo", "rond", "nur"
+      ]
+    }
+  }
+}

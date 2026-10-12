@@ -1143,7 +1143,7 @@ python wyrmdelve.py --seed 3-21-2-4-CDK-000F62 --per-level
 
 ## 18. What you can change in the JSON file
 
-The `wyrmdelve_tables.json` file holds mostly words, but each dungeon type also has a few numbers that change the map:
+The files in the `data` folder hold mostly words, but each dungeon type (one file per type in `data/dungeon_types/`) also has a few numbers that change the map:
 
 | Field | What it changes | Example |
 |---|---|---|

@@ -46,7 +46,7 @@ Le epoche non sono solo parole: si vedono sulla mappa (muri doppi per i fondator
 
 ## 2. Da dove vengono le parole
 
-Tutte le parole stanno nel file **`wyrmdelve_tables.json`**, accanto al programma. Ogni testo è scritto in italiano e in inglese:
+Tutte le parole stanno nei file della cartella **`data`**, accanto al programma (l'elenco è in [data/README.it.md](../data/README.it.md)). Ogni testo è scritto in italiano e in inglese:
 
 ```json
 {"it": "la caduta di un meteorite", "en": "the fall of a meteorite"}

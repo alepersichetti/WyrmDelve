@@ -4,7 +4,7 @@
 
 Questo documento spiega come WyrmDelve popola un dungeon: le tabelle dei mostri erranti, i mostri nelle stanze, gli indizi nelle stanze vuote e i mostri fuori posto. Gli esempi sono generati dal programma.
 
-> I mostri compaiono solo se all'inizio, a «Cosa vuoi generare?», scegli una risposta con i **mostri** (oppure `--contenuto mostri`, anche insieme ad altro). Per **aggiungere** mostri, indizi e motivi al file JSON c'è una guida a parte: [add_monsters_to_bestiary.md](add_monsters_to_bestiary.md).
+> I mostri compaiono solo se all'inizio, a «Cosa vuoi generare?», segni anche i **mostri** (oppure `--contenuto mostri`, anche insieme ad altro). Per **aggiungere** mostri, indizi e motivi al file JSON c'è una guida a parte: [add_monsters_to_bestiary.md](add_monsters_to_bestiary.md).
 
 ## Indice
 
@@ -27,7 +27,7 @@ Con i mostri, la chiave del dungeon (`.txt` e PDF) ha:
 
 Tutto si decide **dopo** che il dungeon è stato costruito, con dadi propri (ricavati dal seme con l'etichetta `monsters`): la mappa e la storia di un seme non cambiano se scegli o no i mostri, e lo stesso seme dà sempre gli stessi mostri.
 
-I mostri stanno nella tabella `monsters` di `wyrmdelve_tables.json` (245 mostri): ognuno dice dove può comparire (`where`), quanto è pericoloso (`danger`, da 1 a 4), che creatura è (`kind`) e quanti se ne incontrano (`number`).
+I mostri stanno in `data/monsters.json` (245 mostri): ognuno dice dove può comparire (`where`), quanto è pericoloso (`danger`, da 1 a 4), che creatura è (`kind`), quanti se ne incontrano (`number`) e che tipo di tesoro ha (`treasure`: come si usa è spiegato in [treasure.md](treasure.md)).
 
 ---
 

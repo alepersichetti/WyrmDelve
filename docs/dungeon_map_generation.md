@@ -1143,7 +1143,7 @@ python wyrmdelve.py --seme 3-21-2-4-CDK-000F62 --per-livello
 
 ## 18. Cosa puoi cambiare nel file JSON
 
-Il file `wyrmdelve_tables.json` contiene soprattutto parole, ma per ogni tipo di dungeon ci sono anche alcuni numeri che cambiano la mappa:
+I file della cartella `data` contengono soprattutto parole, ma per ogni tipo di dungeon (un file per tipo in `data/dungeon_types/`) ci sono anche alcuni numeri che cambiano la mappa:
 
 | Campo | Cosa cambia | Esempio |
 |---|---|---|

@@ -1,0 +1,15 @@
+{
+  "quirks": [
+    {"when": "water", "kinds": ["aquatic"], "text": {"it": "le grotte allagate{from} arrivano fin sotto questa stanza, attraverso una vasca", "en": "the flooded caves{from} reach up under this room, through a pool"}},
+    {"when": "water", "kinds": ["aquatic"], "text": {"it": "una cisterna sotto il pavimento comunica con i fiumi sotterranei{from}", "en": "a cistern under the floor connects with the underground rivers{from}"}},
+    {"when": "portal", "kinds": [], "text": {"it": "il portale di {room} ogni tanto lascia passare qualcosa", "en": "the portal in {room} now and then lets something through"}},
+    {"when": "below", "kinds": [], "text": {"it": "dal livello {level} sale spesso qualcosa a caccia", "en": "things often come up from level {level} to hunt"}},
+    {"when": "founders", "kinds": ["construct"], "text": {"it": "i fondatori lasciarono qui un guardiano, e nessuno ha mai revocato l'ordine", "en": "the founders left a guardian here, and no one ever revoked the order"}},
+    {"when": "any", "kinds": ["demon", "elemental"], "text": {"it": "un incantesimo andato storto ha aperto un varco, e nessuno l'ha richiuso", "en": "a spell gone wrong opened a rift, and no one closed it"}},
+    {"when": "any", "kinds": ["beast", "magical", "giant", "vermin"], "text": {"it": "gli abitanti di oggi tengono qui in catene ciò che catturano, e lo nutrono con gli intrusi", "en": "today's dwellers keep what they catch chained here, and feed it intruders"}},
+    {"when": "any", "kinds": ["beast", "magical", "vermin"], "text": {"it": "il capo degli abitanti di oggi tiene qui le sue bestie preferite", "en": "today's dwellers' leader keeps their favourite beasts here"}},
+    {"when": "any", "kinds": [], "text": {"it": "una battaglia recente con gli abitanti di oggi ha lasciato sangue ovunque: chi è qui si nasconde e si lecca le ferite", "en": "a recent fight with today's dwellers left blood everywhere: whatever is here is hiding and licking its wounds"}},
+    {"when": "any", "kinds": [], "text": {"it": "in questi corridoi è facile perdersi, e non tutti trovano l'uscita", "en": "it's easy to get lost in these corridors, and not everyone finds the way out"}},
+    {"when": "any", "kinds": ["dragon", "giant", "magical"], "text": {"it": "un tesoro nascosto in questa stanza attira chi ha fiuto per l'oro", "en": "a treasure hidden in this room draws anything with a nose for gold"}}
+  ]
+}

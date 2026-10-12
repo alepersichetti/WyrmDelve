@@ -75,7 +75,7 @@ The layout **always** follows Jennell Jaquays' principles as Justin Alexander de
 Put these files in the **same folder**, for example a folder called `dungeons` on your Desktop:
 
 - `wyrmdelve.py` (the program)
-- `wyrmdelve_tables.json` (the words the dungeons are made of: names, rooms, history; see chapter 7)
+- the `data` folder (the words and tables the dungeons are made of: names, rooms, history, monsters, traps, treasure; see chapter 7)
 - the `fonts` folder (the fonts of the maps and of the story PDF: the program uses only these, so it doesn't depend on your system)
 - `requirements.txt` (the list of what the program needs)
 - `README.md` (this guide) and `README.it.md` (the same guide in Italian)
@@ -139,7 +139,7 @@ From now on, the line where you type starts with `(.venv)`: that's how you know 
 
 ### Step 5 — Install the libraries
 
-With the virtual environment active, download **Pillow**, the library that creates the pictures, and **fpdf2**, the one that writes the story PDF. The command is the same on every system:
+With the virtual environment active, download **Pillow**, the library that creates the pictures, **fpdf2**, the one that writes the story PDF, and **asciimatics**, the one that draws the question menus. The command is the same on every system:
 
 ```
 pip install -r requirements.txt
@@ -167,19 +167,19 @@ python wyrmdelve.py
 
 You only need to activate it once each time you open a terminal: while the line starts with `(.venv)`, it is active and you can make as many dungeons as you like with `python wyrmdelve.py`. When you're done, type `deactivate` or just close the terminal. If you've just finished the installation in the same window, the environment is already active.
 
-The program asks you a few questions. **Every question has a ready-made answer in square brackets: if you're happy with it, just press Enter.**
+The program asks you a few questions. **The questions with a choice are menus**: move with the arrows **↑ ↓** (or the mouse), confirm with **Enter**, or press the number of an option to pick it at once; in the menu "What do you want to make?" **Space** ticks and unticks. The highlighted option is the ready-made answer. **The questions where you type a value have a ready-made answer in square brackets: if you're happy with it, just press Enter.** (Without the asciimatics library, or when the answers come from a script, the questions are numbered: type the number.)
 
-1. **Language:** type `1` for Italian or `2` for English (pressing Enter keeps Italian). From then on the questions, the messages and the texts on the map are in the language you chose.
-2. **The ogre shows up in his dungeon.** Press **Enter** for a fully random dungeon, type **P** to choose the parameters yourself, or **R** to rebuild a dungeon you already made (see chapter 4).
-3. With **P** you choose: number of levels, number of rooms (at least 5 per level), number of entrances/exits to the area, number of secret doors and passages. Then the **dungeon type** (see the table at the top; `0` = at random). With more than one level, the program first asks whether **all levels are of the same type** or **each level has its own type**: in that case you choose them one by one from the top, and for each level the list only shows the types that can stand below the one above.
+1. **Language:** Italian or English (pressing Enter keeps Italian). From then on the questions, the messages and the texts on the map are in the language you chose.
+2. **The ogre shows up in his dungeon.** Choose **a random dungeon** (the ready-made answer), **I'll choose the parameters**, or **rebuild a dungeon from its seed** (see chapter 4).
+3. Choosing the parameters, you set: number of levels, number of rooms (at least 5 per level), number of entrances/exits to the area, number of secret doors and passages. Then the **dungeon type** (each with its number from the table at the top; `0` = at random). With more than one level, the program first asks whether **all levels are of the same type** or **each level has its own type**: in that case you choose them one by one from the top, and for each level the list only shows the types that can stand below the one above.
 
-   With **Enter** (fully random dungeon) the program chooses the types by itself, always in a coherent order.
+   With a random dungeon the program chooses the types by itself, always in a coherent order.
 4. **Colours:**
    1. black symbols on white (the ready-made answer, best for printing)
    2. white symbols on light blue
    3. white symbols on black
 5. **Do you want a name on the map?** If not, the map has no title. If so, choose whether it's **randomly generated** (e.g. *Tomb of Zordur*, the ready-made answer) or whether **you type it**.
-6. **What do you want to make?** Besides the maps you can have the **story**, the **monsters** and the **traps**, in any combination: `1` = only the maps; `2` = maps and story; `3` = maps and monsters; `4` = maps and traps; `5` = maps, story and monsters; `6` = maps, story and traps; `7` = maps, monsters and traps; `8` = everything (the ready-made answer). With story, monsters or traps you also get the key as `.txt` and as a PDF. The program asks this every time, also for a fully random dungeon.
+6. **What do you want to make?** Besides the maps you can have the **story**, the **monsters**, the **traps** and the **treasure**, in any combination: tick or untick them with **Space** (all ticked is the ready-made answer; none ticked = only the maps), then press **Enter**. With any of them you also get the key as `.txt` and as a PDF. The program asks this every time, also for a fully random dungeon.
 7. **Grid units:** `1` = imperial, **1 square = 5 ft** (the ready-made answer in English); `2` = metric, **1 square = 1.5 m**. The scale is written in the legend of the maps, in the key and in the story PDF; the dungeon is the same with either choice.
 
 Now the program builds the dungeon. It shows each step with a bar that fills up:
@@ -196,7 +196,7 @@ Then it asks the last three questions:
 
    With a single level this question is skipped.
 8. **Which files you want:** a **PNG** image (one per sheet) or a **PDF** (with one level per sheet, a single PDF holding every sheet: handy for printing everything at once).
-9. **Print format:** the program shows a table with **A4, A3, A2 and A1**: for each, how big the letters will be and whether they're easy to read. The ready-made answer in brackets is the **suggested format**, the smallest sheet where the map reads well. Press Enter to accept it or type another format, for example `A3`. For example:
+9. **Print format:** the program shows a menu with **A4, A3, A2 and A1**: for each, how big the letters will be and whether they're easy to read. The highlighted answer is the **suggested format**, the smallest sheet where the map reads well. Press Enter to accept it or pick another one. For example:
 
    ```
    · A4  landscape  levels 2x2   1.29 mm letters   small
@@ -227,16 +227,18 @@ Everything goes in `dungeons_generated/<seed>/`, one folder per dungeon:
 |---|---|
 | `<seed>_gm.png` | the **game master's map**: room numbers, secret doors `$` and secret passages `░` |
 | `<seed>_players.png` | the **players' map**: same map, without numbers and secrets |
-| `<seed>_key.txt` | the **dungeon key**: history and strata (with the story), entrances, level connections, then level by level the d6 wandering monster table (with the monsters) and every room (description with the story; monsters, clue or "empty" with the monsters), Jaquays check |
+| `<seed>_key.txt` | the **dungeon key**: history and strata (with the story), entrances, level connections, then level by level the d6 wandering monster table (with the monsters), the traps in the corridors (with the traps) and every room (description with the story; monsters, clue or "empty" with the monsters; its trap; its treasure), Jaquays check |
 | `<seed>_story.pdf` | the **story**: the same key as a book on A4 pages, with headings in Sebaldus-Gotisch and the text in Crimson Text, ready to print or read on a tablet |
-| `<seed>_key.pdf` | instead of the story, if you choose monsters or traps **without** the story: the key as a PDF |
+| `<seed>_key.pdf` | instead of the story, if you choose monsters, traps or treasure **without** the story: the key as a PDF |
 | `.txt` next to each map | the same map as plain text, to open with any text editor. It uses keyboard characters only (like `--ascii-only`: every wall is `#`), so it stays aligned with any fixed-width font |
 
 If you choose **only the maps**, the key and the PDF are not made.
 
 **The monsters.** Every level has a d6 wandering monster table: 1 is today's dwellers, the others are monsters that fit the level's type, more dangerous the deeper you go. About a third of the rooms hold monsters (today's dwellers in their lairs, the other table monsters in theirs); at least a third always stay empty, and next to every room with monsters there is an empty room with a **clue** (gnawed bones, slimy trails, a smell of sulphur…) saying where it comes from. Now and then a monster is **out of place**, with its reason: for instance an aboleth in a castle pool, come up from the flooded caves of the level below. How it works: [docs/monsters.en.md](docs/monsters.en.md); to add monsters: [docs/add_monsters_to_bestiary.en.md](docs/add_monsters_to_bestiary.en.md).
 
-**The traps.** They show **only on the game master's map**, as `^`, and the key describes them: name, **tell** (how you notice it), **effect** and **countermeasures**. Whoever built a place protected it their own way: careful mechanisms in the founders' and second age's halls, crude traps where today's dwellers live, mostly around the important rooms. Before meeting a working trap, the players meet a **broken or exposed** one of the same kind, which shows how it works; the deeper you go, the crueller the traps. How it works: [docs/trap.en.md](docs/trap.en.md).
+**The traps.** They show **only on the game master's map**, as `^`, and the key describes them: name, **tell** (how you notice it), **effect** and **countermeasures**. Whoever built a place protected it their own way: careful mechanisms in the founders' and second age's halls, crude traps where today's dwellers live, mostly around the important rooms. Before meeting a working trap, the players meet a **broken or exposed** one of the same kind, which shows how it works; the deeper you go, the crueller the traps. Some traps are ready-made (WyrmDelve's own and those of the System Reference Document 3.5), the others are put together from a **trigger**, a **mechanism** and, for the cruel ones, a **twist**: 2,648 different traps in all. How it works: [docs/trap.en.md](docs/trap.en.md).
+
+**The treasure.** It follows the room stocking rules of *Old-School Essentials*: a room with monsters holds treasure 3 times in 6 (the monsters' treasure type, A to V), a room with a trap 2 times in 6 (and the trap guards it), an empty room 1 time in 6 (the unguarded treasure of that dungeon level, richer the deeper you go). The key lists coins, gems and jewellery with their value in gold pieces, magic items, and where the treasure is hidden. How it works: [docs/treasure.en.md](docs/treasure.en.md).
 
 The headings of the story use **Sebaldus-Gotisch** and the text uses **Crimson Text**, both in the `fonts` folder (see `fonts/README.md`).
 
@@ -271,24 +273,22 @@ The pictures already have the exact size of the paper you chose, at 600 dpi: the
 
 ## 7. Changing the words of the dungeons
 
-The program's logic is in `wyrmdelve.py`; the **words** it draws at random are in `wyrmdelve_tables.json`, **in the same folder as `wyrmdelve.py`**: a text file you can open and change with any text editor (Notepad, TextEdit…). It holds about 3,400 entries (rooms, builders, occupants, caves, events, places, entrances, name syllables), which combine into billions of different stories:
+The program's logic is in `wyrmdelve.py`; the **words and tables** it draws at random are in the **`data` folder**, **next to `wyrmdelve.py`**: small text files you can open and change with any text editor (Notepad, TextEdit…). They hold about 4,000 entries, which combine into billions of different stories. [data/README.md](data/README.md) lists every file, where its entries come from and their license:
 
-| Section | What it holds |
+| File | What it holds |
 |---|---|
-| `credits` | where the entries come from (leave it as it is) |
-| `name_syllables` | `syllables`: the syllables names are made of; `endings`: name endings by language (Arabic, Danish, Old French, Persian, Greek, Latin, German, Russian, Tolkien-ish). A name is 2–3 syllables, or 1–2 syllables plus the ending of one language (*Drakberg*, *Rosslav*, *Phelias*, *Kaelhil*…). You can add a language: a new name with its list of endings |
-| `dungeon_types` | the 11 types (stratum I): their names, how they stack, their floor plan, who built them, the map's name, their rooms and their entrances (see below) |
-| `second_age` | who came next (stratum II) and their rooms |
-| `present_day` | today's dwellers (stratum III) and their rooms |
-| `natural_rooms` | the natural caves (stratum N) |
-| `events` | what ended each age |
-| `areas` | where the dungeon is: `surface` for buildings above ground, `underground` for the others |
-| `surface_shaft` | the entrance used when no wall of the level can take one |
-| `monsters` | the monsters: name, a one-line description, which dungeon types they appear in (`where`, `"*"` = all), how dangerous they are (`danger`, 1 to 4: the most dangerous go to the deepest levels), what kind of creature they are (`kind`) and how many (`number`); see [docs/add_monsters_to_bestiary.en.md](docs/add_monsters_to_bestiary.en.md) |
-| `clues` | the clues left in empty rooms, for every monster `kind` |
-| `traps` | the traps: family (`family`), stage (`stage`: 0 broken, it teaches; 1 working; 2 cruel), where they can be (`places`: `room`, `corridor`), who builds them (`builders`: `built` or `crude`), in which types (`where`), name, tell (`tell`), effect (`effect`) and countermeasures (`counter`) |
-| `quirks` | the reasons a monster is out of place, with the condition that makes them possible (`when`) |
-| `history` | the sentences of the story at the top of the key: for each part (`founded` the founding, `caves` the caves, `second` the second age, `fall` its end, `present` today's dwellers, `crude` the newer tunnels) a list of sentences the program picks one from. The story can open with today's dwellers (`opening`), a rumour (`opening_legend`) or the place (`opening_place`), and close with a legend (`legend`), a warning (`warning`) or an adventure hook (`hook`); eight parts are sometimes there and sometimes not: the founders' purpose (`purpose`), their golden age (`golden`), ill omens (`omen`), what the newcomers did (`second_detail`), the abandonment (`aftermath`), the founders' fate (`fate`), who passed through later (`interlude`) and a detail about the present (`present_detail`). 3,840 different shapes in all. `words` holds the lists they draw from: goals (`goals`), relics (`relics`) and visitors (`visitors`) |
+| `names.json` | `name_syllables`: `syllables`, the syllables names are made of; `endings`, name endings by language (Arabic, Danish, Old French, Persian, Greek, Latin, German, Russian, Tolkien-ish). A name is 2–3 syllables, or 1–2 syllables plus the ending of one language (*Drakberg*, *Rosslav*, *Phelias*, *Kaelhil*…). You can add a language: a new name with its list of endings |
+| `dungeon_types/` | the 11 types (stratum I), **one file per type**, numbered in the order of the menu (`01_palace.json` … `11_underdark.json`): their names, how they stack, their floor plan, who built them, the map's name, their rooms and their entrances (see below). To add a type, copy a file and give it the next number |
+| `second_age.json` | who came next (stratum II) and their rooms |
+| `present_day.json` | today's dwellers (stratum III) and their rooms |
+| `places.json` | the natural caves (`natural_rooms`, stratum N), where the dungeon is (`areas`: `surface` for buildings above ground, `underground` for the others) and the entrance used when no wall of the level can take one (`surface_shaft`) |
+| `events.json` | what ended each age |
+| `history.json` | the sentences of the story at the top of the key: for each part (`founded` the founding, `caves` the caves, `second` the second age, `fall` its end, `present` today's dwellers, `crude` the newer tunnels) a list of sentences the program picks one from. The story can open with today's dwellers (`opening`), a rumour (`opening_legend`) or the place (`opening_place`), and close with a legend (`legend`), a warning (`warning`) or an adventure hook (`hook`); eight parts are sometimes there and sometimes not: the founders' purpose (`purpose`), their golden age (`golden`), ill omens (`omen`), what the newcomers did (`second_detail`), the abandonment (`aftermath`), the founders' fate (`fate`), who passed through later (`interlude`) and a detail about the present (`present_detail`). 3,840 different shapes in all. `words` holds the lists they draw from: goals (`goals`), relics (`relics`) and visitors (`visitors`) |
+| `monsters.json` | the monsters: name, a one-line description, which dungeon types they appear in (`where`, `"*"` = all), how dangerous they are (`danger`, 1 to 4: the most dangerous go to the deepest levels), what kind of creature they are (`kind`), how many (`number`) and their treasure type (`treasure`, a letter from A to V, empty if they keep nothing); see [docs/add_monsters_to_bestiary.en.md](docs/add_monsters_to_bestiary.en.md) |
+| `clues.json` | the clues left in empty rooms, for every monster `kind` |
+| `quirks.json` | the reasons a monster is out of place, with the condition that makes them possible (`when`) |
+| `traps.json` | the ready-made traps (`traps`: family, stage 0 broken / 1 working / 2 cruel, places, builders `built` or `crude`, types, name, tell, effect, countermeasures) and the parts new ones are put together from: `triggers`, `mechanisms` (with their `broken` version), `twists`, and the shared text of the broken ones (`lesson`); see [docs/trap.en.md](docs/trap.en.md). Optional: without it there are no traps |
+| `treasure.json` | the treasure tables of *Old-School Essentials* (Open Game Content, see `LICENSE-OGL.txt`): chance of treasure by room content, unguarded treasure by dungeon level, treasure types A–V, gems, jewellery, magic items, and the hiding places; see [docs/treasure.en.md](docs/treasure.en.md). Optional: without it there is no treasure |
 
 Each type in `dungeon_types` has:
 
@@ -315,7 +315,7 @@ Every text is written in both languages, like this:
 
 You can change the words or add new lines by copying an existing one. Builders must be written in the plural (*the counts of {n}*, *Baron {n} and their vassals*), because the history says "{f} built…". `{n}` is where the program puts a random name; in `history`, `{f}`, `{built}`, `{area}`, `{e1}`, `{s}`, `{e2}` and `{p}` are the founders, what they built, the place, the first event, the second age, the second event and today's dwellers; `{goal}`, `{relic}` and `{visitors}` come from `words` (a goal as a bare verb, a relic with "a"/"an", visitors as a plural without "the"), `{hero}` is the name of a lost adventurer. Today's dwellers may be singular or plural (*a cult*, *the kobolds*): in new sentences don't make a verb agree with them, write for example "whoever goes down there meets {p}". If you edit the history sentences, the same seed still gives the same maps and rooms: only the tale changes.
 
-Make a **copy** of the file before you edit it. Keep the quotes `"`, the commas between lines and the brackets exactly as they are: if something is out of place, the program tells you which line to check (see chapter 9). Changing the file changes the dungeons: the same seed may then give a different story than before.
+Make a **copy** of a file before you edit it. Keep the quotes `"`, the commas between lines and the brackets exactly as they are: if something is out of place, the program tells you which line to check (see chapter 9). Changing the file changes the dungeons: the same seed may then give a different story than before.
 
 ---
 
@@ -348,7 +348,7 @@ Without `--language en` the messages and the texts on the map are in Italian. Ev
 | `--pdf` / `--png` | Save as PDF or as PNG | `--pdf` |
 | `--title` / `--titolo` | Name on the map (default: a random one) | `--title "The Ogre's Lair"` |
 | `--no-title` / `--senza-titolo` | Map without a name | `--no-title` |
-| `--content` / `--contenuto` | What to make besides the maps: `story`, `monsters`, `traps`, also together separated by commas; `map` = only the maps; `all` = everything (the default) | `--content story,traps` |
+| `--content` / `--contenuto` | What to make besides the maps: `story`, `monsters`, `traps`, `treasure`, also together separated by commas; `map` = only the maps; `all` = everything (the default) | `--content story,treasure` |
 | `--no-story` / `--senza-storia` | Only the maps, like `--content map` | `--no-story` |
 | `--units` / `--unita` | Grid scale: `imperial` (1 square = 5 ft) or `metric` (1 square = 1.5 m); by default imperial in English, metric in Italian | `--units metric` |
 | `--ascii-only` / `--solo-ascii` | Only plain keyboard characters (`# ~ = o`) in the PNG and PDF too (the `.txt` files always use them) | `--ascii-only` |
@@ -399,10 +399,10 @@ sudo apt install python3-venv
 **Something got messed up during the installation.**
 Delete the `.venv` folder (it's hidden: on Windows enable "Hidden items" in the View menu, on macOS press Cmd+Shift+. in Finder) and start again from step 3. Your dungeons in `dungeons_generated` are not touched.
 
-**"wyrmdelve_tables.json is missing".**
-The file with the words of the dungeons isn't in the folder. Put it next to `wyrmdelve.py`.
+**"The data folder is missing".**
+The folder with the words of the dungeons isn't next to `wyrmdelve.py`. Put it back (it comes with the program).
 
-**"There is a mistake in wyrmdelve_tables.json".**
+**"There is a mistake in data/….json".**
 After you edited the file, something is out of place: the message says at which line and column (`line 12 column 5`). Usually it's a missing comma between two lines, an extra comma after the last line in a list, or a missing quote `"`. Fix it, or put back the copy you made before editing.
 
 **"This seed is not valid".**
@@ -424,7 +424,7 @@ The `fonts` folder isn't next to `wyrmdelve.py`. Put it back (it comes with the 
 This happens with `.txt` files made by earlier versions, which used symbols like `═`, `■` or `≈`: many editors take them from another font, with another width. The `.txt` now uses keyboard characters only: make the dungeon again with the same seed. If it still isn't aligned, pick a fixed-width font in your editor (for example Consolas or Courier New) and turn off word wrap.
 
 **There is no story PDF.**
-The program says why, in a line starting with `ERROR`, right after the settings and again at the end. Check you didn't choose `1` (only the maps) at "What do you want to make?", then:
+The program says why, in a line starting with `ERROR`, right after the settings and again at the end. Check you didn't untick everything (only the maps) at "What do you want to make?", then:
 - **"the fpdf2 library is missing"**: with the virtual environment active, run `pip install -r requirements.txt` (step 5);
 - **"the old «fpdf» library … is installed instead of «fpdf2»"**: the two libraries clash. Run `pip uninstall -y fpdf fpdf2`, then `pip install -r requirements.txt`;
 - **"the font … is missing"**: put the `fonts` folder back next to `wyrmdelve.py`.
@@ -449,18 +449,21 @@ If you want to know how the program invents the dungeons, the `docs` folder has 
 - [How the dungeon map is made](docs/dungeon_map_generation.en.md): seed, types, rooms, ages, corridors and loops, stairs, entrances, secrets, drawing and printing;
 - [How the dungeon story is made](docs/story_generation_algorithm.en.md): ingredients, names, the parts of the history and their 3,840 shapes, layered rooms, the key and the PDF;
 - [How the monsters are made](docs/monsters.en.md): wandering monsters, monsters and clues in the rooms, out-of-place monsters;
-- [How the traps are made](docs/trap.en.md): families and stages, who builds them, learn first and then risk;
+- [How the traps are made](docs/trap.en.md): families and stages, who builds them, learn first and then risk, ready-made traps and traps put together from their parts;
+- [How the treasure is made](docs/treasure.en.md): which rooms hold treasure, treasure types, coins, gems, jewellery and magic items, where it is hidden;
 - [How to add monsters to the bestiary](docs/add_monsters_to_bestiary.en.md): the fields of every monster, ready-to-copy examples, clues, out-of-place monsters, common mistakes.
 
 ## Sources
 
 - Justin Alexander, [Xandering the Dungeon](https://thealexandrian.net/wordpress/13085/roleplaying-games/xandering-the-dungeon) (parts 1–5) and [Xandering on the Small Scale](https://thealexandrian.net/wordpress/34950/roleplaying-games/thought-of-the-day-xandering-on-the-small-scale)
-- Some entries of `wyrmdelve_tables.json` (room features, caves, places, site names, threats, settlement troubles) are translated and adapted from *Ironsworn* and *Ironsworn: Delve* by Shawn Tomkin ([ironswornrpg.com](https://ironswornrpg.com)), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); the data was read from [Datasworn](https://github.com/rsek/datasworn). Syllables from Ironsworn's names come from the same source.
-- The monster list (`monsters` in `wyrmdelve_tables.json`) was drawn up by comparing, and removing duplicates from, [*OSR Bestiary* v1.2](https://bucolianblog.wordpress.com) edited by bucolian and *Aketon*'s *Monstrous Bestiary* by Reese Surles ([ward-against-evil.itch.io](https://ward-against-evil.itch.io)). Since these two PDFs carry no OGL or Creative Commons license, **none of their text is copied**: only the creatures' names, which are generic, and their Hit Dice, used for the danger level, come from them; every description is written for WyrmDelve. Monsters whose names are trademarks of others, and named demon lords, were left out.
-- The trap logic follows the principles in Arnold K.'s [*Some Traps*](https://goblinpunch.blogspot.com/2018/08/some-traps.html) (Goblin Punch): introduce a mechanism with an exposed version before the hidden one, and show the mechanism rather than the danger. The traps in the file are written for WyrmDelve.
+- Some entries of the `data` folder (room features, caves, places, site names, threats, settlement troubles) are translated and adapted from *Ironsworn* and *Ironsworn: Delve* by Shawn Tomkin ([ironswornrpg.com](https://ironswornrpg.com)), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); the data was read from [Datasworn](https://github.com/rsek/datasworn). Syllables from Ironsworn's names come from the same source.
+- The monster list (`data/monsters.json`) was drawn up by comparing, and removing duplicates from, [*OSR Bestiary* v1.2](https://bucolianblog.wordpress.com) edited by bucolian and *Aketon*'s *Monstrous Bestiary* by Reese Surles ([ward-against-evil.itch.io](https://ward-against-evil.itch.io)). Since these two PDFs carry no OGL or Creative Commons license, **none of their text is copied**: only the creatures' names, which are generic, and their Hit Dice, used for the danger level, come from them; every description is written for WyrmDelve. Monsters whose names are trademarks of others, and named demon lords, were left out.
+- The trap logic follows the principles in Arnold K.'s [*Some Traps*](https://goblinpunch.blogspot.com/2018/08/some-traps.html) (Goblin Punch): introduce a mechanism with an exposed version before the hidden one, and show the mechanism rather than the danger. WyrmDelve's own traps, the triggers, the mechanisms and the twists are written for WyrmDelve.
+- The traps marked `"source": "srd35"` in `data/traps.json` are adapted from the sample traps of the *System Reference Document 3.5* © 2000-2003 Wizards of the Coast, Inc., Open Game Content under the [Open Game License 1.0a](LICENSE-OGL.txt): the same mechanisms, the text rewritten for old-school play. They are also the basis of [donjon](https://donjon.bin.sh)'s trap generator.
+- The treasure tables (`data/treasure.json`) and the monsters' treasure types are adapted and translated from the *Old-School Essentials System Reference Document* © 2019 Gavin Norman ([Necrotic Gnome](https://oldschoolessentials.necroticgnome.com)), Open Game Content under the [Open Game License 1.0a](LICENSE-OGL.txt); the data was read from the OGL Markdown edition [Old-School-Essentials-Markdown](https://github.com/Obsidian-TTRPG-Community/Old-School-Essentials-Markdown). WyrmDelve is not affiliated with or endorsed by Necrotic Gnome.
 - The aboleth comes from the [System Reference Document 5.1](https://dnd.wizards.com/resources/systems-reference-document) by Wizards of the Coast LLC, licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) (description written for WyrmDelve).
 - The Tolkien-style syllables and endings are frequency statistics derived from the name list of [Angband](https://github.com/angband/angband) (`lib/gamedata/names.txt`); the list itself is not copied.
 
 ## License
 
-WyrmDelve is free software under the [GNU General Public License v3.0](LICENSE). The parts of `wyrmdelve_tables.json` adapted from Ironsworn keep their CC BY 4.0 attribution (see Sources above). The monster list is inspired by *OSR Bestiary* (bucolian) and *Aketon*'s *Monstrous Bestiary* (Reese Surles), credited in Sources: the descriptions are original and fall under the GPL 3.0 like the rest of the tables. > **The fonts are not covered by the GPL 3.0.** In particular **Sebaldus-Gotisch** (© Typographer Mediengestaltung 2002, digitized by Dieter Steffmann, "All rights reserved") and **Crimson Text** (SIL Open Font License 1.1) keep their own terms; so does DejaVu (DejaVu / Bitstream Vera license). The GPL 3.0 applies to the program and the tables, not to the files in `fonts/`: see `fonts/README.md`.
+WyrmDelve is free software under the [GNU General Public License v3.0](LICENSE). The Open Game Content (the treasure tables and the traps from the System Reference Documents, listed in [LICENSE-OGL.txt](LICENSE-OGL.txt)) is under the Open Game License 1.0a instead. The parts of the `data` folder adapted from Ironsworn keep their CC BY 4.0 attribution (see Sources above). The monster list is inspired by *OSR Bestiary* (bucolian) and *Aketon*'s *Monstrous Bestiary* (Reese Surles), credited in Sources: the descriptions are original and fall under the GPL 3.0 like the rest of the tables. > **The fonts are not covered by the GPL 3.0.** In particular **Sebaldus-Gotisch** (© Typographer Mediengestaltung 2002, digitized by Dieter Steffmann, "All rights reserved") and **Crimson Text** (SIL Open Font License 1.1) keep their own terms; so does DejaVu (DejaVu / Bitstream Vera license). The GPL 3.0 applies to the program and the tables, not to the files in `fonts/`: see `fonts/README.md`.
