@@ -4090,7 +4090,7 @@ def menu(question, options, default=0, hints=None, ticks=None, header=None, numb
     jumps to its option. With `ticks` (one True/False per option) several
     options can be ticked with Space, and the ticks are returned; otherwise the
     index of the chosen option. `header` lines go above the question (the
-    welcome art). `numbers` are the numbers shown (1, 2, 3... by default).
+    welcome art: below it, or beside it when the terminal is too short). `numbers` are the numbers shown (1, 2, 3... by default).
     Without a terminal or without asciimatics: the numbered question of old,
     so the program still works in a pipe."""
     question = question.strip()
@@ -4114,17 +4114,27 @@ def menu(question, options, default=0, hints=None, ticks=None, header=None, numb
     def draw(screen):
         screen.clear_buffer(Screen.COLOUR_WHITE, Screen.A_NORMAL, Screen.COLOUR_BLACK)
         lines = header or []
-        y = 1
-        if header and len(lines) + len(options) + 8 <= screen.height:
-            width = max(len(line) for line in lines)
-            for line in lines:
-                screen.print_at(line[:screen.width], max(0, (screen.width - width) // 2), y, Screen.COLOUR_GREEN)
-                y += 1
-        else:
-            screen.print_at(f" WyrmDelve v{VERSION} ", 2, y, Screen.COLOUR_BLACK, Screen.A_BOLD, Screen.COLOUR_YELLOW)
-            y += 1
-        y += 1
-        screen.print_at(question, 2, y, Screen.COLOUR_YELLOW, Screen.A_BOLD)
+        art_width = max((len(line) for line in lines), default=0)
+        menu_width = max(len(question), max(len(o) for o in options) + 10) + 2
+        x = 2
+        if not lines:
+            screen.print_at(f" WyrmDelve v{VERSION} ", 2, 1, Screen.COLOUR_BLACK, Screen.A_BOLD, Screen.COLOUR_YELLOW)
+            y = 3
+        elif len(lines) + len(options) + 7 <= screen.height:            # the art, and the menu below it
+            for row, line in enumerate(lines):
+                screen.print_at(line[:screen.width], 0, row)
+            y = len(lines) + 1
+        elif screen.width >= art_width + menu_width + 3:                # too short: the menu beside the art
+            for row, line in enumerate(lines[:screen.height]):
+                screen.print_at(line, 0, row)
+            x = art_width + 3
+            y = max(1, (min(len(lines), screen.height) - len(options) - 6) // 2)
+        else:                                                           # small terminal: as much art as fits
+            keep = max(0, screen.height - len(options) - 7)
+            for row, line in enumerate(lines[:keep]):
+                screen.print_at(line[:screen.width], 0, row)
+            y = keep + 1
+        screen.print_at(question, x, y, Screen.COLOUR_YELLOW, Screen.A_BOLD)
         y += 2
         room = max(3, screen.height - y - 5)                # options that fit: scroll if needed
         first = min(max(0, state["at"] - room + 1), max(0, len(options) - room))
@@ -4133,15 +4143,17 @@ def menu(question, options, default=0, hints=None, ticks=None, header=None, numb
             box = ("[x] " if state["ticks"][k] else "[ ] ") if ticks is not None else ""
             text = f" {numbers[k]:>2}  {box}{options[k]} "
             if k == state["at"]:
-                screen.print_at("> " + text, 2, y, Screen.COLOUR_BLACK, Screen.A_BOLD, Screen.COLOUR_CYAN)
+                screen.print_at("> " + text, x, y, Screen.COLOUR_BLACK, Screen.A_BOLD, Screen.COLOUR_CYAN)
             else:
-                screen.print_at("  " + text, 2, y, Screen.COLOUR_WHITE)
+                screen.print_at("  " + text, x, y, Screen.COLOUR_WHITE)
             state["rows"][y] = k
             y += 1
         hint = hints[state["at"]]
         if hint:
-            screen.print_at(hint[:screen.width - 6], 6, y + 1, Screen.COLOUR_CYAN)
-        screen.print_at(keys[:screen.width - 4], 2, screen.height - 2, Screen.COLOUR_WHITE, Screen.A_NORMAL)
+            screen.print_at(hint[:screen.width - x - 4], x + 4, y + 1, Screen.COLOUR_CYAN)
+        footer = [keys] if x + len(keys) < screen.width else keys.split("   ·   ")     # narrow: one per line
+        for row, line in enumerate(footer):
+            screen.print_at(line[:screen.width - x - 1], x, screen.height - 1 - len(footer) + row, Screen.COLOUR_WHITE)
         screen.refresh()
 
     arrows = {ord("A"): Screen.KEY_UP, ord("B"): Screen.KEY_DOWN, ord("H"): Screen.KEY_HOME,
@@ -4230,11 +4242,11 @@ def show_welcome():
         *[(" " * max(0, (width - art_width) // 2) + line)[:width] for line in art],
         "═" * width,
     ]
+    print("\n" + "\n".join(line.rstrip() for line in screen) + "\n")       # stays in the terminal
     if menus_on():
-        art_lines = [line.rstrip() for line in screen if not line.startswith("═")]
         modes = ("random", "params", "rebuild")
-        return modes[menu(tr("welcome_q"), [tr("mode_" + m) for m in modes], header=art_lines)]
-    print("\n" + "\n".join(line.rstrip() for line in screen) + "\n")
+        return modes[menu(tr("welcome_q"), [tr("mode_" + m) for m in modes],
+                          header=[line.rstrip() for line in screen])]
     answer = input(tr("press_enter")).strip().lower()
     print()
     if answer.startswith(tr("letter_params")):
