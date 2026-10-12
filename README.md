@@ -139,7 +139,7 @@ From now on, the line where you type starts with `(.venv)`: that's how you know 
 
 ### Step 5 — Install the libraries
 
-With the virtual environment active, download **Pillow**, the library that creates the pictures, and **fpdf2**, the one that writes the story PDF. The command is the same on every system:
+With the virtual environment active, download **Pillow**, the library that creates the pictures, **fpdf2**, the one that writes the story PDF, and **asciimatics**, the one that draws the question menus. The command is the same on every system:
 
 ```
 pip install -r requirements.txt
@@ -167,19 +167,19 @@ python wyrmdelve.py
 
 You only need to activate it once each time you open a terminal: while the line starts with `(.venv)`, it is active and you can make as many dungeons as you like with `python wyrmdelve.py`. When you're done, type `deactivate` or just close the terminal. If you've just finished the installation in the same window, the environment is already active.
 
-The program asks you a few questions. **Every question has a ready-made answer in square brackets: if you're happy with it, just press Enter.**
+The program asks you a few questions. **The questions with a choice are menus**: move with the arrows **↑ ↓** (or the mouse), confirm with **Enter**, or press the number of an option to pick it at once; in the menu "What do you want to make?" **Space** ticks and unticks. The highlighted option is the ready-made answer. **The questions where you type a value have a ready-made answer in square brackets: if you're happy with it, just press Enter.** (Without the asciimatics library, or when the answers come from a script, the questions are numbered: type the number.)
 
-1. **Language:** type `1` for Italian or `2` for English (pressing Enter keeps Italian). From then on the questions, the messages and the texts on the map are in the language you chose.
-2. **The ogre shows up in his dungeon.** Press **Enter** for a fully random dungeon, type **P** to choose the parameters yourself, or **R** to rebuild a dungeon you already made (see chapter 4).
-3. With **P** you choose: number of levels, number of rooms (at least 5 per level), number of entrances/exits to the area, number of secret doors and passages. Then the **dungeon type** (see the table at the top; `0` = at random). With more than one level, the program first asks whether **all levels are of the same type** or **each level has its own type**: in that case you choose them one by one from the top, and for each level the list only shows the types that can stand below the one above.
+1. **Language:** Italian or English (pressing Enter keeps Italian). From then on the questions, the messages and the texts on the map are in the language you chose.
+2. **The ogre shows up in his dungeon.** Choose **a random dungeon** (the ready-made answer), **I'll choose the parameters**, or **rebuild a dungeon from its seed** (see chapter 4).
+3. Choosing the parameters, you set: number of levels, number of rooms (at least 5 per level), number of entrances/exits to the area, number of secret doors and passages. Then the **dungeon type** (each with its number from the table at the top; `0` = at random). With more than one level, the program first asks whether **all levels are of the same type** or **each level has its own type**: in that case you choose them one by one from the top, and for each level the list only shows the types that can stand below the one above.
 
-   With **Enter** (fully random dungeon) the program chooses the types by itself, always in a coherent order.
+   With a random dungeon the program chooses the types by itself, always in a coherent order.
 4. **Colours:**
    1. black symbols on white (the ready-made answer, best for printing)
    2. white symbols on light blue
    3. white symbols on black
 5. **Do you want a name on the map?** If not, the map has no title. If so, choose whether it's **randomly generated** (e.g. *Tomb of Zordur*, the ready-made answer) or whether **you type it**.
-6. **What do you want to make?** Besides the maps you can have `1` the **story**, `2` the **monsters**, `3` the **traps** and `4` the **treasure**, in any combination: type the numbers separated by commas (`1,4` = story and treasure), `0` for only the maps, or press Enter for everything (the ready-made answer). With any of them you also get the key as `.txt` and as a PDF. The program asks this every time, also for a fully random dungeon.
+6. **What do you want to make?** Besides the maps you can have the **story**, the **monsters**, the **traps** and the **treasure**, in any combination: tick or untick them with **Space** (all ticked is the ready-made answer; none ticked = only the maps), then press **Enter**. With any of them you also get the key as `.txt` and as a PDF. The program asks this every time, also for a fully random dungeon.
 7. **Grid units:** `1` = imperial, **1 square = 5 ft** (the ready-made answer in English); `2` = metric, **1 square = 1.5 m**. The scale is written in the legend of the maps, in the key and in the story PDF; the dungeon is the same with either choice.
 
 Now the program builds the dungeon. It shows each step with a bar that fills up:
@@ -196,7 +196,7 @@ Then it asks the last three questions:
 
    With a single level this question is skipped.
 8. **Which files you want:** a **PNG** image (one per sheet) or a **PDF** (with one level per sheet, a single PDF holding every sheet: handy for printing everything at once).
-9. **Print format:** the program shows a table with **A4, A3, A2 and A1**: for each, how big the letters will be and whether they're easy to read. The ready-made answer in brackets is the **suggested format**, the smallest sheet where the map reads well. Press Enter to accept it or type another format, for example `A3`. For example:
+9. **Print format:** the program shows a menu with **A4, A3, A2 and A1**: for each, how big the letters will be and whether they're easy to read. The highlighted answer is the **suggested format**, the smallest sheet where the map reads well. Press Enter to accept it or pick another one. For example:
 
    ```
    · A4  landscape  levels 2x2   1.29 mm letters   small
@@ -424,7 +424,7 @@ The `fonts` folder isn't next to `wyrmdelve.py`. Put it back (it comes with the 
 This happens with `.txt` files made by earlier versions, which used symbols like `═`, `■` or `≈`: many editors take them from another font, with another width. The `.txt` now uses keyboard characters only: make the dungeon again with the same seed. If it still isn't aligned, pick a fixed-width font in your editor (for example Consolas or Courier New) and turn off word wrap.
 
 **There is no story PDF.**
-The program says why, in a line starting with `ERROR`, right after the settings and again at the end. Check you didn't choose `0` (only the maps) at "What do you want to make?", then:
+The program says why, in a line starting with `ERROR`, right after the settings and again at the end. Check you didn't untick everything (only the maps) at "What do you want to make?", then:
 - **"the fpdf2 library is missing"**: with the virtual environment active, run `pip install -r requirements.txt` (step 5);
 - **"the old «fpdf» library … is installed instead of «fpdf2»"**: the two libraries clash. Run `pip uninstall -y fpdf fpdf2`, then `pip install -r requirements.txt`;
 - **"the font … is missing"**: put the `fonts` folder back next to `wyrmdelve.py`.

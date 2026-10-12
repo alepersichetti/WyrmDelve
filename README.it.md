@@ -139,7 +139,7 @@ Da questo momento la riga in cui scrivi comincia con `(.venv)`: è così che cap
 
 ### Passo 5 — Installa le librerie
 
-Con l'ambiente virtuale attivo, scarica **Pillow**, la libreria che crea le immagini, e **fpdf2**, quella che scrive il PDF della storia. Il comando è uguale su tutti i sistemi:
+Con l'ambiente virtuale attivo, scarica **Pillow**, la libreria che crea le immagini, **fpdf2**, quella che scrive il PDF della storia, e **asciimatics**, quella che disegna i menu delle domande. Il comando è uguale su tutti i sistemi:
 
 ```
 pip install -r requirements.txt
@@ -167,19 +167,19 @@ python wyrmdelve.py
 
 Basta attivarlo una volta ogni volta che apri un terminale: finché la riga comincia con `(.venv)` è attivo, e puoi creare tutti i dungeon che vuoi con `python wyrmdelve.py`. Quando hai finito, scrivi `deactivate` o chiudi semplicemente il terminale. Se hai appena finito l'installazione nella stessa finestra, l'ambiente è già attivo.
 
-Il programma ti fa alcune domande. **Ogni domanda ha una risposta già pronta tra parentesi quadre: se ti va bene, premi solo Invio.**
+Il programma ti fa alcune domande. **Le domande a scelta sono menu**: ti sposti con le frecce **↑ ↓** (o con il mouse), confermi con **Invio**, oppure premi il numero di un'opzione per sceglierla subito; nel menu «Cosa vuoi generare?» **Spazio** segna e toglie. L'opzione evidenziata è la risposta già pronta. **Le domande in cui scrivi un valore hanno una risposta già pronta tra parentesi quadre: se ti va bene, premi solo Invio.** (Senza la libreria asciimatics, o quando le risposte arrivano da uno script, le domande sono numerate: scrivi il numero.)
 
-1. **Lingua:** scrivi `1` per l'italiano o `2` per l'inglese (con Invio resta l'italiano). Da qui in poi domande, messaggi e testi sulla mappa sono nella lingua scelta.
-2. **Compare l'orco nel suo dungeon.** Premi **Invio** per un dungeon tutto casuale, scrivi **P** per scegliere tu i parametri, oppure **R** per rifare un dungeon che hai già creato (vedi il capitolo 4).
-3. Con **P** scegli: numero di livelli, numero di stanze (almeno 5 per livello), numero di ingressi/uscite dall'area, numero di porte e passaggi segreti. Poi il **tipo di dungeon** (vedi la tabella in alto; `0` = a caso). Con più di un livello, il programma prima ti chiede se **i livelli sono tutti dello stesso tipo** o se **ogni livello ha il suo tipo**: in questo caso li scegli uno per uno dall'alto, e per ogni livello l'elenco mostra solo i tipi che possono stare sotto quello di sopra.
+1. **Lingua:** italiano o inglese (con Invio resta l'italiano). Da qui in poi domande, messaggi e testi sulla mappa sono nella lingua scelta.
+2. **Compare l'orco nel suo dungeon.** Scegli **un dungeon casuale** (la risposta già pronta), **scelgo io i parametri**, oppure **rifaccio un dungeon dal suo seme** (vedi il capitolo 4).
+3. Scegliendo i parametri, decidi: numero di livelli, numero di stanze (almeno 5 per livello), numero di ingressi/uscite dall'area, numero di porte e passaggi segreti. Poi il **tipo di dungeon** (ognuno con il suo numero della tabella in alto; `0` = a caso). Con più di un livello, il programma prima ti chiede se **i livelli sono tutti dello stesso tipo** o se **ogni livello ha il suo tipo**: in questo caso li scegli uno per uno dall'alto, e per ogni livello l'elenco mostra solo i tipi che possono stare sotto quello di sopra.
 
-   Con **Invio** (dungeon tutto casuale) i tipi li sceglie il programma, sempre in un ordine coerente.
+   Con un dungeon casuale i tipi li sceglie il programma, sempre in un ordine coerente.
 4. **Colori:**
    1. simboli neri su sfondo bianco (la risposta già pronta, la migliore per stampare)
    2. simboli bianchi su sfondo celeste
    3. simboli bianchi su sfondo nero
 5. **Vuoi un nome per la mappa?** Se no, la mappa esce senza titolo. Se sì, scegli se **generarlo a caso** (es. *Tomba di Zordur*, la risposta già pronta) o **scriverlo tu**.
-6. **Cosa vuoi generare?** Oltre alle mappe puoi avere `1` la **storia**, `2` i **mostri**, `3` le **trappole** e `4` i **tesori**, in qualunque combinazione: scrivi i numeri separati da virgole (`1,4` = storia e tesori), `0` per avere solo le mappe, oppure premi Invio per avere tutto (la risposta già pronta). Con uno qualsiasi di questi ottieni anche la chiave in `.txt` e in PDF. Il programma lo chiede ogni volta, anche per un dungeon tutto casuale.
+6. **Cosa vuoi generare?** Oltre alle mappe puoi avere la **storia**, i **mostri**, le **trappole** e i **tesori**, in qualunque combinazione: segnali o toglili con **Spazio** (tutti segnati è la risposta già pronta; nessuno segnato = solo le mappe), poi premi **Invio**. Con uno qualsiasi di questi ottieni anche la chiave in `.txt` e in PDF. Il programma lo chiede ogni volta, anche per un dungeon tutto casuale.
 7. **Unità di misura della griglia:** `1` = imperiale, **1 casella = 5 ft** (piedi); `2` = metrica, **1 casella = 1,5 m** (la risposta già pronta in italiano). La scala viene scritta nella legenda delle mappe, nella chiave e nel PDF della storia; il dungeon è lo stesso con entrambe le scelte.
 
 A questo punto il programma costruisce il dungeon. Mostra ogni passaggio con una barra che si riempie:
@@ -196,7 +196,7 @@ Poi fa le ultime tre domande:
 
    Con un solo livello questa domanda non compare.
 8. **Che file vuoi:** un'immagine **PNG** (una per foglio) oppure un **PDF** (con un livello per foglio, un solo PDF con tutti i fogli: comodo per stampare tutto in una volta).
-9. **Formato di stampa:** il programma mostra una tabella con **A4, A3, A2 e A1**: per ognuno, quanto saranno grandi i caratteri e se si leggono bene. La risposta già pronta tra parentesi è il **formato consigliato**, il foglio più piccolo su cui la mappa si legge bene. Premi Invio per accettarlo o scrivi un altro formato, per esempio `A3`. Ad esempio:
+9. **Formato di stampa:** il programma mostra un menu con **A4, A3, A2 e A1**: per ognuno, quanto saranno grandi i caratteri e se si leggono bene. La risposta evidenziata è il **formato consigliato**, il foglio più piccolo su cui la mappa si legge bene. Premi Invio per accettarlo o scegline un altro. Ad esempio:
 
    ```
    · A4  orizzontale  livelli 2x2   caratteri da 1.29 mm   piccolo
@@ -424,7 +424,7 @@ La cartella `fonts` non è accanto a `wyrmdelve.py`. Rimettila al suo posto (vie
 Succede con i `.txt` creati dalle versioni precedenti, che usavano simboli come `═`, `■` o `≈`: molti editor li prendono da un altro font, con un'altra larghezza. Ora il `.txt` usa solo i caratteri della tastiera: rigenera il dungeon con lo stesso seme. Se non è ancora allineato, scegli nell'editor un font a larghezza fissa (per esempio Consolas o Courier New) e disattiva il ritorno a capo automatico.
 
 **Non c'è il PDF della storia.**
-Il programma dice perché, in una riga che comincia con `ERRORE`, subito dopo le impostazioni e di nuovo alla fine. Controlla di non aver scelto `0` (solo le mappe) a «Cosa vuoi generare?», poi:
+Il programma dice perché, in una riga che comincia con `ERRORE`, subito dopo le impostazioni e di nuovo alla fine. Controlla di non aver tolto tutti i segni (solo le mappe) a «Cosa vuoi generare?», poi:
 - **«manca la libreria fpdf2»**: con l'ambiente virtuale attivo, scrivi `pip install -r requirements.txt` (passo 5);
 - **«è installata la vecchia libreria «fpdf» … al posto di «fpdf2»»**: le due librerie si pestano i piedi. Scrivi `pip uninstall -y fpdf fpdf2`, poi `pip install -r requirements.txt`;
 - **«manca il font …»**: rimetti la cartella `fonts` accanto a `wyrmdelve.py`.

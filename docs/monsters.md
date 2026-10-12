@@ -4,7 +4,7 @@
 
 Questo documento spiega come WyrmDelve popola un dungeon: le tabelle dei mostri erranti, i mostri nelle stanze, gli indizi nelle stanze vuote e i mostri fuori posto. Gli esempi sono generati dal programma.
 
-> I mostri compaiono solo se all'inizio, a «Cosa vuoi generare?», scegli anche i **mostri** (il numero `2`, oppure `--contenuto mostri`, anche insieme ad altro). Per **aggiungere** mostri, indizi e motivi al file JSON c'è una guida a parte: [add_monsters_to_bestiary.md](add_monsters_to_bestiary.md).
+> I mostri compaiono solo se all'inizio, a «Cosa vuoi generare?», segni anche i **mostri** (oppure `--contenuto mostri`, anche insieme ad altro). Per **aggiungere** mostri, indizi e motivi al file JSON c'è una guida a parte: [add_monsters_to_bestiary.md](add_monsters_to_bestiary.md).
 
 ## Indice
 

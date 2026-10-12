@@ -4,7 +4,7 @@
 
 This document explains how WyrmDelve decides which rooms hold treasure, what it holds and where it is hidden, with real examples made by the program.
 
-> Treasure appears only if at the start, at "What do you want to make?", you also choose the **treasure** (number `4`, or `--content treasure`, also together with other things: `--content monsters,treasure`). How the monsters and traps that guard it are made is explained in [monsters.en.md](monsters.en.md) and [trap.en.md](trap.en.md).
+> Treasure appears only if at the start, at "What do you want to make?", you also tick the **treasure** (or `--content treasure`, also together with other things: `--content monsters,treasure`). How the monsters and traps that guard it are made is explained in [monsters.en.md](monsters.en.md) and [trap.en.md](trap.en.md).
 
 ## Contents
 

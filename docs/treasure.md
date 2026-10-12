@@ -4,7 +4,7 @@
 
 Questo documento spiega come WyrmDelve decide quali stanze hanno un tesoro, cosa contiene e dove è nascosto, con esempi veri generati dal programma.
 
-> I tesori compaiono solo se all'inizio, a «Cosa vuoi generare?», scegli anche i **tesori** (il numero `4`, oppure `--contenuto tesori`, anche insieme ad altro: `--contenuto mostri,tesori`). Come nascono i mostri e le trappole che custodiscono i tesori è spiegato in [monsters.md](monsters.md) e [trap.md](trap.md).
+> I tesori compaiono solo se all'inizio, a «Cosa vuoi generare?», segni anche i **tesori** (oppure `--contenuto tesori`, anche insieme ad altro: `--contenuto mostri,tesori`). Come nascono i mostri e le trappole che custodiscono i tesori è spiegato in [monsters.md](monsters.md) e [trap.md](trap.md).
 
 ## Indice
 

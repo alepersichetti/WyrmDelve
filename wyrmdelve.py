@@ -75,6 +75,13 @@ import time
 import zlib
 from collections import Counter, deque
 
+try:                                    # menus: without asciimatics the questions are numbered
+    from asciimatics.event import KeyboardEvent, MouseEvent
+    from asciimatics.exceptions import ResizeScreenError
+    from asciimatics.screen import Screen
+except ImportError:
+    Screen = None
+
 try:
     from PIL import Image, ImageDraw, ImageFont
     from PIL.PngImagePlugin import PngInfo
@@ -151,6 +158,16 @@ TEXTS = {
     "press_enter": ("  INVIO = dungeon casuale   ·   P = scelgo io i parametri   ·   R = rifaccio un dungeon dal seme: ",
                     "  ENTER = random dungeon   ·   P = I'll choose the parameters   ·   R = rebuild a dungeon from its seed: "),
     "letter_params": ("p", "p"),
+    "welcome_q": ("Cosa vuoi fare?", "What do you want to do?"),
+    "mode_random": ("Un dungeon casuale", "A random dungeon"),
+    "mode_params": ("Scelgo io i parametri", "I'll choose the parameters"),
+    "mode_rebuild": ("Rifaccio un dungeon dal suo seme", "Rebuild a dungeon from its seed"),
+    "menu_keys": ("↑ ↓ scegli   ·   Invio conferma   ·   oppure premi il numero",
+                  "↑ ↓ move   ·   Enter confirms   ·   or press the number"),
+    "menu_keys_multi": ("↑ ↓ scegli   ·   Spazio segna o toglie   ·   Invio conferma",
+                        "↑ ↓ move   ·   Space ticks or unticks   ·   Enter confirms"),
+    "menu_none": ("nessuno", "none"),
+    "type_any": ("A caso", "At random"),
     "letter_rebuild": ("r", "r"),
     "orc_says": ("L'orco apre la porta del dungeon...", "The ogre opens the dungeon door..."),
     "enter_accepts": ("  Premi Invio per accettare il valore tra parentesi\n",
@@ -286,6 +303,8 @@ TEXTS = {
     "paper_choice": ("  Scegli il formato (premi Invio per quello consigliato).",
                      "  Choose the format (press Enter for the suggested one)."),
     "q_paper": ("  Formato di stampa (A4, A3, A2, A1) [{default}]: ", "  Print format (A4, A3, A2, A1) [{default}]: "),
+    "paper_q": ("Formato di stampa:", "Print format:"),
+    "menu_letters": ("caratteri da {mm:.2f} mm", "{mm:.2f} mm letters"),
     "paper_retry": ("    Scrivi A4, A3, A2 oppure A1.", "    Type A4, A3, A2 or A1."),
     "sheets_intro": ("\n  Come impaginare i livelli?", "\n  How should the levels be laid out?"),
     "sheets_1": ("    1 = tutti i livelli in un solo foglio", "    1 = all levels on one sheet"),
@@ -546,6 +565,10 @@ def normalize_language(value):
 
 def ask_language():
     global LANG
+    if menus_on():
+        LANG = ("it", "en")[menu("Lingua / Language:", ["Italiano", "English"],
+                                 keys="↑ ↓  ·  Invio / Enter")]
+        return
     print("\n  Lingua / Language:")
     print("    1 = Italiano")
     print("    2 = English")
@@ -2954,6 +2977,17 @@ def ask_paper(sheets, aspect, wanted, ask_user, log):
         else:
             log.info(tr("info_paper_option_levels", paper=paper, n=len(picks), mm=char_mm, v=verdict, note=note))
     default = wanted or suggested
+    if ask_user and menus_on():
+        papers = list(options)
+        labels = []
+        for paper in papers:
+            layout, char_mm, orientation = options[paper][0]
+            verdict = tr("v_too_small") if char_mm < SMALL_CHAR_MM else tr("v_small") if char_mm < GOOD_CHAR_MM \
+                else tr("v_good")
+            labels.append(f"{paper}  {tr('orientation_' + orientation):<11} {tr('menu_letters', mm=char_mm)}  "
+                          f"{verdict}" + (tr("suggested") if paper == suggested else ""))
+        default = papers[menu(tr("paper_q"), labels, papers.index(default))]
+        return default, options[default]
     if ask_user:
         print()
         print(tr("paper_choice"))
@@ -4032,6 +4066,148 @@ def terminal_width():
         return None
 
 
+def menus_on():
+    """Menus need asciimatics and a real terminal: otherwise numbered questions."""
+    return Screen is not None and sys.stdin.isatty() and sys.stdout.isatty()
+
+
+def option_text(text):
+    """"    1 = black symbols on white" -> "black symbols on white"."""
+    return re.sub(r"^\s*\d+\s*=\s*", "", text).strip()
+
+
+def numbered_ticks(text, n):
+    """"1,4" -> ticks of n options; "0" -> none. ValueError: ask again."""
+    numbers = [int(w) for w in text.replace(" ", ",").split(",") if w]
+    if not numbers or any(not 0 <= k <= n for k in numbers) or (0 in numbers and len(numbers) > 1):
+        raise ValueError(text)
+    return tuple(k + 1 in numbers for k in range(n))
+
+
+def menu(question, options, default=0, hints=None, ticks=None, header=None, numbers_help=None, keys=None,
+         numbers=None):
+    """Ask with a menu: the arrows (or the mouse) move, Enter chooses, a number
+    jumps to its option. With `ticks` (one True/False per option) several
+    options can be ticked with Space, and the ticks are returned; otherwise the
+    index of the chosen option. `header` lines go above the question (the
+    welcome art). `numbers` are the numbers shown (1, 2, 3... by default).
+    Without a terminal or without asciimatics: the numbered question of old,
+    so the program still works in a pipe."""
+    question = question.strip()
+    hints = hints or [""] * len(options)
+    numbers = numbers or list(range(1, len(options) + 1))
+    if not menus_on():
+        print("\n  " + question)
+        for k, (text, hint) in enumerate(zip(options, hints), 1):
+            print(f"    {k} = {text}" + (f": {hint}" if hint else ""))
+        if ticks is None:
+            return ask(tr("choice"), default + 1, int, 1, len(options)) - 1
+        if numbers_help:
+            print(numbers_help)
+        answer = ask(tr("choice"), ",".join(str(k + 1) for k, on in enumerate(ticks) if on) or "0",
+                     lambda text: numbered_ticks(text, len(options)))
+        return numbered_ticks(answer, len(options)) if isinstance(answer, str) else answer
+
+    state = {"at": default, "ticks": list(ticks) if ticks is not None else None, "rows": {}}
+    keys = keys or tr("menu_keys_multi" if ticks is not None else "menu_keys")
+
+    def draw(screen):
+        screen.clear_buffer(Screen.COLOUR_WHITE, Screen.A_NORMAL, Screen.COLOUR_BLACK)
+        lines = header or []
+        y = 1
+        if header and len(lines) + len(options) + 8 <= screen.height:
+            width = max(len(line) for line in lines)
+            for line in lines:
+                screen.print_at(line[:screen.width], max(0, (screen.width - width) // 2), y, Screen.COLOUR_GREEN)
+                y += 1
+        else:
+            screen.print_at(f" WyrmDelve v{VERSION} ", 2, y, Screen.COLOUR_BLACK, Screen.A_BOLD, Screen.COLOUR_YELLOW)
+            y += 1
+        y += 1
+        screen.print_at(question, 2, y, Screen.COLOUR_YELLOW, Screen.A_BOLD)
+        y += 2
+        room = max(3, screen.height - y - 5)                # options that fit: scroll if needed
+        first = min(max(0, state["at"] - room + 1), max(0, len(options) - room))
+        state["rows"] = {}
+        for k in range(first, min(len(options), first + room)):
+            box = ("[x] " if state["ticks"][k] else "[ ] ") if ticks is not None else ""
+            text = f" {numbers[k]:>2}  {box}{options[k]} "
+            if k == state["at"]:
+                screen.print_at("> " + text, 2, y, Screen.COLOUR_BLACK, Screen.A_BOLD, Screen.COLOUR_CYAN)
+            else:
+                screen.print_at("  " + text, 2, y, Screen.COLOUR_WHITE)
+            state["rows"][y] = k
+            y += 1
+        hint = hints[state["at"]]
+        if hint:
+            screen.print_at(hint[:screen.width - 6], 6, y + 1, Screen.COLOUR_CYAN)
+        screen.print_at(keys[:screen.width - 4], 2, screen.height - 2, Screen.COLOUR_WHITE, Screen.A_NORMAL)
+        screen.refresh()
+
+    arrows = {ord("A"): Screen.KEY_UP, ord("B"): Screen.KEY_DOWN, ord("H"): Screen.KEY_HOME,
+              ord("F"): Screen.KEY_END}
+    escape = []                             # some terminals send the arrows as Esc [ A, one key at a time
+
+    def run(screen):
+        while True:
+            draw(screen)
+            screen.wait_for_input(0.5)
+            event = screen.get_event()
+            if screen.has_resized():
+                raise ResizeScreenError("resized")
+            if isinstance(event, MouseEvent) and event.buttons and event.y in state["rows"]:
+                k = state["rows"][event.y]
+                if ticks is not None:
+                    state["at"] = k
+                    state["ticks"][k] = not state["ticks"][k]
+                    continue
+                return k
+            if not isinstance(event, KeyboardEvent):
+                continue
+            code = event.key_code
+            if code == Screen.KEY_ESCAPE:
+                escape[:] = [code]
+                continue
+            if escape:
+                if len(escape) == 1 and code in (ord("["), ord("O")):
+                    escape.append(code)
+                    continue
+                code = arrows.get(code, 0) if len(escape) == 2 else code
+                escape.clear()
+            if code in (Screen.KEY_UP, ord("k")):
+                state["at"] = (state["at"] - 1) % len(options)
+            elif code in (Screen.KEY_DOWN, ord("j"), Screen.KEY_TAB):
+                state["at"] = (state["at"] + 1) % len(options)
+            elif code == Screen.KEY_HOME:
+                state["at"] = 0
+            elif code == Screen.KEY_END:
+                state["at"] = len(options) - 1
+            elif ord("0") <= code <= ord("9") and code - ord("0") in numbers:
+                state["at"] = numbers.index(code - ord("0"))
+                if ticks is not None:
+                    state["ticks"][state["at"]] = not state["ticks"][state["at"]]
+                elif max(numbers) < 10:
+                    return state["at"]
+            elif code == ord(" ") and ticks is not None:
+                state["ticks"][state["at"]] = not state["ticks"][state["at"]]
+            elif code in (10, 13):
+                return tuple(state["ticks"]) if ticks is not None else state["at"]
+
+    while True:
+        try:
+            answer = Screen.wrapper(run)
+            break
+        except ResizeScreenError:
+            continue
+    # what was chosen stays written in the terminal
+    if ticks is None:
+        chosen = options[answer]
+    else:
+        chosen = ", ".join(o for o, on in zip(options, answer) if on) or tr("menu_none")
+    print(f"  {question} {chosen}")
+    return answer
+
+
 def show_welcome():
     """Title, the ogre in his dungeon, and the first question: Enter = random."""
     art = ORCO_DUNGEON.strip("\n").split("\n")
@@ -4054,6 +4230,10 @@ def show_welcome():
         *[(" " * max(0, (width - art_width) // 2) + line)[:width] for line in art],
         "═" * width,
     ]
+    if menus_on():
+        art_lines = [line.rstrip() for line in screen if not line.startswith("═")]
+        modes = ("random", "params", "rebuild")
+        return modes[menu(tr("welcome_q"), [tr("mode_" + m) for m in modes], header=art_lines)]
     print("\n" + "\n".join(line.rstrip() for line in screen) + "\n")
     answer = input(tr("press_enter")).strip().lower()
     print()
@@ -4082,10 +4262,7 @@ def ask(question, default, kind=int, lowest=None, highest=None):
 
 
 def ask_colors(default=1):
-    print(tr("colors_intro"))
-    for k in (1, 2, 3):
-        print(tr(f"color_{k}"))
-    return ask(tr("choice"), default, int, 1, 3)
+    return menu(tr("colors_intro"), [option_text(tr(f"color_{k}")) for k in (1, 2, 3)], default - 1) + 1
 
 
 def ask_output(levels, per_level, pdf):
@@ -4097,38 +4274,35 @@ def ask_output(levels, per_level, pdf):
     elif per_level is None:
         per_level = False
         if asking:
-            print(tr("sheets_intro"))
-            print(tr("sheets_1"))
-            print(tr("sheets_2"))
-            per_level = ask(tr("choice"), 1, int, 1, 2) == 2
+            per_level = menu(tr("sheets_intro"), [option_text(tr("sheets_1")), option_text(tr("sheets_2"))]) == 1
     if pdf is None:
         pdf = False
         if asking:
             many = "many" if per_level else "one"
-            print(tr("output_intro"))
-            print(tr("output_png_" + many))
-            print(tr("output_pdf_" + many))
-            pdf = ask(tr("choice"), 1, int, 1, 2) == 2
+            pdf = menu(tr("output_intro"), [option_text(tr("output_png_" + many)),
+                                            option_text(tr("output_pdf_" + many))]) == 1
     return per_level, pdf
 
 
-def print_types(allowed):
-    for k, t in enumerate(TYPES, 1):
-        if t["id"] in allowed:
-            print(f"    {k:>2} = {pick(t['menu'])}")
-    print(tr("type_random"))
-
-
-def ask_type(allowed, rng):
-    """One type among the allowed ones; 0 = at random."""
-    print_types(allowed)
-    while True:
-        k = ask(tr("choice"), 0, int, 0, len(TYPES))
-        if k == 0:
-            return rng.choice(allowed)
-        if TYPES[k - 1]["id"] in allowed:
-            return TYPES[k - 1]["id"]
-        print(tr("type_not_allowed"))
+def ask_type(question, allowed, rng):
+    """One type among the allowed ones, or at random (the first option)."""
+    ids = [t["id"] for t in TYPES if t["id"] in allowed]
+    if not menus_on():
+        print("\n  " + question.strip())
+        for k, t in enumerate(TYPES, 1):
+            if t["id"] in allowed:
+                print(f"    {k:>2} = {pick(t['menu'])}")
+        print(tr("type_random"))
+        while True:
+            k = ask(tr("choice"), 0, int, 0, len(TYPES))
+            if k == 0:
+                return rng.choice(allowed)
+            if TYPES[k - 1]["id"] in allowed:
+                return TYPES[k - 1]["id"]
+            print(tr("type_not_allowed"))
+    k = menu(question, [tr("type_any")] + [pick(TYPE[i]["menu"]) for i in ids],
+             numbers=[0] + [TYPES.index(TYPE[i]) + 1 for i in ids])
+    return rng.choice(allowed) if k == 0 else ids[k - 1]
 
 
 def ask_types(levels):
@@ -4137,33 +4311,21 @@ def ask_types(levels):
     rng = random.Random()
     every = [t["id"] for t in TYPES]
     if levels > 1:
-        print(tr("types_same_intro"))
-        print(tr("types_same"))
-        print(tr("types_each"))
-        if ask(tr("choice"), 1, int, 1, 2) == 2:
+        if menu(tr("types_same_intro"), [option_text(tr("types_same")), option_text(tr("types_each"))]) == 1:
             types = []
             for d in range(levels):
-                if types:
-                    print(tr("types_level_intro", n=d + 1, above=type_name(types[-1])))
-                else:
-                    print(tr("types_level_first"))
-                types.append(ask_type(TYPE[types[-1]]["below"] if types else every, rng))
+                question = (tr("types_level_intro", n=d + 1, above=type_name(types[-1])) if types
+                            else tr("types_level_first"))
+                types.append(ask_type(question, TYPE[types[-1]]["below"] if types else every, rng))
             return types
-    print(tr("types_intro"))
-    return [ask_type(every, rng)] * levels
+    return [ask_type(tr("types_intro"), every, rng)] * levels
 
 
 def ask_name():
     """None = a random name (the dungeon's own), "" = no name, else the user's."""
-    print(tr("name_intro"))
-    print(tr("name_yes"))
-    print(tr("name_no"))
-    if ask(tr("choice"), 1, int, 1, 2) == 2:
+    if menu(tr("name_intro"), [option_text(tr("name_yes")), option_text(tr("name_no"))]) == 1:
         return ""
-    print(tr("name_how"))
-    print(tr("name_random"))
-    print(tr("name_mine"))
-    if ask(tr("choice"), 1, int, 1, 2) == 1:
+    if menu(tr("name_how"), [option_text(tr("name_random")), option_text(tr("name_mine"))]) == 0:
         return None
     while True:
         name = input(tr("q_name")).strip()
@@ -4197,30 +4359,17 @@ def read_content(text):
     return tuple(any(CONTENT_PARTS[w] == k for w in words) for k in range(len(CONTENT_KEYS)))
 
 
-def content_numbers(text):
-    """"1,4" -> (True, False, False, True); "0" -> only the maps."""
-    numbers = [int(w) for w in text.replace(" ", ",").split(",") if w]     # ValueError: asked again
-    if not numbers or any(not 0 <= n <= len(CONTENT_KEYS) for n in numbers) or (0 in numbers and len(numbers) > 1):
-        raise ValueError(text)
-    return tuple(k + 1 in numbers for k in range(len(CONTENT_KEYS)))
-
-
 def ask_content():
     """(story, monsters, traps, treasure): any of them, by number."""
-    print(tr("content_intro"))
-    for k, key in enumerate(CONTENT_KEYS, 1):
-        print(f"    {k} = {tr('content_' + key)}")
-    print(tr("content_help"))
-    answer = ask(tr("choice"), ",".join(str(k) for k in range(1, len(CONTENT_KEYS) + 1)), content_numbers)
-    return content_numbers(answer) if isinstance(answer, str) else answer
+    parts = [tr("content_" + key).split(": ", 1) for key in CONTENT_KEYS]
+    return menu(tr("content_intro"), [label.capitalize() for label, _ in parts], hints=[hint for _, hint in parts],
+                ticks=ALL_CONTENT, numbers_help=tr("content_help"))
 
 
 def ask_units():
-    print(tr("units_intro"))
-    print(tr("units_1"))
-    print(tr("units_2"))
-    default = 2 if default_units() == "metric" else 1
-    return "metric" if ask(tr("choice"), default, int, 1, 2) == 2 else "imperial"
+    default = 1 if default_units() == "metric" else 0
+    return ("imperial", "metric")[menu(tr("units_intro"), [option_text(tr("units_1")), option_text(tr("units_2"))],
+                                       default)]
 
 
 def ask_settings():
