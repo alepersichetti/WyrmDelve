@@ -825,28 +825,36 @@ if missing:
 MONSTERS = [m for m in TABLES.get("monsters", []) if m.get("name") and m.get("text")]
 CLUES = {k: v for k, v in TABLES.get("clues", {}).items() if v}
 QUIRKS = [q for q in TABLES.get("quirks", []) if q.get("text")]
-# traps (optional table): family, stage (0 broken: it teaches, 1 working, 2 cruel), places, builders, where, needs
-TRAPS = [t for t in TABLES.get("traps", []) if t.get("name") and t.get("family")]
 
-# treasure (optional file, next to this one): the Old-School Essentials tables
-# (Open Game Content, see LICENSE-OGL.txt): how often a room holds treasure,
-# treasure by dungeon level, treasure types A-V, gems, jewellery, magic items
-TREASURE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "wyrmdelve_treasure.json")
-TREASURE_KEYS = ("coins", "coin_value", "room_chance", "unguarded", "types", "gems", "jewellery", "magic_types",
-                 "magic", "hiding")
-
-
-def load_treasure(path=TREASURE_FILE):
-    """{} when the file is missing or broken: then there is no treasure."""
+def load_optional(path, keys=()):
+    """An optional table file: {} when it is missing, broken or lacks one of `keys`."""
     try:
         with open(path, encoding="utf-8") as f:
             tables = from_json(json.load(f))
     except (OSError, ValueError):
         return {}
-    return tables if all(k in tables for k in TREASURE_KEYS) else {}
+    return tables if isinstance(tables, dict) and all(k in tables for k in keys) else {}
 
 
-TREASURE = load_treasure()
+HERE = os.path.dirname(os.path.abspath(__file__))
+# traps (optional file): ready-made traps (family, stage 0 broken: it teaches, 1 working, 2 cruel,
+# places, builders, where, needs) and the parts new ones are put together from: triggers, mechanisms
+# (with their broken version, for the lessons) and twists (what makes a trap cruel)
+TRAP_TABLES = load_optional(os.path.join(HERE, "wyrmdelve_traps.json"))
+TRAPS = [t for t in TRAP_TABLES.get("traps", []) if t.get("name") and t.get("family")]
+TRIGGERS = [t for t in TRAP_TABLES.get("triggers", []) if t.get("name") and t.get("places")]
+MECHANISMS = [m for m in TRAP_TABLES.get("mechanisms", []) if m.get("name") and m.get("family")]
+TWISTS = [w for w in TRAP_TABLES.get("twists", []) if w.get("name")]
+LESSON = TRAP_TABLES.get("lesson", {})
+if not (TRIGGERS and LESSON):
+    MECHANISMS = []
+
+# treasure (optional file): the Old-School Essentials tables (Open Game Content,
+# see LICENSE-OGL.txt): how often a room holds treasure, treasure by dungeon
+# level, treasure types A-V, gems, jewellery, magic items
+TREASURE = load_optional(os.path.join(HERE, "wyrmdelve_treasure.json"),
+                         ("coins", "coin_value", "room_chance", "unguarded", "types", "gems", "jewellery",
+                          "magic_types", "magic", "hiding"))
 
 ERA_TAGS = {0: "N", 1: "I", 2: "II", 3: "III"}
 
@@ -3356,6 +3364,59 @@ def distances(dungeon):
     return dist
 
 
+def builders_of(item):
+    b = item.get("builders", "built")
+    return [b] if isinstance(b, str) else b
+
+
+def fits_place(item, level, where, builders, below):
+    return (where in item.get("places", ["room"]) and builders in builders_of(item)
+            and ("*" in item.get("where", ["*"]) or level.kind in item.get("where", []))
+            and (item.get("needs") != "below" or below))
+
+
+def joined(*parts, sep="; "):
+    """(it, en) pairs (or None) -> one (it, en) pair."""
+    parts = [p for p in parts if p]
+    return tuple(sep.join(p[i] for p in parts) for i in range(2))
+
+
+def make_trap(mechanism, trigger=None, twist=None):
+    """A trap put together from its parts; without a trigger, the broken one that teaches."""
+    if trigger is None:
+        return {"family": mechanism["family"], "stage": 0, "places": mechanism["places"],
+                "name": mechanism["broken"]["name"], "tell": mechanism["broken"]["tell"],
+                "effect": LESSON["effect"], "counter": LESSON["counter"]}
+    name = joined(mechanism["name"], twist["name"] if twist else None, sep=" ")
+    return {"family": mechanism["family"], "stage": 2 if twist else 1, "places": mechanism["places"],
+            "name": tuple(f"{name[i]} ({trigger['name'][i]})" for i in range(2)),
+            "tell": joined(mechanism["tell"], trigger["tell"], twist.get("tell") if twist else None),
+            "effect": joined(mechanism["effect"], twist.get("effect") if twist else None, sep=", "),
+            "counter": joined(trigger["counter"], mechanism["counter"], twist["counter"] if twist else None)}
+
+
+def trap_parts(mechanism, where, builders):
+    """The triggers and twists that go with a mechanism in this place."""
+    triggers = [t for t in TRIGGERS if where in t["places"] and builders in t["builders"]
+                and mechanism["family"] not in t.get("avoid", [])]
+    twists = [w for w in TWISTS if where in w["places"]
+              and ("*" in w["families"] or mechanism["family"] in w["families"])]
+    return triggers, twists
+
+
+def trap_patterns():
+    """How many different traps there can be: the ready-made ones, the broken
+    ones and every trigger x mechanism x twist (or none) that fit together."""
+    made = set()
+    for k, m in enumerate(MECHANISMS):
+        for where in m["places"]:
+            for builders in builders_of(m):
+                triggers, twists = trap_parts(m, where, builders)
+                made.update((k, t, w) for t in range(len(TRIGGERS)) if TRIGGERS[t] in triggers
+                            for w in [None] + [i for i, x in enumerate(TWISTS) if x in twists])
+    return len(TRAPS) + sum(1 for m in MECHANISMS if m.get("broken")) + len(made)
+
+
 def plan_traps(dungeon, seed):
     """Traps in the spirit of Goblin Punch: whoever built a place trapped it their
     own way (careful mechanisms in the founders' and second age's work, crude
@@ -3363,7 +3424,9 @@ def plan_traps(dungeon, seed):
     shows its mechanism (the tell) and can be beaten by thinking (the
     countermeasures); before the first working trap of a kind, the players meet
     a broken or exposed one that teaches how it works; deeper levels get the
-    cruel variants. Marks the cells (^ on the GM map); its own random numbers.
+    cruel variants. A trap is a ready-made one or one put together from a
+    trigger, a mechanism and, for the cruel ones, a twist (thousands of
+    combinations). Marks the cells (^ on the GM map); its own random numbers.
     Returns [{"level", "room", "corridor", "cell", "trap"}, ...]."""
     rng = random.Random(f"wyrmdelve-traps-{seed}")
     mains = dungeon.mains()
@@ -3398,12 +3461,24 @@ def plan_traps(dungeon, seed):
                  and level.i(x, y) not in level.traps]
         return cells[len(cells) // 2] if cells else None
 
-    def fitting(level, where, builders, stage, family=None):
+    def choose(level, where, builders, stage, family=None):
+        """A ready-made trap (two times in five) or a new one from the parts."""
         below = int(level.depth) + 1 < len(mains)
-        return [t for t in TRAPS if t.get("stage", 1) == stage and where in t.get("places", ["room"])
-                and t.get("builders", "built") == builders and (family is None or t["family"] == family)
-                and ("*" in t.get("where", ["*"]) or level.kind in t.get("where", []))
-                and (t.get("needs") != "below" or below)]
+        ready = [t for t in TRAPS if t.get("stage", 1) == stage and fits_place(t, level, where, builders, below)
+                 and (family is None or t["family"] == family)]
+        if ready and (rng.random() < 0.4 or not MECHANISMS):
+            return rng.choice(ready)
+        made = None
+        mechanisms = [m for m in MECHANISMS if fits_place(m, level, where, builders, below)
+                      and (family is None or m["family"] == family) and (stage or m.get("broken"))]
+        if mechanisms:
+            m = rng.choice(mechanisms)
+            triggers, twists = trap_parts(m, where, builders)
+            if stage == 0:
+                made = make_trap(m)
+            elif triggers:
+                made = make_trap(m, rng.choice(triggers), rng.choice(twists) if stage == 2 and twists else None)
+        return made or (rng.choice(ready) if ready else None)
 
     def put(level, spot, trap):
         where, room, corridor = spot[0], spot[1], spot[2]
@@ -3427,14 +3502,15 @@ def plan_traps(dungeon, seed):
             if id(spot[1] or spot[2]) in taken:
                 continue
             stage = 2 if spot[5] == "built" and rng.random() < cruel else 1
-            options = fitting(level, spot[0], spot[5], stage) or fitting(level, spot[0], spot[5], 1)
-            if options and put(level, spot, rng.choice(options)):
+            trap = choose(level, spot[0], spot[5], stage) or choose(level, spot[0], spot[5], 1)
+            if trap and put(level, spot, trap):
                 want -= 1
 
     # teach first: before the nearest working trap of each kind, a broken one of the same kind
     for family in sorted({r["trap"]["family"] for r in placed if r["trap"].get("stage", 1) >= 1}):
         working = [r for r in placed if r["trap"]["family"] == family and r["trap"].get("stage", 1) >= 1]
-        if not any(t["family"] == family and t.get("stage") == 0 for t in TRAPS):
+        if not any(t["family"] == family and t.get("stage") == 0 for t in TRAPS) and not any(
+                m["family"] == family and m.get("broken") for m in MECHANISMS):
             continue
         first = min(working, key=lambda r: r["dist"])
         if any(r["trap"]["family"] == family and r["trap"].get("stage") == 0 and r["dist"] < first["dist"]
@@ -3446,8 +3522,8 @@ def plan_traps(dungeon, seed):
                        if closer(s[3]) and id(s[1] or s[2]) not in taken]
             options.sort(key=lambda o: -o[1][3])       # just before it
             for level, spot in options:
-                lesson = fitting(level, spot[0], "built", 0, family)
-                if lesson and put(level, spot, rng.choice(lesson)):
+                lesson = choose(level, spot[0], "built", 0, family)
+                if lesson and put(level, spot, lesson):
                     done = True
                     break
             if done:
@@ -3455,10 +3531,11 @@ def plan_traps(dungeon, seed):
         if not done:
             # no room before it: the first one itself becomes the broken, teaching one
             place = "corridor" if first["corridor"] is not None else "room"
-            lesson = [t for t in TRAPS if t["family"] == family and t.get("stage") == 0
-                      and place in t.get("places", ["room"])]
+            lesson = choose(first["level"], place, "built", 0, family) or next(
+                (t for t in TRAPS if t["family"] == family and t.get("stage") == 0
+                 and place in t.get("places", ["room"])), None)
             if lesson:
-                first["trap"] = rng.choice(lesson)
+                first["trap"] = lesson
     return placed
 
 
