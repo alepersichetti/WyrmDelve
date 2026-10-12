@@ -33,7 +33,7 @@ Compatibile con qualunque gioco di ruolo analogico "OSR". Fratello di [WyrmHex](
 
 </div>
 
-### WyrmDelve v0.0.1
+### WyrmDelve v1.0.0
 
 **WyrmDelve** disegna a caso dungeon e labirinti per campagne old school (OSR), fatti solo di lettere e simboli come nei roguelike NetHack, Angband, ADOM, Brogue, Caves of Qud e Dwarf Fortress.
 
