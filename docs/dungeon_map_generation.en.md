@@ -932,7 +932,7 @@ The program suggests the smallest sheet with readable letters and shows all the 
 ### The files
 
 - **PNG** at 600 dpi or **PDF** (one page per sheet), in one of three colour schemes.
-- A **.txt** with the same characters as the map, to open in any editor.
+- A **.txt** with the same map, to open in any editor. The `.txt` uses keyboard characters only, like `--ascii-only` (every wall is `#`, and the legend says so): symbols like `═`, `■` or `≈` aren't in every font, and an editor that takes them from another font, with another width, breaks the alignment. The walls' ages stay visible in the PNG/PDF and in the key.
 - The players' map has the same layout and the same letter size as the game master's.
 
 ---

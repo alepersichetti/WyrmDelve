@@ -230,7 +230,7 @@ Tutto va in `dungeons_generated/<seme>/`, una cartella per ogni dungeon:
 | `<seme>_key.txt` | la **chiave del dungeon**: storia e strati (con la storia), ingressi, collegamenti tra livelli, poi livello per livello la tabella d6 dei mostri erranti (con i mostri) e ogni stanza (descrizione con la storia; mostri, indizio o «vuota» con i mostri), verifica dei principi di Jaquays |
 | `<seme>_story.pdf` | la **storia**: la stessa chiave come un libro su pagine A4, con i titoli in Sebaldus-Gotisch e il testo in Crimson Text, pronta da stampare o da leggere sul tablet |
 | `<seme>_key.pdf` | al posto della storia, se scegli mostri o trappole **senza** la storia: la chiave come PDF |
-| `.txt` accanto a ogni mappa | la stessa mappa come testo semplice, da aprire con qualsiasi editor di testo |
+| `.txt` accanto a ogni mappa | la stessa mappa come testo semplice, da aprire con qualsiasi editor di testo. Usa solo i caratteri della tastiera (come `--solo-ascii`: tutti i muri sono `#`), così resta allineata con qualunque font a larghezza fissa |
 
 Se scegli **solo le mappe**, la chiave e il PDF non vengono creati.
 
@@ -351,7 +351,7 @@ Ogni opzione ha anche un nome inglese (dopo la barra `/`), e puoi mescolarli com
 | `--contenuto` / `--content` | Cosa generare oltre alle mappe: `storia`, `mostri`, `trappole`, anche insieme separati da virgole; `mappa` = solo le mappe; `tutto` = tutto (di base) | `--contenuto storia,trappole` |
 | `--senza-storia` / `--no-story` | Solo le mappe, come `--contenuto mappa` | `--senza-storia` |
 | `--unita` / `--units` | Scala della griglia: `imperiale` (1 casella = 5 ft) o `metrica` (1 casella = 1,5 m); di base metrica in italiano, imperiale in inglese | `--unita imperiale` |
-| `--solo-ascii` / `--ascii-only` | Solo i caratteri della tastiera (`# ~ = o`) | `--solo-ascii` |
+| `--solo-ascii` / `--ascii-only` | Solo i caratteri della tastiera (`# ~ = o`) anche nei PNG e PDF (i `.txt` li usano sempre) | `--solo-ascii` |
 | `--font` | Un file di font a tua scelta (tutte le lettere devono avere la stessa larghezza) | `--font consola.ttf` |
 | `--uscita` / `--output` | Cartella in cui salvare al posto di `dungeons_generated` | `--uscita mie_mappe` |
 
@@ -419,6 +419,9 @@ Il font installato sul tuo computer non ha quei simboli. Il programma li sostitu
 
 **"Nessun font monospazio trovato".**
 La cartella `fonts` non è accanto a `wyrmdelve.py`. Rimettila al suo posto (viene con il programma): le mappe usano il DejaVu Sans Mono che c'è dentro. In alternativa puoi indicare un altro font con tutte le lettere larghe uguali con `--font`, per esempio `--font consola.ttf`.
+
+**Nel `.txt` la mappa non è allineata.**
+Succede con i `.txt` creati dalle versioni precedenti, che usavano simboli come `═`, `■` o `≈`: molti editor li prendono da un altro font, con un'altra larghezza. Ora il `.txt` usa solo i caratteri della tastiera: rigenera il dungeon con lo stesso seme. Se non è ancora allineato, scegli nell'editor un font a larghezza fissa (per esempio Consolas o Courier New) e disattiva il ritorno a capo automatico.
 
 **Non c'è il PDF della storia.**
 Il programma dice perché, in una riga che comincia con `ERRORE`, subito dopo le impostazioni e di nuovo alla fine. Controlla di non aver scelto `1` (solo le mappe) a «Cosa vuoi generare?», poi:
