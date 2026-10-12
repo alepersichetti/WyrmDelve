@@ -2,19 +2,25 @@ WyrmDelve - Open Game License
 
 DESIGNATION OF OPEN GAME CONTENT
 
-The tables in wyrmdelve_treasure.json (the chance that a room holds treasure,
-treasure by dungeon level, treasure types A-V, gems, jewellery, magic item
-types and magic items), the treasure type letters in the "treasure" field of
-the monsters in wyrmdelve_tables.json, and the rules that use them in
-wyrmdelve.py (roll_hoard, magic_item, plan_treasure) are Open Game Content,
-adapted and translated into Italian from the Old-School Essentials System
-Reference Document. The hiding places in wyrmdelve_treasure.json are original
-WyrmDelve text and are also designated Open Game Content.
+The following parts of WyrmDelve are Open Game Content:
+
+- data/treasure.json: the chance that a room holds treasure, treasure by
+  dungeon level, treasure types A-V, gems, jewellery, magic item types and
+  magic items, adapted and translated into Italian from the Old-School
+  Essentials System Reference Document; the hiding places in the same file
+  are original WyrmDelve text, also designated Open Game Content;
+- the treasure type letters in the "treasure" field of data/monsters.json;
+- the rules that use them in wyrmdelve.py (roll_hoard, magic_item,
+  plan_treasure);
+- the traps marked "source": "srd35" in data/traps.json, adapted from the
+  sample traps of the System Reference Document 3.5 and rewritten for
+  WyrmDelve.
 
 DESIGNATION OF PRODUCT IDENTITY
 
 The names "Necrotic Gnome" and "Old-School Essentials" are Product Identity of
-their owner. They appear here only to name the source, as section 15 requires;
+their owner, as are any names designated Product Identity by Wizards of the
+Coast. They appear here only to name the source, as section 15 requires;
 WyrmDelve is not affiliated with, endorsed or licensed by Necrotic Gnome.
 
 Everything else in WyrmDelve is covered by the LICENSE file (GNU GPL v3).

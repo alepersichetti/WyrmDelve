@@ -75,7 +75,7 @@ La pianta segue **sempre** i principi di Jennell Jaquays, come li descrive Justi
 Metti questi file nella **stessa cartella**, per esempio una cartella `dungeon` sul Desktop:
 
 - `wyrmdelve.py` (il programma)
-- `wyrmdelve_tables.json` (le parole di cui sono fatti i dungeon: nomi, stanze, storia; vedi il capitolo 7)
+- la cartella `data` (le parole e le tabelle di cui sono fatti i dungeon: nomi, stanze, storia, mostri, trappole, tesori; vedi il capitolo 7)
 - la cartella `fonts` (i font delle mappe e del PDF della storia: il programma usa solo questi, così non dipende dal tuo sistema)
 - `requirements.txt` (l'elenco di quello che serve al programma)
 - `README.md` (la stessa guida in inglese) e `README.it.md` (questa guida)
@@ -179,7 +179,7 @@ Il programma ti fa alcune domande. **Ogni domanda ha una risposta già pronta tr
    2. simboli bianchi su sfondo celeste
    3. simboli bianchi su sfondo nero
 5. **Vuoi un nome per la mappa?** Se no, la mappa esce senza titolo. Se sì, scegli se **generarlo a caso** (es. *Tomba di Zordur*, la risposta già pronta) o **scriverlo tu**.
-6. **Cosa vuoi generare?** Oltre alle mappe puoi avere la **storia**, i **mostri** e le **trappole**, in qualunque combinazione: `1` = solo le mappe; `2` = mappe e storia; `3` = mappe e mostri; `4` = mappe e trappole; `5` = mappe, storia e mostri; `6` = mappe, storia e trappole; `7` = mappe, mostri e trappole; `8` = tutto (la risposta già pronta). Con storia, mostri o trappole ottieni anche la chiave in `.txt` e in PDF. Il programma lo chiede ogni volta, anche per un dungeon tutto casuale.
+6. **Cosa vuoi generare?** Oltre alle mappe puoi avere `1` la **storia**, `2` i **mostri**, `3` le **trappole** e `4` i **tesori**, in qualunque combinazione: scrivi i numeri separati da virgole (`1,4` = storia e tesori), `0` per avere solo le mappe, oppure premi Invio per avere tutto (la risposta già pronta). Con uno qualsiasi di questi ottieni anche la chiave in `.txt` e in PDF. Il programma lo chiede ogni volta, anche per un dungeon tutto casuale.
 7. **Unità di misura della griglia:** `1` = imperiale, **1 casella = 5 ft** (piedi); `2` = metrica, **1 casella = 1,5 m** (la risposta già pronta in italiano). La scala viene scritta nella legenda delle mappe, nella chiave e nel PDF della storia; il dungeon è lo stesso con entrambe le scelte.
 
 A questo punto il programma costruisce il dungeon. Mostra ogni passaggio con una barra che si riempie:
@@ -227,16 +227,18 @@ Tutto va in `dungeons_generated/<seme>/`, una cartella per ogni dungeon:
 |---|---|
 | `<seme>_gm.png` | la **mappa del master**: numeri delle stanze, porte segrete `$` e passaggi segreti `░` |
 | `<seme>_players.png` | la **mappa dei giocatori**: la stessa mappa senza numeri e senza segreti |
-| `<seme>_key.txt` | la **chiave del dungeon**: storia e strati (con la storia), ingressi, collegamenti tra livelli, poi livello per livello la tabella d6 dei mostri erranti (con i mostri) e ogni stanza (descrizione con la storia; mostri, indizio o «vuota» con i mostri), verifica dei principi di Jaquays |
+| `<seme>_key.txt` | la **chiave del dungeon**: storia e strati (con la storia), ingressi, collegamenti tra livelli, poi livello per livello la tabella d6 dei mostri erranti (con i mostri), le trappole nei corridoi (con le trappole) e ogni stanza (descrizione con la storia; mostri, indizio o «vuota» con i mostri; la sua trappola; il suo tesoro), verifica dei principi di Jaquays |
 | `<seme>_story.pdf` | la **storia**: la stessa chiave come un libro su pagine A4, con i titoli in Sebaldus-Gotisch e il testo in Crimson Text, pronta da stampare o da leggere sul tablet |
-| `<seme>_key.pdf` | al posto della storia, se scegli mostri o trappole **senza** la storia: la chiave come PDF |
+| `<seme>_key.pdf` | al posto della storia, se scegli mostri, trappole o tesori **senza** la storia: la chiave come PDF |
 | `.txt` accanto a ogni mappa | la stessa mappa come testo semplice, da aprire con qualsiasi editor di testo. Usa solo i caratteri della tastiera (come `--solo-ascii`: tutti i muri sono `#`), così resta allineata con qualunque font a larghezza fissa |
 
 Se scegli **solo le mappe**, la chiave e il PDF non vengono creati.
 
 **I mostri.** Ogni livello ha una tabella d6 di mostri erranti: l'1 sono gli abitanti di oggi, gli altri sono mostri adatti al tipo del livello, più pericolosi man mano che si scende. Circa un terzo delle stanze ospita dei mostri (gli abitanti di oggi nelle loro tane, gli altri mostri della tabella nelle loro); almeno un terzo resta sempre vuoto, e accanto a ogni stanza con mostri c'è una stanza vuota con un **indizio** (ossa rosicchiate, scie viscide, odore di zolfo…) che dice da dove viene. Ogni tanto un mostro è **fuori posto**, con il suo motivo: per esempio un aboleth nella vasca di un castello, risalito dalle grotte allagate del livello sotto. Come funziona: [docs/monsters.md](docs/monsters.md); per aggiungere mostri: [docs/add_monsters_to_bestiary.md](docs/add_monsters_to_bestiary.md).
 
-**Le trappole.** Compaiono **solo sulla mappa del master**, con il simbolo `^`, e la chiave le descrive: nome, **segnale** (come si capisce che c'è), **effetto** e **contromisure**. Chi ha costruito un luogo l'ha protetto a modo suo: meccanismi accurati nelle sale dei fondatori e della seconda epoca, trappole rozze dove vivono gli abitanti di oggi, soprattutto attorno alle stanze importanti. Prima di incontrare una trappola funzionante, i giocatori ne incontrano una **rotta o scoperta** dello stesso tipo, che insegna come funziona; più si scende, più le trappole sono crudeli. Come funziona: [docs/trap.md](docs/trap.md).
+**Le trappole.** Compaiono **solo sulla mappa del master**, con il simbolo `^`, e la chiave le descrive: nome, **segnale** (come si capisce che c'è), **effetto** e **contromisure**. Chi ha costruito un luogo l'ha protetto a modo suo: meccanismi accurati nelle sale dei fondatori e della seconda epoca, trappole rozze dove vivono gli abitanti di oggi, soprattutto attorno alle stanze importanti. Prima di incontrare una trappola funzionante, i giocatori ne incontrano una **rotta o scoperta** dello stesso tipo, che insegna come funziona; più si scende, più le trappole sono crudeli. Alcune trappole sono già pronte (quelle di WyrmDelve e quelle del System Reference Document 3.5), le altre vengono montate da un **innesco**, un **meccanismo** e, per quelle crudeli, una **variante**: in tutto 2.648 trappole diverse. Come funziona: [docs/trap.md](docs/trap.md).
+
+**I tesori.** Seguono le regole per riempire le stanze di *Old-School Essentials*: una stanza con mostri ha un tesoro 3 volte su 6 (il tipo di tesoro dei mostri, dalla A alla V), una stanza con una trappola 2 volte su 6 (e la trappola lo protegge), una stanza vuota 1 volta su 6 (il tesoro incustodito di quel livello del dungeon, più ricco man mano che si scende). La chiave elenca monete, gemme e gioielli con il loro valore in monete d'oro, gli oggetti magici e dove è nascosto il tesoro. Come funziona: [docs/treasure.md](docs/treasure.md).
 
 I titoli della storia usano **Sebaldus-Gotisch** e il testo **Crimson Text**, entrambi nella cartella `fonts` (vedi `fonts/README.md`).
 
@@ -271,24 +273,22 @@ Le immagini hanno già la misura esatta del foglio scelto, a 600 dpi: si stampan
 
 ## 7. Cambiare le parole dei dungeon
 
-La logica del programma sta in `wyrmdelve.py`; le **parole** che pesca a caso stanno in `wyrmdelve_tables.json`, **nella stessa cartella di `wyrmdelve.py`**: un file di testo che puoi aprire e modificare con qualsiasi editor (Blocco note, TextEdit…). Contiene circa 3.400 voci (stanze, costruttori, occupanti, grotte, eventi, luoghi, ingressi, sillabe per i nomi), che si combinano in miliardi di storie diverse:
+La logica del programma sta in `wyrmdelve.py`; le **parole e le tabelle** che pesca a caso stanno nella **cartella `data`**, **accanto a `wyrmdelve.py`**: piccoli file di testo che puoi aprire e modificare con qualsiasi editor (Blocco note, TextEdit…). Contengono circa 4.000 voci, che si combinano in miliardi di storie diverse. [data/README.it.md](data/README.it.md) elenca ogni file, da dove vengono le sue voci e con quale licenza:
 
-| Sezione | Cosa contiene |
+| File | Cosa contiene |
 |---|---|
-| `credits` | da dove vengono le voci (lascialo com'è) |
-| `name_syllables` | `syllables`: le sillabe con cui si formano i nomi; `endings`: le desinenze dei nomi per lingua (arabo, danese, francese antico, persiano, greco, latino, tedesco, russo, stile Tolkien). Un nome è fatto di 2–3 sillabe, oppure di 1–2 sillabe più la desinenza di una lingua (*Drakberg*, *Rosslav*, *Phelias*, *Kaelhil*…). Puoi aggiungere una lingua: un nome nuovo con il suo elenco di desinenze |
-| `dungeon_types` | gli 11 tipi (strato I): i loro nomi, come si impilano, la pianta, chi li costruì, il nome della mappa, le stanze e gli ingressi (vedi sotto) |
-| `second_age` | chi venne dopo (strato II) e le sue stanze |
-| `present_day` | gli abitanti di oggi (strato III) e le loro stanze |
-| `natural_rooms` | le grotte naturali (strato N) |
-| `events` | cosa chiuse ogni epoca |
-| `areas` | dove si trova il dungeon: `surface` per gli edifici sopra il suolo, `underground` per gli altri |
-| `surface_shaft` | l'ingresso usato quando nessuna parete del livello può ospitarne uno |
-| `monsters` | i mostri: nome, una riga di descrizione, in quali tipi di dungeon compaiono (`where`, `"*"` = tutti), quanto sono pericolosi (`danger`, da 1 a 4: i più pericolosi vanno nei livelli più profondi), che creatura sono (`kind`) e quanti sono (`number`); vedi [docs/add_monsters_to_bestiary.md](docs/add_monsters_to_bestiary.md) |
-| `clues` | gli indizi lasciati nelle stanze vuote, per ogni `kind` di mostro |
-| `traps` | le trappole: famiglia (`family`), grado (`stage`: 0 rotta, che insegna; 1 funzionante; 2 crudele), dove possono stare (`places`: `room`, `corridor`), chi le costruisce (`builders`: `built` o `crude`), in quali tipi (`where`), nome, segnale (`tell`), effetto (`effect`) e contromisure (`counter`) |
-| `quirks` | i motivi per cui un mostro è fuori posto, con la condizione che li rende possibili (`when`) |
-| `history` | le frasi della storia in cima alla chiave: per ogni parte (`founded` la fondazione, `caves` le grotte, `second` la seconda epoca, `fall` la sua fine, `present` gli abitanti di oggi, `crude` i cunicoli recenti) un elenco di frasi tra cui il programma ne sceglie una. La storia può aprirsi con gli abitanti di oggi (`opening`), con una diceria (`opening_legend`) o con il luogo (`opening_place`), e chiudersi con una leggenda (`legend`), un avvertimento (`warning`) o un aggancio per l'avventura (`hook`); otto parti a volte ci sono e a volte no: lo scopo dei fondatori (`purpose`), la loro epoca d'oro (`golden`), i presagi (`omen`), cosa fecero i nuovi arrivati (`second_detail`), l'abbandono (`aftermath`), la sorte dei fondatori (`fate`), chi ci passò in seguito (`interlude`) e un dettaglio sul presente (`present_detail`). In tutto 3.840 forme diverse. `words` contiene gli elenchi da cui pescano: scopi (`goals`), reliquie (`relics`) e visitatori (`visitors`) |
+| `names.json` | `name_syllables`: `syllables`, le sillabe con cui si formano i nomi; `endings`, le desinenze dei nomi per lingua (arabo, danese, francese antico, persiano, greco, latino, tedesco, russo, stile Tolkien). Un nome è fatto di 2–3 sillabe, oppure di 1–2 sillabe più la desinenza di una lingua (*Drakberg*, *Rosslav*, *Phelias*, *Kaelhil*…). Puoi aggiungere una lingua: un nome nuovo con il suo elenco di desinenze |
+| `dungeon_types/` | gli 11 tipi (strato I), **un file per tipo**, numerati nell'ordine del menu (`01_palace.json` … `11_underdark.json`): i loro nomi, come si impilano, la pianta, chi li costruì, il nome della mappa, le stanze e gli ingressi (vedi sotto). Per aggiungere un tipo, copia un file e dagli il numero successivo |
+| `second_age.json` | chi venne dopo (strato II) e le sue stanze |
+| `present_day.json` | gli abitanti di oggi (strato III) e le loro stanze |
+| `places.json` | le grotte naturali (`natural_rooms`, strato N), dove si trova il dungeon (`areas`: `surface` per gli edifici sopra il suolo, `underground` per gli altri) e l'ingresso usato quando nessuna parete del livello può ospitarne uno (`surface_shaft`) |
+| `events.json` | cosa chiuse ogni epoca |
+| `history.json` | le frasi della storia in cima alla chiave: per ogni parte (`founded` la fondazione, `caves` le grotte, `second` la seconda epoca, `fall` la sua fine, `present` gli abitanti di oggi, `crude` i cunicoli recenti) un elenco di frasi tra cui il programma ne sceglie una. La storia può aprirsi con gli abitanti di oggi (`opening`), con una diceria (`opening_legend`) o con il luogo (`opening_place`), e chiudersi con una leggenda (`legend`), un avvertimento (`warning`) o un aggancio per l'avventura (`hook`); otto parti a volte ci sono e a volte no: lo scopo dei fondatori (`purpose`), la loro epoca d'oro (`golden`), i presagi (`omen`), cosa fecero i nuovi arrivati (`second_detail`), l'abbandono (`aftermath`), la sorte dei fondatori (`fate`), chi ci passò in seguito (`interlude`) e un dettaglio sul presente (`present_detail`). In tutto 3.840 forme diverse. `words` contiene gli elenchi da cui pescano: scopi (`goals`), reliquie (`relics`) e visitatori (`visitors`) |
+| `monsters.json` | i mostri: nome, una riga di descrizione, in quali tipi di dungeon compaiono (`where`, `"*"` = tutti), quanto sono pericolosi (`danger`, da 1 a 4: i più pericolosi vanno nei livelli più profondi), che creatura sono (`kind`), quanti sono (`number`) e il loro tipo di tesoro (`treasure`, una lettera dalla A alla V, vuoto se non tengono niente); vedi [docs/add_monsters_to_bestiary.md](docs/add_monsters_to_bestiary.md) |
+| `clues.json` | gli indizi lasciati nelle stanze vuote, per ogni `kind` di mostro |
+| `quirks.json` | i motivi per cui un mostro è fuori posto, con la condizione che li rende possibili (`when`) |
+| `traps.json` | le trappole già pronte (`traps`: famiglia, grado 0 rotta / 1 funzionante / 2 crudele, posti, costruttori `built` o `crude`, tipi, nome, segnale, effetto, contromisure) e i pezzi con cui se ne montano di nuove: `triggers` (inneschi), `mechanisms` (meccanismi, con la loro versione rotta `broken`), `twists` (varianti), e il testo comune di quelle rotte (`lesson`); vedi [docs/trap.md](docs/trap.md). Facoltativo: senza, niente trappole |
+| `treasure.json` | le tabelle dei tesori di *Old-School Essentials* (Open Game Content, vedi `LICENSE-OGL.txt`): probabilità di tesoro secondo il contenuto della stanza, tesoro incustodito per livello del dungeon, tipi di tesoro A–V, gemme, gioielli, oggetti magici, e i nascondigli; vedi [docs/treasure.md](docs/treasure.md). Facoltativo: senza, niente tesori |
 
 Ogni tipo in `dungeon_types` ha:
 
@@ -315,7 +315,7 @@ Ogni testo è scritto nelle due lingue, così:
 
 Puoi cambiare le parole o aggiungere righe nuove copiandone una esistente. I costruttori vanno scritti al plurale (*i conti di {n}*, *il barone {n} e i suoi vassalli*), perché la storia dice "{f} costruirono…". `{n}` è il punto in cui il programma mette un nome casuale; in `history`, `{f}`, `{built}`, `{area}`, `{e1}`, `{s}`, `{e2}` e `{p}` sono i fondatori, cosa costruirono, il luogo, il primo evento, la seconda epoca, il secondo evento e gli abitanti di oggi; `{goal}`, `{relic}` e `{visitors}` vengono da `words` (uno scopo all'infinito, una reliquia con l'articolo indeterminativo, dei visitatori al plurale senza articolo), `{hero}` è il nome di un avventuriero scomparso. Gli abitanti di oggi possono essere singolari o plurali (*una setta*, *i coboldi*): nelle frasi nuove non accordarci un verbo, scrivi per esempio «chi vi scende incontra {p}». Se modifichi le frasi della storia, lo stesso seme dà ancora le stesse mappe e le stesse stanze: cambia solo il racconto.
 
-Fai una **copia** del file prima di modificarlo. Lascia le virgolette `"`, le virgole tra le righe e le parentesi esattamente come sono: se qualcosa è fuori posto, il programma ti dice quale riga controllare (vedi il capitolo 9). Cambiare il file cambia i dungeon: lo stesso seme può dare una storia diversa da prima.
+Fai una **copia** di un file prima di modificarlo. Lascia le virgolette `"`, le virgole tra le righe e le parentesi esattamente come sono: se qualcosa è fuori posto, il programma ti dice quale riga controllare (vedi il capitolo 9). Cambiare il file cambia i dungeon: lo stesso seme può dare una storia diversa da prima.
 
 ---
 
@@ -348,7 +348,7 @@ Ogni opzione ha anche un nome inglese (dopo la barra `/`), e puoi mescolarli com
 | `--pdf` / `--png` | Salva in PDF o in PNG | `--pdf` |
 | `--titolo` / `--title` | Nome sulla mappa (default: uno casuale) | `--titolo "La Tana dell'Orco"` |
 | `--senza-titolo` / `--no-title` | Mappa senza nome | `--senza-titolo` |
-| `--contenuto` / `--content` | Cosa generare oltre alle mappe: `storia`, `mostri`, `trappole`, anche insieme separati da virgole; `mappa` = solo le mappe; `tutto` = tutto (di base) | `--contenuto storia,trappole` |
+| `--contenuto` / `--content` | Cosa generare oltre alle mappe: `storia`, `mostri`, `trappole`, `tesori`, anche insieme separati da virgole; `mappa` = solo le mappe; `tutto` = tutto (di base) | `--contenuto storia,tesori` |
 | `--senza-storia` / `--no-story` | Solo le mappe, come `--contenuto mappa` | `--senza-storia` |
 | `--unita` / `--units` | Scala della griglia: `imperiale` (1 casella = 5 ft) o `metrica` (1 casella = 1,5 m); di base metrica in italiano, imperiale in inglese | `--unita imperiale` |
 | `--solo-ascii` / `--ascii-only` | Solo i caratteri della tastiera (`# ~ = o`) anche nei PNG e PDF (i `.txt` li usano sempre) | `--solo-ascii` |
@@ -399,10 +399,10 @@ sudo apt install python3-venv
 **Durante l'installazione qualcosa è andato storto.**
 Cancella la cartella `.venv` (è nascosta: su Windows attiva "Elementi nascosti" nel menu Visualizza, su macOS premi Cmd+Maiusc+. nel Finder) e ricomincia dal passo 3. I tuoi dungeon in `dungeons_generated` non vengono toccati.
 
-**"Manca il file wyrmdelve_tables.json".**
-Il file con le parole dei dungeon non è nella cartella. Mettilo accanto a `wyrmdelve.py`.
+**"Manca la cartella data".**
+La cartella con le parole dei dungeon non è accanto a `wyrmdelve.py`. Rimettila al suo posto (arriva insieme al programma).
 
-**"C'è un errore nel file wyrmdelve_tables.json".**
+**"C'è un errore nel file data/….json".**
 Dopo che hai modificato il file, qualcosa è fuori posto: il messaggio dice a che riga e colonna (`line 12 column 5`). Di solito è una virgola mancante tra due righe, una virgola in più dopo l'ultima riga di un elenco, o delle virgolette `"` mancanti. Correggi, oppure rimetti la copia che avevi fatto prima di modificarlo.
 
 **"Questo seme non è valido".**
@@ -424,7 +424,7 @@ La cartella `fonts` non è accanto a `wyrmdelve.py`. Rimettila al suo posto (vie
 Succede con i `.txt` creati dalle versioni precedenti, che usavano simboli come `═`, `■` o `≈`: molti editor li prendono da un altro font, con un'altra larghezza. Ora il `.txt` usa solo i caratteri della tastiera: rigenera il dungeon con lo stesso seme. Se non è ancora allineato, scegli nell'editor un font a larghezza fissa (per esempio Consolas o Courier New) e disattiva il ritorno a capo automatico.
 
 **Non c'è il PDF della storia.**
-Il programma dice perché, in una riga che comincia con `ERRORE`, subito dopo le impostazioni e di nuovo alla fine. Controlla di non aver scelto `1` (solo le mappe) a «Cosa vuoi generare?», poi:
+Il programma dice perché, in una riga che comincia con `ERRORE`, subito dopo le impostazioni e di nuovo alla fine. Controlla di non aver scelto `0` (solo le mappe) a «Cosa vuoi generare?», poi:
 - **«manca la libreria fpdf2»**: con l'ambiente virtuale attivo, scrivi `pip install -r requirements.txt` (passo 5);
 - **«è installata la vecchia libreria «fpdf» … al posto di «fpdf2»»**: le due librerie si pestano i piedi. Scrivi `pip uninstall -y fpdf fpdf2`, poi `pip install -r requirements.txt`;
 - **«manca il font …»**: rimetti la cartella `fonts` accanto a `wyrmdelve.py`.
@@ -449,18 +449,21 @@ Se vuoi sapere come il programma inventa i dungeon, nella cartella `docs` ci son
 - [Come nasce la mappa del dungeon](docs/dungeon_map_generation.md): seme, tipi, stanze, epoche, corridoi e anelli, scale, ingressi, segreti, disegno e stampa;
 - [Come nasce la storia del dungeon](docs/story_generation_algorithm.md): ingredienti, nomi, le parti del racconto e le loro 3.840 forme, le stanze a strati, la chiave e il PDF;
 - [Come nascono i mostri](docs/monsters.md): mostri erranti, mostri e indizi nelle stanze, mostri fuori posto;
-- [Come nascono le trappole](docs/trap.md): famiglie e gradi, chi le costruisce, prima si impara e poi si rischia;
+- [Come nascono le trappole](docs/trap.md): famiglie e gradi, chi le costruisce, prima si impara e poi si rischia, trappole già pronte e trappole montate dai loro pezzi;
+- [Come nascono i tesori](docs/treasure.md): quali stanze hanno un tesoro, tipi di tesoro, monete, gemme, gioielli e oggetti magici, dove è nascosto;
 - [Come aggiungere mostri al bestiario](docs/add_monsters_to_bestiary.md): i campi di ogni mostro, esempi pronti da copiare, indizi, mostri fuori posto, errori comuni.
 
 ## Fonti
 
 - Justin Alexander, [Xandering the Dungeon](https://thealexandrian.net/wordpress/13085/roleplaying-games/xandering-the-dungeon) (parti 1–5) e [Xandering on the Small Scale](https://thealexandrian.net/wordpress/34950/roleplaying-games/thought-of-the-day-xandering-on-the-small-scale)
-- Alcune voci di `wyrmdelve_tables.json` (caratteristiche delle stanze, grotte, luoghi, nomi dei siti, minacce, guai degli insediamenti) sono tradotte e adattate da *Ironsworn* e *Ironsworn: Delve* di Shawn Tomkin ([ironswornrpg.com](https://ironswornrpg.com)), con licenza [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); i dati sono stati letti da [Datasworn](https://github.com/rsek/datasworn). Dalla stessa fonte vengono le sillabe dei nomi di Ironsworn.
-- L'elenco dei mostri (`monsters` in `wyrmdelve_tables.json`) è stato ricavato confrontando, ed eliminando i doppioni, [*OSR Bestiary* v1.2](https://bucolianblog.wordpress.com) a cura di bucolian e il *Monstrous Bestiary* di *Aketon* di Reese Surles ([ward-against-evil.itch.io](https://ward-against-evil.itch.io)). Poiché questi due PDF non hanno una licenza OGL o Creative Commons, **nessun loro testo è copiato**: ne vengono solo i nomi delle creature, che sono generici, e i Dadi Vita, usati per il livello di pericolo; tutte le descrizioni sono scritte per WyrmDelve. Sono stati esclusi i mostri con nomi registrati da altri e i signori dei demoni con un nome proprio.
-- La logica delle trappole segue i principi di Arnold K., [*Some Traps*](https://goblinpunch.blogspot.com/2018/08/some-traps.html) (Goblin Punch): far conoscere un meccanismo con una versione scoperta prima di quella nascosta, e mostrare il meccanismo invece del pericolo. Le trappole del file sono scritte per WyrmDelve.
+- Alcune voci della cartella `data` (caratteristiche delle stanze, grotte, luoghi, nomi dei siti, minacce, guai degli insediamenti) sono tradotte e adattate da *Ironsworn* e *Ironsworn: Delve* di Shawn Tomkin ([ironswornrpg.com](https://ironswornrpg.com)), con licenza [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); i dati sono stati letti da [Datasworn](https://github.com/rsek/datasworn). Dalla stessa fonte vengono le sillabe dei nomi di Ironsworn.
+- L'elenco dei mostri (`data/monsters.json`) è stato ricavato confrontando, ed eliminando i doppioni, [*OSR Bestiary* v1.2](https://bucolianblog.wordpress.com) a cura di bucolian e il *Monstrous Bestiary* di *Aketon* di Reese Surles ([ward-against-evil.itch.io](https://ward-against-evil.itch.io)). Poiché questi due PDF non hanno una licenza OGL o Creative Commons, **nessun loro testo è copiato**: ne vengono solo i nomi delle creature, che sono generici, e i Dadi Vita, usati per il livello di pericolo; tutte le descrizioni sono scritte per WyrmDelve. Sono stati esclusi i mostri con nomi registrati da altri e i signori dei demoni con un nome proprio.
+- La logica delle trappole segue i principi di Arnold K., [*Some Traps*](https://goblinpunch.blogspot.com/2018/08/some-traps.html) (Goblin Punch): far conoscere un meccanismo con una versione scoperta prima di quella nascosta, e mostrare il meccanismo invece del pericolo. Le trappole proprie di WyrmDelve, gli inneschi, i meccanismi e le varianti sono scritti per WyrmDelve.
+- Le trappole segnate `"source": "srd35"` in `data/traps.json` sono adattate dalle trappole di esempio del *System Reference Document 3.5* © 2000-2003 Wizards of the Coast, Inc., Open Game Content con [Open Game License 1.0a](LICENSE-OGL.txt): gli stessi meccanismi, con il testo riscritto per il gioco old school. Sono anche la base del generatore di trappole di [donjon](https://donjon.bin.sh).
+- Le tabelle dei tesori (`data/treasure.json`) e i tipi di tesoro dei mostri sono adattati e tradotti dall'*Old-School Essentials System Reference Document* © 2019 Gavin Norman ([Necrotic Gnome](https://oldschoolessentials.necroticgnome.com)), Open Game Content con [Open Game License 1.0a](LICENSE-OGL.txt); i dati sono stati letti dall'edizione Markdown OGL [Old-School-Essentials-Markdown](https://github.com/Obsidian-TTRPG-Community/Old-School-Essentials-Markdown). WyrmDelve non è affiliato a Necrotic Gnome né approvato da loro.
 - L'aboleth viene dal [System Reference Document 5.1](https://dnd.wizards.com/resources/systems-reference-document) di Wizards of the Coast LLC, con licenza [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) (descrizione scritta per WyrmDelve).
 - Le sillabe e le desinenze in stile Tolkien sono statistiche di frequenza ricavate dalla lista di nomi di [Angband](https://github.com/angband/angband) (`lib/gamedata/names.txt`); la lista non è copiata.
 
 ## Licenza
 
-WyrmDelve è software libero con licenza [GNU General Public License v3.0](LICENSE). Le parti di `wyrmdelve_tables.json` adattate da Ironsworn mantengono la loro attribuzione CC BY 4.0 (vedi Fonti qui sopra). L'elenco dei mostri è ispirato a *OSR Bestiary* (bucolian) e al *Monstrous Bestiary* di *Aketon* (Reese Surles), citati nelle Fonti: le descrizioni sono originali e ricadono nella GPL 3.0 come il resto delle tabelle. > **I font non ricadono nella licenza GPL 3.0.** In particolare **Sebaldus-Gotisch** (© Typographer Mediengestaltung 2002, digitalizzato da Dieter Steffmann, «All rights reserved») e **Crimson Text** (SIL Open Font License 1.1) mantengono le loro condizioni; lo stesso vale per DejaVu (licenza DejaVu / Bitstream Vera). La GPL 3.0 vale per il programma e per le tabelle, non per i file della cartella `fonts/`: vedi `fonts/README.md`.
+WyrmDelve è software libero con licenza [GNU General Public License v3.0](LICENSE). L'Open Game Content (le tabelle dei tesori e le trappole dei System Reference Document, elencati in [LICENSE-OGL.txt](LICENSE-OGL.txt)) ha invece la Open Game License 1.0a. Le parti della cartella `data` adattate da Ironsworn mantengono la loro attribuzione CC BY 4.0 (vedi Fonti qui sopra). L'elenco dei mostri è ispirato a *OSR Bestiary* (bucolian) e al *Monstrous Bestiary* di *Aketon* (Reese Surles), citati nelle Fonti: le descrizioni sono originali e ricadono nella GPL 3.0 come il resto delle tabelle. > **I font non ricadono nella licenza GPL 3.0.** In particolare **Sebaldus-Gotisch** (© Typographer Mediengestaltung 2002, digitalizzato da Dieter Steffmann, «All rights reserved») e **Crimson Text** (SIL Open Font License 1.1) mantengono le loro condizioni; lo stesso vale per DejaVu (licenza DejaVu / Bitstream Vera). La GPL 3.0 vale per il programma e per le tabelle, non per i file della cartella `fonts/`: vedi `fonts/README.md`.

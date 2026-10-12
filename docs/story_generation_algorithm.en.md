@@ -46,7 +46,7 @@ The ages aren't just words: they show on the map (double walls for the founders,
 
 ## 2. Where the words come from
 
-All the words are in the file **`wyrmdelve_tables.json`**, next to the program. Every text is written in Italian and in English:
+All the words are in the files of the **`data`** folder, next to the program (the list is in [data/README.md](../data/README.md)). Every text is written in Italian and in English:
 
 ```json
 {"it": "la caduta di un meteorite", "en": "the fall of a meteorite"}

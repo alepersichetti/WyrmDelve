@@ -58,8 +58,8 @@ Parameters you leave out are chosen at random.
 
 Code and comments are in English, the UI is Italian or English. The words
 the dungeons are made of (dungeon types and how they stack, names,
-builders, occupants, rooms, events, entrances, history) are data, not code:
-they live in wyrmdelve_tables.json.
+builders, occupants, rooms, events, entrances, history, monsters, traps,
+treasure) are data, not code: they live in the JSON files of the data folder.
 """
 
 import argparse
@@ -191,8 +191,8 @@ TEXTS = {
                          "monsters: wandering monsters, monsters and clues in the rooms"),
     "content_traps": ("trappole: segnate con ^ solo sulla mappa del master e descritte nella chiave",
                       "traps: marked ^ on the game master's map only and described in the key"),
-    "content_treasure": ("tesori: monete, gemme, gioielli e oggetti magici nelle stanze (Old-School Essentials)",
-                         "treasure: coins, gems, jewellery and magic items in the rooms (Old-School Essentials)"),
+    "content_treasure": ("tesori: monete, gemme, gioielli e oggetti magici nelle stanze",
+                         "treasure: coins, gems, jewellery and magic items in the rooms"),
     "content_help": ("    Scrivi i numeri che vuoi, separati da virgole (es. 1,4); 0 = solo le mappe.",
                      "    Type the numbers you want, separated by commas (e.g. 1,4); 0 = only the maps."),
     "content_maps_only": ("solo le mappe", "only the maps"),
@@ -244,8 +244,10 @@ TEXTS = {
     "info_content": ("Contenuto: {c}", "Content: {c}"),
     "info_treasure": ("Tesori: {n}, per {v} mo in monete, gemme e gioielli; oggetti magici: {m}",
                       "Treasure hoards: {n}, worth {v} gp in coins, gems and jewellery; magic items: {m}"),
-    "warn_no_treasure": ("Manca wyrmdelve_treasure.json (o è rovinato): niente tesori",
-                         "wyrmdelve_treasure.json is missing (or broken): no treasure"),
+    "warn_no_traps": ("Manca data/traps.json (o è rovinato): niente trappole",
+                      "data/traps.json is missing (or broken): no traps"),
+    "warn_no_treasure": ("Manca data/treasure.json (o è rovinato): niente tesori",
+                         "data/treasure.json is missing (or broken): no treasure"),
     "info_traps": ("{n} trappole (^ solo sulla mappa del master)", "{n} traps (^ on the game master's map only)"),
     "info_units": ("Griglia: {s}", "Grid: {s}"),
     "info_folder": ("Cartella: {folder}", "Folder: {folder}"),
@@ -746,10 +748,12 @@ def random_params(number, fixed=None):
 
 # --- story tables ---
 # The words the dungeons are made of (dungeon types, names, later occupants,
-# rooms, events, places, entrances, the history) live in wyrmdelve_tables.json,
-# next to this file. Every text there is {"it": ..., "en": ...}; here it
-# becomes (it, en).
-TABLES_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "wyrmdelve_tables.json")
+# rooms, events, places, entrances, the history, monsters, traps, treasure)
+# live in the JSON files of the data folder, next to this file. Every text
+# there is {"it": ..., "en": ...}; here it becomes (it, en).
+HERE = os.path.dirname(os.path.abspath(__file__))
+DATA = os.path.join(HERE, "data")
+OPTIONAL_DATA = ("traps.json", "treasure.json")     # loaded on their own: without them, no traps or treasure
 
 
 def from_json(value):
@@ -768,25 +772,41 @@ TYPE_KEYS = ("id", "code", "menu", "name", "surface", "below", "eras", "pattern"
              "rooms", "entrances", "side_entrances")
 
 
-def load_tables(path=TABLES_FILE):
-    name = os.path.basename(path)
+def read_json(path):
+    name = os.path.relpath(path, HERE)
     try:
         with open(path, encoding="utf-8") as f:
-            tables = from_json(json.load(f))
+            return from_json(json.load(f))
     except OSError:
-        sys.exit(f"Manca il file {name}: mettilo nella stessa cartella di wyrmdelve.py.\n"
-                 f"{name} is missing: put it in the same folder as wyrmdelve.py.")
+        sys.exit(f"Non riesco a leggere {name} / Cannot read {name}")
     except ValueError as e:
         sys.exit(f"C'è un errore nel file {name} / There is a mistake in {name}:\n  {e}")
-    missing = [k for k in TABLE_KEYS if k not in tables]
+
+
+def load_tables(folder=DATA):
+    """Every .json in the data folder (but the optional ones) adds its keys to
+    the tables; data/dungeon_types holds one file per dungeon type, in menu
+    order (the files are numbered)."""
+    if not os.path.isdir(folder):
+        sys.exit("Manca la cartella data: mettila nella stessa cartella di wyrmdelve.py.\n"
+                 "The data folder is missing: put it in the same folder as wyrmdelve.py.")
+    tables = {}
+    for name in sorted(os.listdir(folder)):
+        if name.endswith(".json") and name not in OPTIONAL_DATA:
+            tables.update(read_json(os.path.join(folder, name)))
+    types = os.path.join(folder, "dungeon_types")
+    if os.path.isdir(types):
+        tables["dungeon_types"] = [read_json(os.path.join(types, name)) for name in sorted(os.listdir(types))
+                                   if name.endswith(".json")]
+    missing = [k for k in TABLE_KEYS if not tables.get(k)]
     for t in tables.get("dungeon_types", []):
         missing += [f"{t.get('id', '?')}.{k}" for k in TYPE_KEYS if k not in t]
     if missing:
-        sys.exit(f"Nel file {name} mancano / {name} lacks: {', '.join(missing)}")
+        sys.exit(f"Nella cartella data mancano / The data folder lacks: {', '.join(missing)}")
     ids = {t["id"] for t in tables["dungeon_types"]}
     wrong = [f"{t['id']}.below: {b}" for t in tables["dungeon_types"] for b in t["below"] if b not in ids]
     if wrong:
-        sys.exit(f"Nel file {name} ci sono tipi sconosciuti / {name} names unknown types: {', '.join(wrong)}")
+        sys.exit(f"Nella cartella data ci sono tipi sconosciuti / The data folder names unknown types: {', '.join(wrong)}")
     return tables
 
 
@@ -817,7 +837,7 @@ WORD_TABLES = {"goal": "goals", "relic": "relics", "visitors": "visitors"}
 STORY_FIELDS = {"f", "built", "area", "e1", "s", "e2", "p"}
 missing = [k for k in HISTORY_PARTS if not HISTORY.get(k)]
 if missing:
-    sys.exit(f"Nel file {os.path.basename(TABLES_FILE)} mancano / {os.path.basename(TABLES_FILE)} lacks: "
+    sys.exit("Nella cartella data mancano / The data folder lacks: "
              + ", ".join("history." + k for k in missing))
 
 # monsters (optional tables): name, text, where (type ids or "*"), danger 1-4, kind, number;
@@ -836,11 +856,10 @@ def load_optional(path, keys=()):
     return tables if isinstance(tables, dict) and all(k in tables for k in keys) else {}
 
 
-HERE = os.path.dirname(os.path.abspath(__file__))
 # traps (optional file): ready-made traps (family, stage 0 broken: it teaches, 1 working, 2 cruel,
 # places, builders, where, needs) and the parts new ones are put together from: triggers, mechanisms
 # (with their broken version, for the lessons) and twists (what makes a trap cruel)
-TRAP_TABLES = load_optional(os.path.join(HERE, "wyrmdelve_traps.json"))
+TRAP_TABLES = load_optional(os.path.join(DATA, "traps.json"))
 TRAPS = [t for t in TRAP_TABLES.get("traps", []) if t.get("name") and t.get("family")]
 TRIGGERS = [t for t in TRAP_TABLES.get("triggers", []) if t.get("name") and t.get("places")]
 MECHANISMS = [m for m in TRAP_TABLES.get("mechanisms", []) if m.get("name") and m.get("family")]
@@ -852,7 +871,7 @@ if not (TRIGGERS and LESSON):
 # treasure (optional file): the Old-School Essentials tables (Open Game Content,
 # see LICENSE-OGL.txt): how often a room holds treasure, treasure by dungeon
 # level, treasure types A-V, gems, jewellery, magic items
-TREASURE = load_optional(os.path.join(HERE, "wyrmdelve_treasure.json"),
+TREASURE = load_optional(os.path.join(DATA, "treasure.json"),
                          ("coins", "coin_value", "room_chance", "unguarded", "types", "gems", "jewellery",
                           "magic_types", "magic", "hiding"))
 
@@ -3645,11 +3664,13 @@ def plan_treasure(dungeon, seed, occupants=None, traps=None):
     treasure type: none for some of them), a room with a trap 2 in 6, an empty
     room 1 in 6 (the unguarded treasure of that dungeon level). occupants
     (from plan_monsters) and traps are what the key shows: without them every
-    room counts as empty. Its own random numbers: nothing else changes.
+    room counts as empty; a working trap in the room guards the treasure.
+    Its own random numbers: nothing else changes.
     room uid -> {"text", "value", "magic", "where", "trapped"}."""
     rng = random.Random(f"wyrmdelve-treasure-{seed}")
     occupants = occupants or {}
     trapped = {r["room"].uid for r in traps or [] if r["room"] is not None}
+    guarded = {r["room"].uid for r in traps or [] if r["room"] is not None and r["trap"].get("stage", 1) >= 1}
     found = {}
     for level in dungeon.levels:
         depth = math.ceil(level.depth) + 1         # a sub-level counts as the level below it
@@ -3674,7 +3695,7 @@ def plan_treasure(dungeon, seed, occupants=None, traps=None):
             text = hoard_text(hoard)
             if text:
                 found[room.uid] = {"text": text, "value": hoard_value(hoard), "magic": len(hoard["magic"]),
-                                   "where": pick(where), "trapped": room.uid in trapped}
+                                   "where": pick(where), "trapped": room.uid in guarded}
     return found
 
 
@@ -4343,6 +4364,8 @@ def main():
     log.info(tr("info_units", s=scale_text(units)))
     keyed = any(params[k] for k in CONTENT_KEYS)
     log.info(tr("info_content", c=content_name([params[k] for k in CONTENT_KEYS])))
+    if params["traps"] and not TRAPS:
+        log.warn(tr("warn_no_traps"))
     if params["treasure"] and not TREASURE:
         log.warn(tr("warn_no_treasure"))
     if keyed and story_pdf_problem():

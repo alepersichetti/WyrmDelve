@@ -23,11 +23,11 @@ Questa guida spiega, passo per passo, come aggiungere i tuoi mostri a WyrmDelve.
 
 ## 1. Dove sono i mostri
 
-Tutti i mostri stanno nel file **`wyrmdelve_tables.json`**, nella stessa cartella di `wyrmdelve.py`, sotto la voce `"monsters"`. Ogni mostro è **una riga**.
+Tutti i mostri stanno nel file **`data/monsters.json`**, nella cartella `data` accanto a `wyrmdelve.py`. Ogni mostro è **una riga**. Gli indizi stanno in `data/clues.json` e i motivi per i mostri fuori posto in `data/quirks.json`.
 
 Prima di cominciare:
 
-1. **Fai una copia** del file (per esempio `wyrmdelve_tables_copia.json`): se qualcosa va storto, la rimetti al suo posto.
+1. **Fai una copia** del file (per esempio `monsters_copia.json`, fuori dalla cartella `data`): se qualcosa va storto, la rimetti al suo posto.
 2. Apri il file con un editor di testo semplice: Blocco note su Windows, TextEdit su Mac (in modalità "testo semplice"), oppure un editor come Visual Studio Code, che colora il testo e segnala gli errori.
 3. Cerca `"monsters"` (Ctrl+F su Windows, Cmd+F su Mac).
 
@@ -38,10 +38,10 @@ Prima di cominciare:
 Ecco un mostro vero, preso dal file:
 
 ```json
-{"name": {"it": "ghoul", "en": "ghouls"}, "text": {"it": "morti affamati di carne; i loro artigli paralizzano", "en": "dead hungry for flesh; their claws paralyse"}, "where": ["tomb", "temple", "prison"], "danger": 1, "kind": "undead", "number": "2d6"},
+{"name": {"it": "ghoul", "en": "ghouls"}, "text": {"it": "morti affamati di carne; i loro artigli paralizzano", "en": "dead hungry for flesh; their claws paralyse"}, "where": ["tomb", "temple", "prison"], "danger": 1, "kind": "undead", "number": "2d6", "treasure": "B"},
 ```
 
-Letto in italiano: *i ghoul sono morti affamati di carne, si trovano in tombe, templi e prigioni, sono poco pericolosi (1), sono non morti, e se ne incontrano 2d6.*
+Letto in italiano: *i ghoul sono morti affamati di carne, si trovano in tombe, templi e prigioni, sono poco pericolosi (1), sono non morti, se ne incontrano 2d6 e nella tana hanno un tesoro di tipo B.*
 
 Nella chiave del dungeon diventa:
 
@@ -65,6 +65,7 @@ Nella chiave del dungeon diventa:
 | `danger` | quanto è **pericoloso**, da 1 a 4 | no (senza: 2) | `1` |
 | `kind` | che **creatura** è: decide gli indizi e i motivi per essere fuori posto | no (senza: niente indizio) | `"undead"` |
 | `number` | **quanti** se ne incontrano | no (senza: nessun numero) | `"2d6"` |
+| `treasure` | il **tipo di tesoro** (una lettera dalla A alla V) | no (senza: niente tesoro) | `"B"` |
 
 ### `where`: i tipi di dungeon
 
@@ -119,32 +120,45 @@ Un'espressione di dadi come `"1"`, `"1d3"`, `"1d6"`, `"2d6"`, `"3d6"`. Lascia `"
 
 Una regola semplice: pericolo 1 → `"2d6"`, pericolo 2 → `"1d6"`, pericolo 3 → `"1d3"`, pericolo 4 → `"1"`.
 
+### `treasure`: il tipo di tesoro
+
+Una lettera delle tabelle di *Old-School Essentials*: quando i mostri abitano una stanza, 3 volte su 6 c'è un tesoro di quel tipo. Lascia `""` per le creature che non tengono niente (animali, melme, sciami). Una regola semplice:
+
+| Lettera | Per chi | Valore medio |
+|---|---|---|
+| `U`, `V` | piccoli gruppi, bestie che lasciano i resti delle vittime | 160 / 330 mo |
+| `C`, `D` | umanoidi in tana, non morti, bestie grosse | 1.000 / 3.900 mo |
+| `B`, `E`, `F` | creature intelligenti e pericolose | 2.000 / 2.300 / 7.700 mo |
+| `A`, `G`, `H` | draghi, giganti, signori delle profondità | 18.000 / 23.000 / 60.000 mo |
+
+Tutti i tipi, con quello che contengono, sono in `data/treasure.json` e spiegati in [treasure.md](treasure.md).
+
 ---
 
 ## 4. Aggiungere un mostro, passo per passo
 
 Aggiungiamo la **sanguisuga delle cripte**, un mostro inventato.
 
-**1. Trova l'ultimo mostro dell'elenco.** È la riga subito prima di `  ],` e di `"clues"`:
+**1. Trova l'ultimo mostro dell'elenco.** È la riga subito prima di `  ]`, in fondo al file:
 
 ```json
-    {"name": {"it": "megera marina", "en": "sea hag"}, …, "number": "1d6"}
-  ],
-  "clues": {
+    {"name": {"it": "megera marina", "en": "sea hag"}, …, "number": "1d6", "treasure": "D"}
+  ]
+}
 ```
 
 **2. Aggiungi una virgola alla fine dell'ultima riga**, perché dopo ne arriva un'altra:
 
 ```json
-    {"name": {"it": "megera marina", "en": "sea hag"}, …, "number": "1d6"},
+    {"name": {"it": "megera marina", "en": "sea hag"}, …, "number": "1d6", "treasure": "D"},
 ```
 
 **3. Scrivi il tuo mostro sotto**, senza virgola alla fine (ora è lui l'ultimo):
 
 ```json
-    {"name": {"it": "sanguisuga delle cripte", "en": "crypt leech"}, "text": {"it": "si nasconde nei sarcofagi e succhia il calore dei vivi", "en": "hides in sarcophagi and drains the warmth of the living"}, "where": ["tomb"], "danger": 2, "kind": "undead", "number": "1d6"}
-  ],
-  "clues": {
+    {"name": {"it": "sanguisuga delle cripte", "en": "crypt leech"}, "text": {"it": "si nasconde nei sarcofagi e succhia il calore dei vivi", "en": "hides in sarcophagi and drains the warmth of the living"}, "where": ["tomb"], "danger": 2, "kind": "undead", "number": "1d6", "treasure": ""}
+  ]
+}
 ```
 
 **4. Salva il file** e prova il programma (capitolo 8).
@@ -160,38 +174,38 @@ Un mostro per ogni situazione tipica. Copia la riga, cambia le parole, salva.
 **Uno sciame che si trova ovunque** (senza numero):
 
 ```json
-{"name": {"it": "sciame di falene", "en": "moth swarm"}, "text": {"it": "falene grigie che spengono le torce e lasciano polvere negli occhi", "en": "grey moths that put out torches and leave dust in the eyes"}, "where": ["*"], "danger": 1, "kind": "vermin", "number": ""},
+{"name": {"it": "sciame di falene", "en": "moth swarm"}, "text": {"it": "falene grigie che spengono le torce e lasciano polvere negli occhi", "en": "grey moths that put out torches and leave dust in the eyes"}, "where": ["*"], "danger": 1, "kind": "vermin", "number": "", "treasure": ""},
 ```
 
 **Un gruppo di persone in città**:
 
 ```json
-{"name": {"it": "contrabbandieri", "en": "smugglers"}, "text": {"it": "spostano merci proibite attraverso le fogne", "en": "move forbidden goods through the sewers"}, "where": ["city", "prison"], "danger": 1, "kind": "humanoid", "number": "2d6"},
+{"name": {"it": "contrabbandieri", "en": "smugglers"}, "text": {"it": "spostano merci proibite attraverso le fogne", "en": "move forbidden goods through the sewers"}, "where": ["city", "prison"], "danger": 1, "kind": "humanoid", "number": "2d6", "treasure": "C"},
 ```
 
 **Una creatura d'acqua** (può comparire anche "fuori posto", risalita dalle grotte allagate):
 
 ```json
-{"name": {"it": "anguilla delle cisterne", "en": "cistern eel"}, "text": {"it": "un'anguilla pallida e cieca che morde le caviglie", "en": "a pale, blind eel that bites at ankles"}, "where": ["underdark", "city"], "danger": 1, "kind": "aquatic", "number": "1d6"},
+{"name": {"it": "anguilla delle cisterne", "en": "cistern eel"}, "text": {"it": "un'anguilla pallida e cieca che morde le caviglie", "en": "a pale, blind eel that bites at ankles"}, "where": ["underdark", "city"], "danger": 1, "kind": "aquatic", "number": "1d6", "treasure": ""},
 ```
 
 **Un guardiano costruito dai fondatori** (può comparire "fuori posto" nelle sale dei fondatori):
 
 ```json
-{"name": {"it": "cavaliere di bronzo", "en": "bronze knight"}, "text": {"it": "una statua equestre che carica chi non conosce la parola d'ordine", "en": "an equestrian statue that charges anyone without the password"}, "where": ["castle", "palace", "fortress"], "danger": 3, "kind": "construct", "number": "1"},
+{"name": {"it": "cavaliere di bronzo", "en": "bronze knight"}, "text": {"it": "una statua equestre che carica chi non conosce la parola d'ordine", "en": "an equestrian statue that charges anyone without the password"}, "where": ["castle", "palace", "fortress"], "danger": 3, "kind": "construct", "number": "1", "treasure": ""},
 ```
 
 **Un mostro unico e mortale delle profondità**:
 
 ```json
-{"name": {"it": "verme della memoria", "en": "memory worm"}, "text": {"it": "un verme lungo un corridoio che divora i ricordi di chi tocca", "en": "a worm as long as a corridor that devours the memories of whoever it touches"}, "where": ["underdark"], "danger": 4, "kind": "magical", "number": "1"},
+{"name": {"it": "verme della memoria", "en": "memory worm"}, "text": {"it": "un verme lungo un corridoio che divora i ricordi di chi tocca", "en": "a worm as long as a corridor that devours the memories of whoever it touches"}, "where": ["underdark"], "danger": 4, "kind": "magical", "number": "1", "treasure": "E"},
 ```
 
 ---
 
 ## 6. Aggiungere indizi
 
-Gli indizi stanno sotto `"clues"`, raggruppati per `kind`. Ogni volta che un mostro abita una stanza, il programma sceglie un indizio del suo `kind` e lo mette in una stanza vuota vicina.
+Gli indizi stanno in `data/clues.json`, raggruppati per `kind`. Ogni volta che un mostro abita una stanza, il programma sceglie un indizio del suo `kind` e lo mette in una stanza vuota vicina.
 
 ```json
   "clues": {
@@ -220,7 +234,7 @@ Per un `kind` nuovo, aggiungi un elenco nuovo:
 
 ## 7. Aggiungere motivi per i mostri fuori posto
 
-Quando e come compaiono i mostri fuori posto è spiegato nel capitolo 5 di [monsters.md](monsters.md#5-i-mostri-fuori-posto). I motivi stanno sotto `"quirks"`:
+Quando e come compaiono i mostri fuori posto è spiegato nel capitolo 5 di [monsters.md](monsters.md#5-i-mostri-fuori-posto). I motivi stanno in `data/quirks.json`:
 
 ```json
 {"when": "water", "kinds": ["aquatic"], "text": {"it": "le grotte allagate{from} arrivano fin sotto questa stanza, attraverso una vasca", "en": "the flooded caves{from} reach up under this room, through a pool"}},
@@ -270,7 +284,7 @@ Poi apri il file `_key.txt` nella cartella del dungeon e cerca il tuo mostro. Se
 Se il file JSON ha un errore, il programma si ferma subito e dice in quale riga guardare:
 
 ```
-C'è un errore nel file wyrmdelve_tables.json / There is a mistake in wyrmdelve_tables.json:
+C'è un errore nel file data/monsters.json / There is a mistake in data/monsters.json:
   Expecting ',' delimiter: line 3912 column 5
 ```
 
@@ -281,7 +295,8 @@ C'è un errore nel file wyrmdelve_tables.json / There is a mistake in wyrmdelve_
 | `Expecting value` | virgolette mancanti, oppure `'` al posto di `"` | usa sempre le virgolette doppie `"` |
 | `Invalid control character` | un a capo dentro un testo | scrivi il testo tutto su una riga |
 | il mostro non esce mai | `where` sbagliato (per esempio `"tombs"` invece di `"tomb"`) | controlla la tabella del capitolo 3 |
-| niente indizio vicino al mostro | il suo `kind` non ha indizi | aggiungili sotto `clues` |
+| niente indizio vicino al mostro | il suo `kind` non ha indizi | aggiungili in `data/clues.json` |
+| il mostro non ha mai tesoro | `treasure` vuoto o una lettera che non esiste | usa una lettera dalla A alla V |
 
 Dentro un testo puoi usare l'apostrofo (`l'ingresso`) senza problemi. Se ti serve una virgoletta doppia, scrivila così: `\"`.
 
@@ -292,6 +307,6 @@ Dentro un testo puoi usare l'apostrofo (`l'ingresso`) senza problemi. Se ti serv
 WyrmDelve è distribuito con licenza GPL 3.0, e chiunque può copiarlo. Per questo, nel file JSON:
 
 - **puoi** scrivere mostri tuoi, con parole tue;
-- **puoi** usare materiale con licenza **Creative Commons BY** (per esempio l'SRD 5.1 o Ironsworn), ricordandoti di **citare la fonte** nei `credits` del file JSON e nella sezione Fonti del README;
+- **puoi** usare materiale con licenza **Creative Commons BY** (per esempio l'SRD 5.1 o Ironsworn), ricordandoti di **citare la fonte** in `data/README.it.md` e `data/README.md` e nella sezione Fonti del README; il materiale **OGL** (per esempio l'SRD di Old-School Essentials) va anche elencato in `LICENSE-OGL.txt`;
 - **non copiare** descrizioni da libri o PDF che non hanno una licenza aperta: puoi però prendere l'**idea** di un mostro e il suo nome, se è generico (un ghoul, un ragno gigante), e descriverlo con parole tue. È quello che è stato fatto con i due bestiari citati nel README;
 - **evita** i nomi registrati da altri: per esempio *beholder*, *mind flayer*, *displacer beast*, *umber hulk*, *carrion crawler*, *githyanki*, *yuan-ti*.

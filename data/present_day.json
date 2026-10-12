@@ -1,0 +1,548 @@
+{
+  "present_day": [
+    {
+      "who": {"it": "l'orco {n} e i suoi servi coboldi", "en": "the ogre {n} and their kobold servants"},
+      "rooms": [
+        {"it": "tana dell'orco", "en": "ogre's lair"},
+        {"it": "cucina", "en": "kitchen"},
+        {"it": "dispensa", "en": "larder"},
+        {"it": "recinto dei prigionieri", "en": "prisoners' pen"},
+        {"it": "mucchio di ossa", "en": "bone heap"},
+        {"it": "cuccia dei coboldi", "en": "kobold warren"},
+        {"it": "trappola dei coboldi", "en": "kobold trap room"},
+        {"it": "sala del tesoro dell'orco", "en": "ogre's treasure pile"},
+        {"it": "pozzo dei rifiuti", "en": "refuse shaft"},
+        {"it": "sala del pentolone", "en": "great pot room"}
+      ]
+    },
+    {
+      "who": {"it": "una banda di orchi guidata da {n}", "en": "a band of orcs led by {n}"},
+      "rooms": [
+        {"it": "accampamento", "en": "camp"},
+        {"it": "sala del bottino", "en": "loot room"},
+        {"it": "posto di guardia", "en": "watch post"},
+        {"it": "fossa dei lupi", "en": "wolf pit"},
+        {"it": "forgia improvvisata", "en": "makeshift forge"},
+        {"it": "tana del capo", "en": "chief's den"},
+        {"it": "sala dei trofei", "en": "trophy room"},
+        {"it": "recinto dei prigionieri", "en": "prisoners' pen"},
+        {"it": "fossa dei combattimenti", "en": "fighting pit"},
+        {"it": "sala dei tamburi", "en": "drum hall"}
+      ]
+    },
+    {
+      "who": {"it": "i morti inquieti, risvegliati da {n}", "en": "the restless dead, woken by {n}"},
+      "rooms": [
+        {"it": "sala dei morti", "en": "hall of the dead"},
+        {"it": "ossario profanato", "en": "desecrated ossuary"},
+        {"it": "tomba aperta", "en": "open grave"},
+        {"it": "camera fredda", "en": "cold chamber"},
+        {"it": "nido degli spettri", "en": "wraiths' nest"},
+        {"it": "sala dei lamenti", "en": "hall of wailing"},
+        {"it": "cripta dei ghoul", "en": "ghoul crypt"},
+        {"it": "sala delle catene", "en": "hall of chains"},
+        {"it": "sala delle bare aperte", "en": "open coffin hall"},
+        {"it": "pozzo dei lamenti", "en": "well of moans"}
+      ]
+    },
+    {
+      "who": {"it": "i ragni giganti della regina {n}", "en": "the giant spiders of Queen {n}"},
+      "rooms": [
+        {"it": "nido di ragnatele", "en": "web nest"},
+        {"it": "dispensa di bozzoli", "en": "cocoon larder"},
+        {"it": "covata", "en": "brood chamber"},
+        {"it": "tunnel di seta", "en": "silk tunnel"},
+        {"it": "trappola di seta", "en": "silk snare"},
+        {"it": "tana della regina", "en": "queen's lair"},
+        {"it": "sala delle prede", "en": "prey hall"},
+        {"it": "sala delle uova appese", "en": "hanging egg room"},
+        {"it": "pozzo di ragnatele", "en": "web shaft"}
+      ]
+    },
+    {
+      "who": {"it": "i trogloditi del re {n}", "en": "the troglodytes of King {n}"},
+      "rooms": [
+        {"it": "grotta comune", "en": "common cave"},
+        {"it": "altare di pietra", "en": "stone altar"},
+        {"it": "fossa dei rifiuti", "en": "refuse pit"},
+        {"it": "tana delle uova", "en": "egg chamber"},
+        {"it": "sala del re", "en": "king's hall"},
+        {"it": "deposito delle lance", "en": "spear store"},
+        {"it": "pozza fangosa", "en": "mud pool"},
+        {"it": "sala del puzzo", "en": "stench room"},
+        {"it": "grotta dei tamburi", "en": "drum grotto"}
+      ]
+    },
+    {
+      "who": {"it": "il drago {n} e i suoi coboldi adoratori", "en": "the dragon {n} and their kobold worshippers"},
+      "rooms": [
+        {"it": "tana del drago", "en": "dragon's lair"},
+        {"it": "mucchio del tesoro", "en": "treasure hoard"},
+        {"it": "tempio dei coboldi", "en": "kobold temple"},
+        {"it": "cuccia dei coboldi", "en": "kobold warren"},
+        {"it": "sala delle uova", "en": "egg room"},
+        {"it": "dispensa di carcasse", "en": "carcass larder"},
+        {"it": "sala delle offerte", "en": "offering hall"},
+        {"it": "sala delle ossa di cavaliere", "en": "knights' bones room"}
+      ]
+    },
+    {
+      "who": {"it": "i bugbear di {n}", "en": "the bugbears of {n}"},
+      "rooms": [
+        {"it": "tana dei bugbear", "en": "bugbear den"},
+        {"it": "sala degli agguati", "en": "ambush room"},
+        {"it": "deposito del bottino", "en": "loot store"},
+        {"it": "sala del capo", "en": "chief's hall"},
+        {"it": "recinto degli schiavi goblin", "en": "goblin slave pen"},
+        {"it": "dispensa", "en": "larder"},
+        {"it": "sala delle trappole", "en": "trap room"},
+        {"it": "dormitorio", "en": "bunkroom"}
+      ]
+    },
+    {
+      "who": {"it": "lo sciame di uomini ratto di {n}", "en": "the ratfolk swarm of {n}"},
+      "rooms": [
+        {"it": "nido degli uomini ratto", "en": "ratfolk nest"},
+        {"it": "deposito della spazzatura", "en": "junk store"},
+        {"it": "sala della peste", "en": "plague room"},
+        {"it": "tana del re dei ratti", "en": "rat king's den"},
+        {"it": "galleria dei rosicchiatori", "en": "gnawers' gallery"},
+        {"it": "dispensa", "en": "larder"},
+        {"it": "altare della malattia", "en": "altar of sickness"}
+      ]
+    },
+    {
+      "who": {"it": "gli gnoll del branco di {n}", "en": "the gnolls of the {n} pack"},
+      "rooms": [
+        {"it": "tana del branco", "en": "pack den"},
+        {"it": "fossa delle ossa", "en": "bone pit"},
+        {"it": "sala del banchetto", "en": "feast hall"},
+        {"it": "recinto delle iene", "en": "hyena pen"},
+        {"it": "altare del demone", "en": "demon altar"},
+        {"it": "deposito delle pelli", "en": "hide store"},
+        {"it": "sala del capobranco", "en": "packlord's hall"},
+        {"it": "dispensa di carcasse", "en": "carcass larder"}
+      ]
+    },
+    {
+      "who": {"it": "il lich {n} e i suoi servitori non morti", "en": "the lich {n} and their undead servants"},
+      "rooms": [
+        {"it": "sala del filatterio", "en": "phylactery chamber"},
+        {"it": "biblioteca dei morti", "en": "library of the dead"},
+        {"it": "sala delle mummie", "en": "mummy hall"},
+        {"it": "laboratorio necromantico", "en": "necromantic laboratory"},
+        {"it": "sala del trono d'osso", "en": "bone throne hall"},
+        {"it": "corpo di guardia scheletrico", "en": "skeleton guardroom"},
+        {"it": "sala del freddo eterno", "en": "hall of endless cold"},
+        {"it": "cripta dei cavalieri della morte", "en": "death knights' crypt"},
+        {"it": "sala del trono del lich", "en": "lich's throne room"}
+      ]
+    },
+    {
+      "who": {"it": "gli uomini fungo di {n}", "en": "the fungus folk of {n}"},
+      "rooms": [
+        {"it": "giardino di funghi", "en": "fungus garden"},
+        {"it": "sala delle spore", "en": "spore chamber"},
+        {"it": "camera della fusione", "en": "melding chamber"},
+        {"it": "deposito del compost", "en": "compost store"},
+        {"it": "sala del sovrano fungo", "en": "fungus sovereign's hall"},
+        {"it": "vivaio", "en": "nursery"},
+        {"it": "pozza di muffa", "en": "mould pool"},
+        {"it": "sala della comunione", "en": "communion chamber"}
+      ]
+    },
+    {
+      "who": {"it": "una banda di avventurieri rivali guidata da {n}", "en": "a band of rival adventurers led by {n}"},
+      "rooms": [
+        {"it": "accampamento degli avventurieri", "en": "adventurers' camp"},
+        {"it": "deposito del bottino", "en": "loot store"},
+        {"it": "infermeria improvvisata", "en": "makeshift infirmary"},
+        {"it": "stanza delle mappe", "en": "map room"},
+        {"it": "trappola riarmata", "en": "reset trap room"},
+        {"it": "posto di vedetta", "en": "lookout post"},
+        {"it": "cella dei prigionieri", "en": "prisoners' cell"}
+      ]
+    },
+    {
+      "who": {"it": "le arpie di {n}", "en": "the harpies of {n}"},
+      "rooms": [
+        {"it": "nido delle arpie", "en": "harpy roost"},
+        {"it": "mucchio di ossa", "en": "bone heap"},
+        {"it": "sala del canto", "en": "singing hall"},
+        {"it": "deposito dei gioielli rubati", "en": "stolen jewel store"},
+        {"it": "pozzo dei cadaveri", "en": "corpse shaft"},
+        {"it": "posatoio alto", "en": "high perch"},
+        {"it": "sala dei prigionieri incantati", "en": "charmed prisoners' hall"}
+      ]
+    },
+    {
+      "who": {"it": "il tiranno dagli occhi {n} e i suoi schiavi", "en": "the eye tyrant {n} and its slaves"},
+      "rooms": [
+        {"it": "sala del tiranno dagli occhi", "en": "eye tyrant's hall"},
+        {"it": "recinto degli schiavi", "en": "slave pen"},
+        {"it": "sala pietrificata", "en": "petrified hall"},
+        {"it": "deposito del tesoro", "en": "treasure store"},
+        {"it": "galleria scavata dai raggi", "en": "ray-carved gallery"},
+        {"it": "dormitorio degli schiavi", "en": "slaves' dormitory"}
+      ]
+    },
+    {
+      "who": {"it": "gli uomini lucertola della tribù {n}", "en": "the lizardfolk of the {n} tribe"},
+      "rooms": [
+        {"it": "grotta delle uova", "en": "egg grotto"},
+        {"it": "pozza calda", "en": "warm pool"},
+        {"it": "sala del capo", "en": "chief's hall"},
+        {"it": "altare del coccodrillo", "en": "crocodile altar"},
+        {"it": "dispensa di pesce", "en": "fish larder"},
+        {"it": "sala dei tamburi", "en": "drum room"},
+        {"it": "sala dello sciamano", "en": "shaman's hall"}
+      ]
+    },
+    {
+      "who": {"it": "i troll di {n}", "en": "the trolls of {n}"},
+      "rooms": [
+        {"it": "tana dei troll", "en": "troll lair"},
+        {"it": "mucchio di ossa", "en": "bone heap"},
+        {"it": "pozza putrida", "en": "putrid pool"},
+        {"it": "sala del tesoro dei troll", "en": "troll hoard room"},
+        {"it": "dispensa di carne", "en": "meat larder"},
+        {"it": "sala del sonno", "en": "sleeping cave"},
+        {"it": "ponte del pedaggio", "en": "toll bridge"}
+      ]
+    },
+    {
+      "who": {"it": "la medusa {n} e le sue statue", "en": "the medusa {n} and her statues"},
+      "rooms": [
+        {"it": "giardino delle statue", "en": "statue garden"},
+        {"it": "sala degli specchi infranti", "en": "broken mirror hall"},
+        {"it": "tana della medusa", "en": "medusa's lair"},
+        {"it": "sala dei serpenti", "en": "snake room"},
+        {"it": "sala del tesoro pietrificato", "en": "petrified treasure room"},
+        {"it": "bagno della medusa", "en": "medusa's bath"},
+        {"it": "corridoio delle vittime", "en": "victims' gallery"}
+      ]
+    },
+    {
+      "who": {"it": "un mimic chiamato {n} e i suoi parassiti", "en": "a mimic called {n} and its parasites"},
+      "rooms": [
+        {"it": "sala dei forzieri finti", "en": "false chests room"},
+        {"it": "sala delle porte false", "en": "false doors room"},
+        {"it": "deposito dei resti", "en": "remains store"},
+        {"it": "sala del pavimento vivo", "en": "living floor room"},
+        {"it": "nido dei mimic", "en": "mimic nest"},
+        {"it": "sala dei mobili sospetti", "en": "suspicious furniture room"}
+      ]
+    },
+    {
+      "who": {"it": "i minotauri del labirinto di {n}", "en": "the minotaurs of {n}'s maze"},
+      "rooms": [
+        {"it": "cuore del labirinto", "en": "heart of the maze"},
+        {"it": "sala delle corna", "en": "horn hall"},
+        {"it": "fossa delle ossa", "en": "bone pit"},
+        {"it": "sala delle offerte", "en": "offering hall"},
+        {"it": "tana del minotauro", "en": "minotaur's lair"},
+        {"it": "corridoio cieco", "en": "dead end hall"},
+        {"it": "sala della scure", "en": "axe hall"}
+      ]
+    },
+    {
+      "who": {"it": "gli spettri della famiglia {n}", "en": "the ghosts of the {n} family"},
+      "rooms": [
+        {"it": "sala del ballo spettrale", "en": "ghostly ballroom"},
+        {"it": "camera del bambino morto", "en": "dead child's room"},
+        {"it": "sala del ritratto maledetto", "en": "cursed portrait room"},
+        {"it": "biblioteca infestata", "en": "haunted library"},
+        {"it": "sala delle catene trascinate", "en": "dragging chains room"},
+        {"it": "camera fredda", "en": "cold room"},
+        {"it": "sala dei sussurri", "en": "whispering hall"}
+      ]
+    },
+    {
+      "who": {"it": "gli ogre mezzi giganti del clan {n}", "en": "the half-giant ogres of the {n} clan"},
+      "rooms": [
+        {"it": "caverna degli ogre", "en": "ogre cave"},
+        {"it": "sala del banchetto", "en": "feast hall"},
+        {"it": "fossa dei prigionieri", "en": "prisoners' pit"},
+        {"it": "deposito delle mazze", "en": "club store"},
+        {"it": "sala del capo", "en": "chief's hall"},
+        {"it": "dispensa", "en": "larder"},
+        {"it": "mucchio di tesori", "en": "treasure heap"}
+      ]
+    },
+    {
+      "who": {"it": "gli scheletri guerrieri del re {n}", "en": "the skeleton warriors of King {n}"},
+      "rooms": [
+        {"it": "caserma degli scheletri", "en": "skeleton barracks"},
+        {"it": "sala d'armi arrugginita", "en": "rusted armoury"},
+        {"it": "sala del trono vuoto", "en": "empty throne hall"},
+        {"it": "cripta dei generali", "en": "generals' crypt"},
+        {"it": "sala delle bandiere marce", "en": "rotten banner hall"},
+        {"it": "piazza d'armi dei morti", "en": "parade ground of the dead"},
+        {"it": "sala del re scheletro", "en": "skeleton king's hall"}
+      ]
+    },
+    {
+      "who": {"it": "le melme e le gelatine nutrite da {n}", "en": "the oozes and jellies fed by {n}"},
+      "rooms": [
+        {"it": "pozza di melma", "en": "ooze pool"},
+        {"it": "sala corrosa", "en": "corroded room"},
+        {"it": "deposito delle ossa pulite", "en": "clean bones store"},
+        {"it": "sala della gelatina", "en": "jelly room"},
+        {"it": "condotto gocciolante", "en": "dripping conduit"},
+        {"it": "vasca acida", "en": "acid vat"},
+        {"it": "sala delle armature sciolte", "en": "melted armour room"}
+      ]
+    },
+    {
+      "who": {"it": "i giganti di fuoco di {n}", "en": "the fire giants of {n}"},
+      "rooms": [
+        {"it": "forgia dei giganti", "en": "giants' forge"},
+        {"it": "sala del magma", "en": "magma hall"},
+        {"it": "trono di ferro", "en": "iron throne room"},
+        {"it": "recinto dei segugi infernali", "en": "hell hound kennels"},
+        {"it": "deposito delle armi giganti", "en": "giant weapons store"},
+        {"it": "sala del banchetto", "en": "feast hall"},
+        {"it": "prigione dei nani schiavi", "en": "dwarf slaves' prison"}
+      ]
+    },
+    {
+      "who": {"it": "i demoni evocati da {n}", "en": "the demons summoned by {n}"},
+      "rooms": [
+        {"it": "cerchio spezzato", "en": "broken circle"},
+        {"it": "sala delle fiamme nere", "en": "black flame hall"},
+        {"it": "fossa delle anime", "en": "pit of souls"},
+        {"it": "sala delle torture", "en": "torture hall"},
+        {"it": "trono infernale", "en": "infernal throne room"},
+        {"it": "sala dello zolfo", "en": "sulphur hall"},
+        {"it": "portale verso l'abisso", "en": "portal to the abyss"}
+      ]
+    },
+    {
+      "who": {"it": "i ghoul del branco di {n}", "en": "the ghouls of the {n} pack"},
+      "rooms": [
+        {"it": "cripta dei banchetti", "en": "feast crypt"},
+        {"it": "mucchio di cadaveri", "en": "corpse heap"},
+        {"it": "tana dei ghoul", "en": "ghoul den"},
+        {"it": "sala delle ossa spolpate", "en": "stripped bones hall"},
+        {"it": "pozzo dei morti", "en": "well of the dead"},
+        {"it": "ossario profanato", "en": "desecrated ossuary"},
+        {"it": "sala del capobranco", "en": "pack leader's hall"}
+      ]
+    },
+    {
+      "who": {"it": "una colonia di pipistrelli vampiro guidata da {n}", "en": "a vampire bat colony led by {n}"},
+      "rooms": [
+        {"it": "grotta del guano", "en": "guano cave"},
+        {"it": "posatoio", "en": "roost"},
+        {"it": "sala dei cadaveri dissanguati", "en": "drained corpses room"},
+        {"it": "nido dei piccoli", "en": "young's nest"},
+        {"it": "camino dei pipistrelli", "en": "bat chimney"},
+        {"it": "sala del pipistrello gigante", "en": "giant bat's hall"}
+      ]
+    },
+    {
+      "who": {"it": "le formiche giganti della regina {n}", "en": "the giant ants of Queen {n}"},
+      "rooms": [
+        {"it": "camera della regina", "en": "queen's chamber"},
+        {"it": "covata", "en": "brood chamber"},
+        {"it": "deposito del cibo", "en": "food store"},
+        {"it": "galleria delle operaie", "en": "workers' gallery"},
+        {"it": "fungaia delle formiche", "en": "ant fungus farm"},
+        {"it": "sala dei soldati", "en": "soldiers' hall"},
+        {"it": "cimitero delle formiche", "en": "ant graveyard"}
+      ]
+    },
+    {
+      "who": {"it": "gli uomini serpente di {n}", "en": "the serpent folk of {n}"},
+      "rooms": [
+        {"it": "tempio del serpente", "en": "serpent temple"},
+        {"it": "vasca delle uova", "en": "egg pool"},
+        {"it": "sala dei veleni", "en": "venom room"},
+        {"it": "laboratorio degli innesti", "en": "grafting laboratory"},
+        {"it": "cella dei prigionieri", "en": "prisoners' cell"},
+        {"it": "sala del re serpente", "en": "serpent king's hall"},
+        {"it": "sala delle mute", "en": "shedding room"}
+      ]
+    },
+    {
+      "who": {"it": "un cerchio di streghe guidato da {n}", "en": "a circle of hags led by {n}"},
+      "rooms": [
+        {"it": "sala del calderone", "en": "cauldron room"},
+        {"it": "dispensa degli orrori", "en": "larder of horrors"},
+        {"it": "sala delle bambole di paglia", "en": "straw doll room"},
+        {"it": "camera dell'occhio comune", "en": "shared eye chamber"},
+        {"it": "giardino velenoso", "en": "poison garden"},
+        {"it": "sala delle ossa divinatorie", "en": "divination bones room"},
+        {"it": "camera dei patti", "en": "pact chamber"}
+      ]
+    },
+    {
+      "who": {"it": "gli uomini talpa di {n}", "en": "the mole men of {n}"},
+      "rooms": [
+        {"it": "tunnel scavati di fresco", "en": "freshly dug tunnels"},
+        {"it": "camera della regina talpa", "en": "mole queen's chamber"},
+        {"it": "dispensa di lombrichi", "en": "earthworm larder"},
+        {"it": "sala delle radici", "en": "root hall"},
+        {"it": "nido dei piccoli", "en": "nursery"},
+        {"it": "sala del consiglio cieco", "en": "blind council hall"},
+        {"it": "deposito di gemme grezze", "en": "rough gem store"}
+      ]
+    },
+    {
+      "who": {"it": "i corvi del re corvo {n}", "en": "the crows of {n} the crow king"},
+      "rooms": [
+        {"it": "posatoio", "en": "roost"},
+        {"it": "sala degli oggetti luccicanti", "en": "shiny things room"},
+        {"it": "nido del re corvo", "en": "crow king's nest"},
+        {"it": "sala del gracchiare", "en": "cawing hall"},
+        {"it": "mucchio di ossa beccate", "en": "pecked bone heap"},
+        {"it": "dispensa di carogne", "en": "carrion larder"}
+      ]
+    },
+    {
+      "who": {"it": "i goblin del fungo di {n}", "en": "the mushroom goblins of {n}"},
+      "rooms": [
+        {"it": "fungaia", "en": "mushroom farm"},
+        {"it": "sala delle spore allucinogene", "en": "hallucinogenic spore room"},
+        {"it": "tana dei goblin", "en": "goblin den"},
+        {"it": "sala del grande fungo", "en": "great mushroom hall"},
+        {"it": "cucina fumosa", "en": "smoky kitchen"},
+        {"it": "deposito del bottino", "en": "loot pile"},
+        {"it": "sala dei tamburi", "en": "drum room"}
+      ]
+    },
+    {
+      "who": {"it": "il golem impazzito {n} e i suoi ingranaggi", "en": "the mad golem {n} and its cogs"},
+      "rooms": [
+        {"it": "officina in rovina", "en": "ruined workshop"},
+        {"it": "sala degli ingranaggi", "en": "gear room"},
+        {"it": "fornace spenta", "en": "cold furnace"},
+        {"it": "sala dei pezzi di ricambio", "en": "spare parts room"},
+        {"it": "sala del golem", "en": "golem's hall"},
+        {"it": "deposito del metallo", "en": "metal store"}
+      ]
+    },
+    {
+      "who": {"it": "gli uomini lupo cacciatori di {n}", "en": "the wolf-headed hunters of {n}"},
+      "rooms": [
+        {"it": "tana del branco", "en": "pack den"},
+        {"it": "sala dei trofei di caccia", "en": "hunting trophy hall"},
+        {"it": "dispensa di carne", "en": "meat larder"},
+        {"it": "sala della luna", "en": "moon hall"},
+        {"it": "recinto delle prede", "en": "prey pen"},
+        {"it": "sala del capobranco", "en": "pack leader's hall"}
+      ]
+    },
+    {
+      "who": {"it": "i cultisti del verme di {n}", "en": "the worm cultists of {n}"},
+      "rooms": [
+        {"it": "tunnel del verme", "en": "worm tunnel"},
+        {"it": "sala delle uova del verme", "en": "worm egg room"},
+        {"it": "altare del verme", "en": "worm altar"},
+        {"it": "sala dei sacrifici", "en": "sacrifice hall"},
+        {"it": "dormitorio dei cultisti", "en": "cultists' dormitory"},
+        {"it": "pozzo del grande verme", "en": "great worm's shaft"}
+      ]
+    },
+    {
+      "who": {"it": "un drago nero chiamato {n} e i suoi servi", "en": "a black dragon called {n} and its servants"},
+      "rooms": [
+        {"it": "palude sotterranea", "en": "underground swamp"},
+        {"it": "mucchio del tesoro", "en": "treasure hoard"},
+        {"it": "sala acida", "en": "acid room"},
+        {"it": "alloggi dei servi", "en": "servants' quarters"},
+        {"it": "sala delle uova", "en": "egg room"},
+        {"it": "pozza nera", "en": "black pool"}
+      ]
+    },
+    {
+      "who": {"it": "i fantasmi dei minatori di {n}", "en": "the ghosts of the miners of {n}"},
+      "rooms": [
+        {"it": "galleria crollata", "en": "collapsed gallery"},
+        {"it": "sala dei carrelli fermi", "en": "stopped carts room"},
+        {"it": "cappella dei minatori", "en": "miners' chapel"},
+        {"it": "sala delle lanterne spente", "en": "dead lantern room"},
+        {"it": "pozzo dell'incidente", "en": "accident shaft"},
+        {"it": "dormitorio dei morti", "en": "dormitory of the dead"}
+      ]
+    },
+    {
+      "who": {"it": "i coboldi del drago bianco {n}", "en": "the kobolds of {n} the white dragon"},
+      "rooms": [
+        {"it": "grotta del ghiaccio", "en": "ice grotto"},
+        {"it": "tana dei coboldi", "en": "kobold warren"},
+        {"it": "sala delle trappole di ghiaccio", "en": "ice trap room"},
+        {"it": "deposito delle offerte", "en": "offering store"},
+        {"it": "covata", "en": "hatchery"},
+        {"it": "sala del trono gelato", "en": "frozen throne room"}
+      ]
+    },
+    {
+      "who": {"it": "una banda di cultisti del fuoco guidata da {n}", "en": "a band of fire cultists led by {n}"},
+      "rooms": [
+        {"it": "sala delle braci", "en": "embers room"},
+        {"it": "altare del fuoco", "en": "fire altar"},
+        {"it": "deposito dell'olio", "en": "oil store"},
+        {"it": "sala dei bruciati", "en": "burnt ones' hall"},
+        {"it": "dormitorio dei cultisti", "en": "cultists' dormitory"},
+        {"it": "sala del sommo fiammeggiante", "en": "high flamekeeper's hall"}
+      ]
+    },
+    {
+      "who": {"it": "una setta di zeloti guidata da {n}", "en": "a zealous cult led by {n}"},
+      "rooms": [
+        {"it": "sala delle prediche", "en": "sermon hall"},
+        {"it": "altare della dottrina", "en": "altar of the doctrine"},
+        {"it": "dormitorio degli adepti", "en": "adepts' dormitory"},
+        {"it": "sala delle profezie funeste", "en": "dire prophecies room"},
+        {"it": "cella dei non credenti", "en": "unbelievers' cell"},
+        {"it": "sala del capo della setta", "en": "cult leader's hall"},
+        {"it": "sala delle iniziazioni", "en": "initiation room"}
+      ]
+    },
+    {
+      "who": {"it": "un'orda di predoni guidata da {n}", "en": "a ravaging horde led by {n}"},
+      "rooms": [
+        {"it": "accampamento dell'orda", "en": "horde camp"},
+        {"it": "sala del bottino", "en": "plunder hall"},
+        {"it": "recinto dei prigionieri", "en": "prisoners' pen"},
+        {"it": "fucina da guerra", "en": "war forge"},
+        {"it": "tenda del campione", "en": "champion's tent"},
+        {"it": "deposito dei rifornimenti rubati", "en": "stolen supplies store"}
+      ]
+    },
+    {
+      "who": {"it": "il capo intrigante {n} e i suoi complici", "en": "the scheming leader {n} and their accomplices"},
+      "rooms": [
+        {"it": "sala del consiglio segreto", "en": "secret council room"},
+        {"it": "archivio dei ricatti", "en": "blackmail archive"},
+        {"it": "sala delle udienze false", "en": "false audience hall"},
+        {"it": "camera delle spie", "en": "spies' chamber"},
+        {"it": "sala delle alleanze", "en": "alliances room"},
+        {"it": "stanza dei veleni", "en": "poisons room"}
+      ]
+    },
+    {
+      "who": {"it": "il mistico assetato di potere {n} e i suoi seguaci", "en": "the power-hungry mystic {n} and their followers"},
+      "rooms": [
+        {"it": "sala delle protezioni magiche", "en": "magical wards room"},
+        {"it": "cerchio delle forze antiche", "en": "circle of ancient forces"},
+        {"it": "sala dell'artefatto", "en": "artifact room"},
+        {"it": "camera dei sacrifici", "en": "sacrifice chamber"},
+        {"it": "biblioteca dei segreti", "en": "library of secrets"},
+        {"it": "dormitorio dei seguaci", "en": "followers' dormitory"}
+      ]
+    },
+    {
+      "who": {"it": "una creatura furiosa chiamata {n} e la sua prole", "en": "a rampaging creature called {n} and its brood"},
+      "rooms": [
+        {"it": "tana della creatura", "en": "creature's lair"},
+        {"it": "mucchio di carcasse", "en": "carrion heap"},
+        {"it": "sala dei segni di confine", "en": "territorial markings room"},
+        {"it": "nido abitato", "en": "inhabited nest"},
+        {"it": "riserva di cibo", "en": "hoarded food store"},
+        {"it": "sala delle vittime", "en": "victims' hall"}
+      ]
+    }
+  ]
+}
