@@ -932,7 +932,7 @@ Il programma suggerisce il foglio più piccolo con lettere leggibili e mostra tu
 ### I file
 
 - **PNG** a 600 dpi o **PDF** (una pagina per foglio), in tre colori a scelta.
-- Un **.txt** con gli stessi caratteri della mappa, da aprire con qualunque editor.
+- Un **.txt** con la stessa mappa, da aprire con qualunque editor. Il `.txt` usa solo i caratteri della tastiera, come `--solo-ascii` (tutti i muri sono `#`, e la legenda lo dice): i simboli come `═`, `■` o `≈` non ci sono in tutti i font, e un editor che li prende da un altro font, con un'altra larghezza, spezza l'allineamento. Le epoche dei muri restano visibili nel PNG/PDF e nella chiave.
 - La mappa dei giocatori ha la stessa disposizione e la stessa grandezza di lettere di quella del master.
 
 ---

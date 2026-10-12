@@ -370,6 +370,8 @@ TEXTS = {
     "lg_era1": ("mura dei fondatori (I)", "founders' walls (I)"),
     "lg_era2": ("mura della II epoca", "second-age walls (II)"),
     "lg_era0": ("grotte e cunicoli (N, III)", "caves and tunnels (N, III)"),
+    "lg_walls_plain": ("muri e grotte (le epoche: nel PNG/PDF e nella chiave)",
+                       "walls and caves (the ages: in the PNG/PDF and the key)"),
     # key file
     "key_seed": ("Seme", "Seed"),
     "key_history": ("STORIA", "HISTORY"),
@@ -2706,12 +2708,15 @@ def legend_entries(dungeon, gm, G, units):
     kinds = {d.kind for lv in dungeon.levels for d in lv.doors.values()}
     eras = {r.era for r in dungeon.rooms} | {c.era for c in dungeon.corridors}
     out = []
-    if 1 in eras:
-        out.append([(G("═║", "##"), "n"), (" " + tr("lg_era1"), "n")])
-    if 2 in eras:
-        out.append([(G("─│", "##"), "n"), (" " + tr("lg_era2"), "n")])
-    if eras & {0, 3}:
-        out.append([("#", "n"), (" " + tr("lg_era0"), "n")])
+    if G("═║", "##") == "##" and G("─│", "##") == "##":
+        out.append([("#", "n"), (" " + tr("lg_walls_plain"), "n")])     # keyboard letters only: every wall is #
+    else:
+        if 1 in eras:
+            out.append([(G("═║", "##"), "n"), (" " + tr("lg_era1"), "n")])
+        if 2 in eras:
+            out.append([(G("─│", "##"), "n"), (" " + tr("lg_era2"), "n")])
+        if eras & {0, 3}:
+            out.append([("#", "n"), (" " + tr("lg_era0"), "n")])
     out.append([(".", "n"), (" " + tr("lg_floor"), "n")])
     if "door" in kinds:
         out.append([("+", "n"), (" " + tr("lg_door"), "n")])
@@ -3069,30 +3074,39 @@ def draw_sheet(canvas, pixels, scheme):
     return colorize(img, scheme), live
 
 
+def plain_text(text):
+    """Only characters every monospaced font has at the same width: keyboard
+    letters, Latin accented letters and the middle dot."""
+    return "".join(c if c.isascii() or c in "·" or ("\u00c0" <= c <= "\u024f") else "?" for c in text)
+
+
 def write_text(path, canvases):
     with open(path, "w", encoding="utf-8") as f:
-        f.write("\n\n\n".join("\n".join(c.lines()) for c in canvases) + "\n")
+        f.write(plain_text("\n\n\n".join("\n".join(c.lines()) for c in canvases)) + "\n")
 
 
 def save_map(pages, base, pdf, scheme, settings, log):
-    """pages: (canvas, pixels, suffix) for every sheet. PNG: one PNG + TXT per
-    sheet. PDF: one PDF with every sheet, and one TXT."""
+    """pages: (canvas, pixels, suffix, text canvas) for every sheet. PNG: one
+    PNG + TXT per sheet. PDF: one PDF with every sheet, and one TXT. The TXT
+    is drawn with keyboard letters only (like --ascii-only): editors swap in
+    another font for box-drawing and symbol characters, and the map loses its
+    alignment."""
     if pdf:
         doc = PdfFile(base + ".pdf", settings)
-        for canvas, pixels, _ in pages:
+        for canvas, pixels, _, _ in pages:
             img, live = draw_sheet(canvas, pixels, scheme)
             doc.add_page(img)
             del img
             live.finish()
         doc.close()
-        write_text(base + ".txt", [canvas for canvas, _, _ in pages])
+        write_text(base + ".txt", [text for _, _, _, text in pages])
         log.info(tr("saved", a=short_path(base + ".pdf"), b=short_path(base + ".txt")))
         return
-    for canvas, pixels, suffix in pages:
+    for canvas, pixels, suffix, text in pages:
         img, live = draw_sheet(canvas, pixels, scheme)
         save_png(img, base + suffix + ".png", settings)
         del img
-        write_text(base + suffix + ".txt", [canvas])
+        write_text(base + suffix + ".txt", [text])
         live.finish()
         log.info(tr("saved", a=short_path(base + suffix + ".png"), b=short_path(base + suffix + ".txt")))
 
@@ -4096,6 +4110,7 @@ def main():
     # 8: paper
     log.step(tr("step_paper"))
     G = Glyphs(open_font(font_spec, 40), params["ascii_only"])
+    plain = Glyphs(None, True)                  # the .txt maps: keyboard letters only
     title = pick(dungeon.story["title"]) if params["title"] is None else params["title"]
     L = len(dungeon.mains())
     subtitle = (tr("subtitle", seed=seed, l=L, r=len(dungeon.rooms), e=len(dungeon.entrances)) if L > 1 else
@@ -4137,8 +4152,11 @@ def main():
 
     # 9: GM map
     log.step(tr("step_gm", paper=paper, dpi=DPI, f=files))
-    gm_pages = [(compose_page(layout), pixels, suffix)
-                for (layout, _, _), pixels, suffix in zip(picks, gm_pixels, suffixes)]
+    gm_text = [trim_panel(panel_canvas(lv, True, plain), b) for lv, b in zip(dungeon.levels, bounds)]
+    gm_text_legend = legend_entries(dungeon, True, plain, units)
+    gm_pages = [(compose_page(layout), pixels, suffix,
+                 compose_page(Layout(dungeon, [gm_text[k] for k in group], layout.pc, gm_text_legend, title, subtitle)))
+                for (layout, _, _), pixels, suffix, group in zip(picks, gm_pixels, suffixes, groups)]
     save_map(gm_pages, os.path.join(folder, f"{seed}_gm"), pdf, params["colors"], settings, log)
     del gm_pages
 
@@ -4146,11 +4164,15 @@ def main():
     log.step(tr("step_players" if keyed else "step_players_only"))
     pl_panels = [trim_panel(panel_canvas(lv, False, G), b) for lv, b in zip(dungeon.levels, bounds)]
     pl_legend = legend_entries(dungeon, False, G, units)
+    pl_text = [trim_panel(panel_canvas(lv, False, plain), b) for lv, b in zip(dungeon.levels, bounds)]
+    pl_text_legend = legend_entries(dungeon, False, plain, units)
     pl_pages = []
     for group, (layout, char_mm, orientation), suffix in zip(groups, picks, suffixes):
-        pl_layout = Layout(dungeon, [pl_panels[k] for k in group], layout.pc, pl_legend,
-                           tr("players_title", t=title) if title else tr("players_title_plain"), subtitle)
-        pl_pages.append((compose_page(pl_layout), pixel_layout(pl_layout, paper, orientation, char_mm, fonts), suffix))
+        pl_title = tr("players_title", t=title) if title else tr("players_title_plain")
+        pl_layout = Layout(dungeon, [pl_panels[k] for k in group], layout.pc, pl_legend, pl_title, subtitle)
+        text_layout = Layout(dungeon, [pl_text[k] for k in group], layout.pc, pl_text_legend, pl_title, subtitle)
+        pl_pages.append((compose_page(pl_layout), pixel_layout(pl_layout, paper, orientation, char_mm, fonts), suffix,
+                         compose_page(text_layout)))
     save_map(pl_pages, os.path.join(folder, f"{seed}_players"), pdf, params["colors"], settings, log)
     if keyed:
         blocks = key_blocks(dungeon, seed, title, units, params["story"], params["monsters"], traps)

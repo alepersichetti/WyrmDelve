@@ -230,7 +230,7 @@ Everything goes in `dungeons_generated/<seed>/`, one folder per dungeon:
 | `<seed>_key.txt` | the **dungeon key**: history and strata (with the story), entrances, level connections, then level by level the d6 wandering monster table (with the monsters) and every room (description with the story; monsters, clue or "empty" with the monsters), Jaquays check |
 | `<seed>_story.pdf` | the **story**: the same key as a book on A4 pages, with headings in Sebaldus-Gotisch and the text in Crimson Text, ready to print or read on a tablet |
 | `<seed>_key.pdf` | instead of the story, if you choose monsters or traps **without** the story: the key as a PDF |
-| `.txt` next to each map | the same map as plain text, to open with any text editor |
+| `.txt` next to each map | the same map as plain text, to open with any text editor. It uses keyboard characters only (like `--ascii-only`: every wall is `#`), so it stays aligned with any fixed-width font |
 
 If you choose **only the maps**, the key and the PDF are not made.
 
@@ -351,7 +351,7 @@ Without `--language en` the messages and the texts on the map are in Italian. Ev
 | `--content` / `--contenuto` | What to make besides the maps: `story`, `monsters`, `traps`, also together separated by commas; `map` = only the maps; `all` = everything (the default) | `--content story,traps` |
 | `--no-story` / `--senza-storia` | Only the maps, like `--content map` | `--no-story` |
 | `--units` / `--unita` | Grid scale: `imperial` (1 square = 5 ft) or `metric` (1 square = 1.5 m); by default imperial in English, metric in Italian | `--units metric` |
-| `--ascii-only` / `--solo-ascii` | Only plain keyboard characters (`# ~ = o`) | `--ascii-only` |
+| `--ascii-only` / `--solo-ascii` | Only plain keyboard characters (`# ~ = o`) in the PNG and PDF too (the `.txt` files always use them) | `--ascii-only` |
 | `--font` | A font file of your choice (all its letters must be the same width) | `--font consola.ttf` |
 | `--output` / `--uscita` | Folder to save in instead of `dungeons_generated` | `--output my_maps` |
 
@@ -419,6 +419,9 @@ The font installed on your computer doesn't have those symbols. The program swap
 
 **"No monospaced font found".**
 The `fonts` folder isn't next to `wyrmdelve.py`. Put it back (it comes with the program): the maps use the DejaVu Sans Mono inside it. As a last resort you can give another font whose letters are all the same width with `--font`, for example `--font consola.ttf`.
+
+**The map in the `.txt` isn't aligned.**
+This happens with `.txt` files made by earlier versions, which used symbols like `═`, `■` or `≈`: many editors take them from another font, with another width. The `.txt` now uses keyboard characters only: make the dungeon again with the same seed. If it still isn't aligned, pick a fixed-width font in your editor (for example Consolas or Courier New) and turn off word wrap.
 
 **There is no story PDF.**
 The program says why, in a line starting with `ERROR`, right after the settings and again at the end. Check you didn't choose `1` (only the maps) at "What do you want to make?", then:
