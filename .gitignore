@@ -1,3 +1,5 @@
 **/.venv/
 **/dungeons_generated/
 .DS_Store
+__pycache__/
+*.pyc
