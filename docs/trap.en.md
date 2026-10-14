@@ -188,10 +188,10 @@ How many different traps there are: 65 ready-made, 10 broken versions of the mec
 
 ## 9. On the map and in the key
 
-- **Game master's map**: a bold `^` symbol on the trap's square, and an entry `^ trap (GM only)` in the legend.
+- **Referee's map**: a bold `^` symbol on the trap's square, and an entry `^ trap (referee only)` in the legend.
 - **Players' map**: nothing, not even in the legend.
 - **Key** (`.txt` and PDF): traps in rooms are written under the room; traps in corridors are listed under the level's heading, in order of distance from the entrance, so the lesson comes first.
-- **While generating**, the program says how many traps it placed: `7 traps (^ on the game master's map only)`.
+- **While generating**, the program says how many traps it placed: `7 traps (^ on the referee's map only)`.
 
 ---
 
@@ -216,7 +216,7 @@ The whole path shows:
 - the **razor wire** has no lesson: its family has no broken versions, and the wire shows itself when the light catches it;
 - in the caves, where today's dwellers live, there are crude traps: a **jar of vermin** hidden in the rubble and a **snare**.
 
-The game master's map of level 2: one `^` in room 2-01 and one in the corridor toward 2-03.
+The referee's map of level 2: one `^` in room 2-01 and one in the corridor toward 2-03.
 
 ```
         [A]

@@ -225,7 +225,7 @@ Tutto va in `dungeons_generated/<seme>/`, una cartella per ogni dungeon:
 
 | File | Cosa contiene |
 |---|---|
-| `<seme>_gm.png` | la **mappa del master**: numeri delle stanze, porte segrete `$` e passaggi segreti `░` |
+| `<seme>_gm.png` | la **mappa dell'arbitro**: numeri delle stanze, porte segrete `$` e passaggi segreti `░` |
 | `<seme>_players.png` | la **mappa dei giocatori**: la stessa mappa senza numeri e senza segreti |
 | `<seme>_key.txt` | la **chiave del dungeon**: storia e strati (con la storia), ingressi, collegamenti tra livelli, poi livello per livello la tabella d6 dei mostri erranti (con i mostri), le trappole nei corridoi (con le trappole) e ogni stanza (descrizione con la storia; mostri, indizio o «vuota» con i mostri; la sua trappola; il suo tesoro), verifica dei principi di Jaquays |
 | `<seme>_story.pdf` | la **storia**: la stessa chiave come un libro su pagine A4, con i titoli in Sebaldus-Gotisch e il testo in Crimson Text, pronta da stampare o da leggere sul tablet |
@@ -236,7 +236,7 @@ Se scegli **solo le mappe**, la chiave e il PDF non vengono creati.
 
 **I mostri.** Ogni livello ha una tabella d6 di mostri erranti: l'1 sono gli abitanti di oggi, gli altri sono mostri adatti al tipo del livello, più pericolosi man mano che si scende. Circa un terzo delle stanze ospita dei mostri (gli abitanti di oggi nelle loro tane, gli altri mostri della tabella nelle loro); almeno un terzo resta sempre vuoto, e accanto a ogni stanza con mostri c'è una stanza vuota con un **indizio** (ossa rosicchiate, scie viscide, odore di zolfo…) che dice da dove viene. Ogni tanto un mostro è **fuori posto**, con il suo motivo: per esempio un aboleth nella vasca di un castello, risalito dalle grotte allagate del livello sotto. Come funziona: [docs/monsters.md](docs/monsters.md); per aggiungere mostri: [docs/add_monsters_to_bestiary.md](docs/add_monsters_to_bestiary.md).
 
-**Le trappole.** Compaiono **solo sulla mappa del master**, con il simbolo `^`, e la chiave le descrive: nome, **segnale** (come si capisce che c'è), **effetto** e **contromisure**. Chi ha costruito un luogo l'ha protetto a modo suo: meccanismi accurati nelle sale dei fondatori e della seconda epoca, trappole rozze dove vivono gli abitanti di oggi, soprattutto attorno alle stanze importanti. Prima di incontrare una trappola funzionante, i giocatori ne incontrano una **rotta o scoperta** dello stesso tipo, che insegna come funziona; più si scende, più le trappole sono crudeli. Alcune trappole sono già pronte (quelle di WyrmDelve e quelle del System Reference Document 3.5), le altre vengono montate da un **innesco**, un **meccanismo** e, per quelle crudeli, una **variante**: in tutto 2.648 trappole diverse. Come funziona: [docs/trap.md](docs/trap.md).
+**Le trappole.** Compaiono **solo sulla mappa dell'arbitro**, con il simbolo `^`, e la chiave le descrive: nome, **segnale** (come si capisce che c'è), **effetto** e **contromisure**. Chi ha costruito un luogo l'ha protetto a modo suo: meccanismi accurati nelle sale dei fondatori e della seconda epoca, trappole rozze dove vivono gli abitanti di oggi, soprattutto attorno alle stanze importanti. Prima di incontrare una trappola funzionante, i giocatori ne incontrano una **rotta o scoperta** dello stesso tipo, che insegna come funziona; più si scende, più le trappole sono crudeli. Alcune trappole sono già pronte (quelle di WyrmDelve e quelle del System Reference Document 3.5), le altre vengono montate da un **innesco**, un **meccanismo** e, per quelle crudeli, una **variante**: in tutto 2.648 trappole diverse. Come funziona: [docs/trap.md](docs/trap.md).
 
 **I tesori.** Seguono le regole per riempire le stanze di *Old-School Essentials*: una stanza con mostri ha un tesoro 3 volte su 6 (il tipo di tesoro dei mostri, dalla A alla V), una stanza con una trappola 2 volte su 6 (e la trappola lo protegge), una stanza vuota 1 volta su 6 (il tesoro incustodito di quel livello del dungeon, più ricco man mano che si scende). La chiave elenca monete, gemme e gioielli con il loro valore in monete d'oro, gli oggetti magici e dove è nascosto il tesoro. Come funziona: [docs/treasure.md](docs/treasure.md).
 
@@ -249,8 +249,8 @@ Con **un livello per foglio** i nomi dei PNG contengono il livello: `<seme>_gm_L
 | Simbolo | Significato | Simbolo | Significato |
 |---|---|---|---|
 | `.` | pavimento | `+` | porta |
-| `^` | trappola (solo master) | | |
-| `$` | porta segreta (solo master) | `░` | passaggio segreto (solo master) |
+| `^` | trappola (solo arbitro) | | |
+| `$` | porta segreta (solo arbitro) | `░` | passaggio segreto (solo arbitro) |
 | `<` `>` | scale su / giù | `≡` | gradini, stesso livello |
 | `○` | pozzo o camino tra livelli (può saltarne qualcuno) | `Ω` | portale magico |
 | `≈` | acqua | `∴` | crollo |

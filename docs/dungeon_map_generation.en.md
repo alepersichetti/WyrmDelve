@@ -45,7 +45,7 @@ When you run the program you see a bar with 10 steps. Each one matches a part of
 | 6. Secret and unusual paths | secret doors, hidden passages, water, cave-ins, steps | 13 |
 | 7. Checking Jaquays' principles | the dungeon is checked against the rules | 14 |
 | 8. Print format | paper and letter size are chosen | 16 |
-| 9. Game master map | the full map is drawn and saved | 15 |
+| 9. Referee's map | the full map is drawn and saved | 15 |
 | 10. Players' map and key | the map without secrets is drawn and the key is written | 15 |
 
 One idea runs through the whole program: the dungeon must be **"Xandered"**, that is, follow the principles Justin Alexander gathered in his *Xandering the Dungeon* series by studying Jennell Jaquays' dungeons. In plain words: **more than one way to get anywhere**, loops instead of dead ends, several entrances, several connections between levels, secrets and shortcuts. That way the players always have choices to make.
@@ -79,7 +79,7 @@ Inside the program the "dice rolls" don't all come from one bag: there are sever
 - one for the **map**;
 - one for the **monsters** and one for the **traps**, which are added afterwards, once the map is finished.
 
-So if you change a sentence of the story in the JSON file, the map of the same seed stays identical; and choosing story, monsters and traps or not doesn't change the map (traps only add the `^` symbol on the game master's map).
+So if you change a sentence of the story in the JSON file, the map of the same seed stays identical; and choosing story, monsters and traps or not doesn't change the map (traps only add the `^` symbol on the referee's map).
 
 ### Random parameters
 
@@ -422,7 +422,7 @@ How shape and size are decided:
 ### Pillars and numbers
 
 - The founders' big rectangular halls, if at least 10 letters wide and 5 tall, get **two rows of pillars** `■`, one every three letters, centred symmetrically.
-- Every room gets a **number** of the form `level-number` (`1-01`, `2a-03`), written in the middle, in bold, on the game master's map only. Rooms are numbered in reading order: left to right, top to bottom.
+- Every room gets a **number** of the form `level-number` (`1-01`, `2a-03`), written in the middle, in bold, on the referee's map only. Rooms are numbered in reading order: left to right, top to bottom.
 
 ---
 
@@ -715,7 +715,7 @@ If even that fails, the program starts again with new dice (up to 8 attempts). T
 
 The fourth number of the seed says how many **secrets** you want. The program shares them out like this:
 
-1. **A third** become **secret passages**: a whole hidden corridor, drawn with `░` on the game master's map, with a secret door `$` at each end. Only a corridor not shared with others, at least 3 letters long, with doors used only by it, is chosen.
+1. **A third** become **secret passages**: a whole hidden corridor, drawn with `░` on the referee's map, with a secret door `$` at each end. Only a corridor not shared with others, at least 3 letters long, with doors used only by it, is chosen.
 2. The others become **secret doors** `$` on visible corridors, **loops first**: so a secret is always a shortcut or an extra way, never the only road.
 3. If you ask for more secrets than there are corridors, the program makes the other door of a corridor secret too, then **hides stairs and shafts** (portals last). If that's still not enough, it warns you with a message.
 
@@ -730,7 +730,7 @@ Then it adds the **unusual paths**, always on visible corridors and preferably o
 
 Steps are a small **elevation shift**: the level isn't completely flat. If there is no straight stretch for two steps, one is enough; if there isn't even that, it becomes a dais in a room.
 
-The tomb, at the end, on the game master's map:
+The tomb, at the end, on the referee's map:
 
 ```
                  ╔══════════════════╗
@@ -836,20 +836,20 @@ founders (I)   second (II)    cave or third age (N, III)
 | Symbol | Meaning | Symbol | Meaning |
 |---|---|---|---|
 | `.` | floor, opening | `+` | door |
-| `$` | secret door (GM only) | `░` | secret passage (GM only) |
+| `$` | secret door (referee only) | `░` | secret passage (referee only) |
 | `<` `>` | stairs up / down | `≡` | steps |
 | `○` | shaft or chimney | `Ω` | magic portal |
 | `≈` | water | `∴` | cave-in |
 | `■` | pillar | `[A]` | entrance |
-| `^` | trap (GM only, if you choose traps) | | |
+| `^` | trap (referee only, if you choose traps) | | |
 
 With the `--ascii-only` option (or if the font lacks a symbol) only keyboard characters are used: `#` for every wall, `o` shaft, `&` portal, `~` water, `%` cave-in, `=` steps, `O` pillar, `:` secret passage.
 
-### The game master's map and the players' map
+### The referee's map and the players' map
 
 The program draws every level twice:
 
-| | Game master | Players |
+| | Referee | Players |
 |---|---|---|
 | room numbers | yes, in bold | no |
 | secret doors `$` | yes | become wall |
@@ -933,7 +933,7 @@ The program suggests the smallest sheet with readable letters and shows all the 
 
 - **PNG** at 600 dpi or **PDF** (one page per sheet), in one of three colour schemes.
 - A **.txt** with the same map, to open in any editor. The `.txt` uses keyboard characters only, like `--ascii-only` (every wall is `#`, and the legend says so): symbols like `═`, `■` or `≈` aren't in every font, and an editor that takes them from another font, with another width, breaks the alignment. The walls' ages stay visible in the PNG/PDF and in the key.
-- The players' map has the same layout and the same letter size as the game master's.
+- The players' map has the same layout and the same letter size as the referee's.
 
 ---
 

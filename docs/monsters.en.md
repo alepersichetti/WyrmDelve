@@ -101,7 +101,7 @@ A dungeon that is too tidy is predictable. That is why **about one level in thre
 | `founders` | the level has founders' rooms | the founders left a guardian here, and no one ever revoked the order | a construct |
 | `any` | always | a spell gone wrong opened a rift; today's dwellers keep what they catch chained here; a recent fight; a hidden treasure; corridors where it's easy to get lost | depending on the reason |
 
-The out-of-place monster can be somewhat more dangerous than the level (up to two points more): it's a surprise, and the game master decides how to use it. That's how, for instance, an **aboleth in a castle pool** can turn up, come up from the flooded caves of the level below.
+The out-of-place monster can be somewhat more dangerous than the level (up to two points more): it's a surprise, and the referee decides how to use it. That's how, for instance, an **aboleth in a castle pool** can turn up, come up from the flooded caves of the level below.
 
 Example (seed `4-42-4-2-F-003ADB`, a 4-level city, level 3):
 

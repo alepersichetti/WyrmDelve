@@ -188,10 +188,10 @@ Quante trappole diverse ci sono: 65 già pronte, 10 versioni rotte dei meccanism
 
 ## 9. Sulla mappa e nella chiave
 
-- **Mappa del master**: il simbolo `^` in grassetto sulla casella della trappola, e una voce `^ trappola (solo master)` nella legenda.
+- **Mappa dell'arbitro**: il simbolo `^` in grassetto sulla casella della trappola, e una voce `^ trappola (solo arbitro)` nella legenda.
 - **Mappa dei giocatori**: niente, nemmeno nella legenda.
 - **Chiave** (`.txt` e PDF): le trappole delle stanze sono scritte sotto la stanza; quelle dei corridoi sono elencate sotto il titolo del livello, in ordine di distanza dall'ingresso, così la lezione viene prima.
-- **Durante la generazione** il programma scrive quante trappole ha messo: `7 trappole (^ solo sulla mappa del master)`.
+- **Durante la generazione** il programma scrive quante trappole ha messo: `7 trappole (^ solo sulla mappa dell'arbitro)`.
 
 ---
 
@@ -216,7 +216,7 @@ Si vede tutto il percorso:
 - il **filo affilato** non ha una lezione: la sua famiglia non ha versioni rotte, e il filo si nota da sé se la luce lo prende;
 - nelle grotte, dove vivono gli abitanti di oggi, ci sono trappole rozze: un **vaso di insetti** nascosto tra i detriti e un **laccio**.
 
-La mappa del master del livello 2: un `^` nella stanza 2-01 e uno nel corridoio verso 2-03.
+La mappa dell'arbitro del livello 2: un `^` nella stanza 2-01 e uno nel corridoio verso 2-03.
 
 ```
         [A]
