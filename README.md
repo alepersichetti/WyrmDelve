@@ -33,7 +33,7 @@ Works with any analogue "OSR" roleplaying game. Sibling of [WyrmHex](https://git
 
 </div>
 
-### WyrmDelve v1.0.0
+### WyrmDelve v1.0.1
 
 **WyrmDelve** draws random dungeons and labyrinths for old school (OSR) campaigns, made only of letters and symbols like the roguelikes NetHack, Angband, ADOM, Brogue, Caves of Qud and Dwarf Fortress.
 
