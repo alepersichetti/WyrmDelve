@@ -24,7 +24,7 @@ levels go on one sheet, or one level per sheet; PNG files or a PDF. Three
 colour schemes: black on white, white on light blue, white on black.
 
 Output goes to dungeons_generated/<seed>/ next to this file (or --output):
-  <seed>_gm.png/.txt        game master map: room numbers and secrets
+  <seed>_gm.png/.txt        referee's map: room numbers and secrets
   <seed>_players.png/.txt   same map without numbers and secrets
   <seed>_key.txt            history, room key, level connections, Jaquays check
   <seed>_story.pdf          the same key as an A4 book page (Sebaldus-Gotisch headings, Crimson Text)
@@ -220,8 +220,8 @@ TEXTS = {
     "content_story": ("storia: chiave delle stanze in PDF e TXT", "story: room key as PDF and TXT"),
     "content_monsters": ("mostri: mostri erranti, mostri e indizi nelle stanze",
                          "monsters: wandering monsters, monsters and clues in the rooms"),
-    "content_traps": ("trappole: segnate con ^ solo sulla mappa del master e descritte nella chiave",
-                      "traps: marked ^ on the game master's map only and described in the key"),
+    "content_traps": ("trappole: segnate con ^ solo sulla mappa dell'arbitro e descritte nella chiave",
+                      "traps: marked ^ on the referee's map only and described in the key"),
     "content_treasure": ("tesori: monete, gemme, gioielli e oggetti magici nelle stanze",
                          "treasure: coins, gems, jewellery and magic items in the rooms"),
     "content_help": ("    Scrivi i numeri che vuoi, separati da virgole (es. 1,4); 0 = solo le mappe.",
@@ -281,7 +281,7 @@ TEXTS = {
                       "data/traps.json is missing (or broken): no traps"),
     "warn_no_treasure": ("Manca data/treasure.json (o è rovinato): niente tesori",
                          "data/treasure.json is missing (or broken): no treasure"),
-    "info_traps": ("{n} trappole (^ solo sulla mappa del master)", "{n} traps (^ on the game master's map only)"),
+    "info_traps": ("{n} trappole (^ solo sulla mappa dell'arbitro)", "{n} traps (^ on the referee's map only)"),
     "info_units": ("Griglia: {s}", "Grid: {s}"),
     # output folder and font
     "info_folder": ("Cartella: {folder}", "Folder: {folder}"),
@@ -349,7 +349,7 @@ TEXTS = {
     "warn_tiny": ("Caratteri molto piccoli: scegli un formato più grande se puoi.",
                   "Very small letters: choose a bigger format if you can."),
     # drawing and saving the maps, the key and the story PDF
-    "step_gm": ("Mappa del master ({paper}, {dpi} dpi, {f} + TXT)", "Game master map ({paper}, {dpi} dpi, {f} + TXT)"),
+    "step_gm": ("Mappa dell'arbitro ({paper}, {dpi} dpi, {f} + TXT)", "Referee's map ({paper}, {dpi} dpi, {f} + TXT)"),
     "step_players": ("Mappa dei giocatori e chiave del dungeon", "Players' map and dungeon key"),
     "step_players_only": ("Mappa dei giocatori", "Players' map"),
     "saved": ("Salvate: {a}  +  {b}", "Saved: {a}  +  {b}"),
@@ -465,7 +465,7 @@ TEXTS = {
                    "{n}. Tell: {t}. Effect: {e}. Countermeasures: {c}."),
     "key_corridor_traps": ("Trappole nei corridoi", "Traps in the corridors"),
     "corridor_trap": ("tra {a} e {b}", "between {a} and {b}"),
-    "lg_trap": ("trappola (solo master)", "trap (GM only)"),
+    "lg_trap": ("trappola (solo arbitro)", "trap (referee only)"),
     # key file: entrances and Jaquays heading
     "key_entrance_line": ("{l}  {kind} (livello {lv}{mid}) → {room}",
                           "{l}  {kind} (level {lv}{mid}) → {room}"),
@@ -1338,7 +1338,7 @@ class Level:
         self.inner_tags = []                # (letter, (x, y)) next to a shaft from the surface
         self.split = None                   # column that divides the level, or None
         self.corridors = []
-        self.traps = {}                     # cell index -> trap, drawn as ^ on the GM map only
+        self.traps = {}                     # cell index -> trap, drawn as ^ on the referee's map only
         # the outer border is never dug: top and bottom rows, then left and right columns
         for x in range(self.W):
             self.blocked[x] = self.blocked[(self.H - 1) * self.W + x] = 1
@@ -1549,7 +1549,7 @@ def put_room(level, room):
 
 
 def place_label(level, room):
-    """Room number in the middle of the room, in bold on the GM map."""
+    """Room number in the middle of the room, in bold on the referee's map."""
     cx, cy = room.center
     text = room.label
     # try the middle row first, then rows above and below, and for each row
@@ -3070,7 +3070,7 @@ def panel_canvas(level, gm, G):
                 else:
                     canvas.put(px, py, ".")
             elif shown[i] == 1:
-                # room numbers, traps and hidden things only on the GM map
+                # room numbers, traps and hidden things only on the referee's map
                 if gm and i in level.labels:
                     canvas.put(px, py, level.labels[i], "b")
                 elif gm and i in level.traps:
@@ -3109,7 +3109,7 @@ def content_bounds(canvas):
 
 def trim_panel(canvas, bounds):
     """Drop the empty rock around the level: header on top, then the drawing.
-    Both maps use the GM map's bounds, so they line up."""
+    Both maps use the referee's map's bounds, so they line up."""
     x0, y0, x1, y1 = bounds
     header = "".join(canvas.chars[0]).strip()
     out = Canvas(max(x1 - x0 + 1, len(header)), y1 - y0 + 3)
@@ -3930,7 +3930,7 @@ def plan_traps(dungeon, seed):
     a broken or exposed one that teaches how it works; deeper levels get the
     cruel variants. A trap is a ready-made one or one put together from a
     trigger, a mechanism and, for the cruel ones, a twist (thousands of
-    combinations). Marks the cells (^ on the GM map); its own random numbers.
+    combinations). Marks the cells (^ on the referee's map); its own random numbers.
     Returns [{"level", "room", "corridor", "cell", "trap"}, ...]."""
     rng = random.Random(f"wyrmdelve-traps-{seed}")
     mains = dungeon.mains()
@@ -5089,7 +5089,7 @@ def settings_from_options(argv):
 # --- main ---
 def main():
     """Make one dungeon: settings (questions or command line), then the 10 steps logged one by one,
-    saving the GM map, the players' map and the key (.txt and PDF) in a folder named after the seed."""
+    saving the referee's map, the players' map and the key (.txt and PDF) in a folder named after the seed."""
     # no arguments: ask the questions; otherwise read the command line
     interactive = len(sys.argv) == 1
     params = ask_settings() if interactive else settings_from_options(sys.argv[1:])
@@ -5169,7 +5169,7 @@ def main():
     L = len(dungeon.mains())
     subtitle = (tr("subtitle", seed=seed, l=L, r=len(dungeon.rooms), e=len(dungeon.entrances)) if L > 1 else
                 tr("subtitle_one", seed=seed, r=len(dungeon.rooms), e=len(dungeon.entrances)))
-    # GM panels, one per level, trimmed to their content; the same bounds are reused for every
+    # referee's map panels, one per level, trimmed to their content; the same bounds are reused for every
     # other version of the map, so they all line up
     gm_full = [panel_canvas(lv, True, G) for lv in dungeon.levels]
     bounds = [content_bounds(p) for p in gm_full]
@@ -5212,7 +5212,7 @@ def main():
     # file name suffixes: _L<level name> when there is one sheet per level
     suffixes = [f"_L{dungeon.levels[g[0]].name}" if per_level else "" for g in groups]
 
-    # 9: GM map
+    # 9: referee's map
     log.step(tr("step_gm", paper=paper, dpi=DPI, f=files))
     # each page also as text (.txt) in plain keyboard letters, with the same bounds
     gm_text = [trim_panel(panel_canvas(lv, True, plain), b) for lv, b in zip(dungeon.levels, bounds)]
@@ -5231,7 +5231,7 @@ def main():
     pl_text = [trim_panel(panel_canvas(lv, False, plain), b) for lv, b in zip(dungeon.levels, bounds)]
     pl_text_legend = legend_entries(dungeon, False, plain, units)
     pl_pages = []
-    # the players' pages reuse the GM layouts: same panel places, paper and letter size
+    # the players' pages reuse the referee's map layouts: same panel places, paper and letter size
     for group, (layout, char_mm, orientation), suffix in zip(groups, picks, suffixes):
         pl_title = tr("players_title", t=title) if title else tr("players_title_plain")
         pl_layout = Layout(dungeon, [pl_panels[k] for k in group], layout.pc, pl_legend, pl_title, subtitle)

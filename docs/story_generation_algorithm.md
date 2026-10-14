@@ -301,7 +301,7 @@ Altri esempi dallo stesso dungeon:
 3-08 [N] Grotta della pietra cantante; III: sala delle trappole.
 ```
 
-Il master può leggere una stanza come un piccolo scavo archeologico: cosa resta dei fondatori, cosa hanno aggiunto gli altri, cosa c'è oggi.
+L'arbitro può leggere una stanza come un piccolo scavo archeologico: cosa resta dei fondatori, cosa hanno aggiunto gli altri, cosa c'è oggi.
 
 ---
 

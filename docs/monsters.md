@@ -101,7 +101,7 @@ Un dungeon troppo ordinato è prevedibile. Per questo, **circa un livello su tre
 | `founders` | il livello ha stanze dei fondatori | i fondatori lasciarono qui un guardiano, e nessuno ha mai revocato l'ordine | un costrutto |
 | `any` | sempre | un incantesimo andato storto ha aperto un varco; gli abitanti di oggi tengono qui in catene ciò che catturano; una battaglia recente; un tesoro nascosto; corridoi in cui è facile perdersi | secondo il motivo |
 
-Il mostro fuori posto può essere un po' più pericoloso del livello (fino a due punti in più): è una sorpresa, e il master può decidere come usarla. È così che può comparire, per esempio, un **aboleth nella vasca di un castello**, risalito dalle grotte allagate del livello sotto.
+Il mostro fuori posto può essere un po' più pericoloso del livello (fino a due punti in più): è una sorpresa, e l'arbitro può decidere come usarla. È così che può comparire, per esempio, un **aboleth nella vasca di un castello**, risalito dalle grotte allagate del livello sotto.
 
 Esempio (seme `4-42-4-2-F-003ADB`, una città di 4 livelli, livello 3):
 

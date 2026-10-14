@@ -31,7 +31,7 @@ I tesori arrivano **per ultimi**, dopo mostri e trappole, e usano dadi propri (r
 
 ## 2. Quali stanze hanno un tesoro
 
-Nelle regole, il master tira 1d6 per sapere cosa c'è in una stanza, e poi un altro d6 per sapere se c'è un tesoro:
+Nelle regole, l'arbitro tira 1d6 per sapere cosa c'è in una stanza, e poi un altro d6 per sapere se c'è un tesoro:
 
 | d6 | Contenuto | Tesoro |
 |---|---|---|

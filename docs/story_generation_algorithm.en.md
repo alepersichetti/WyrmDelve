@@ -301,7 +301,7 @@ More examples from the same dungeon:
 3-08 [N] Singing stone cave; III: trap room.
 ```
 
-The game master can read a room like a small archaeological dig: what is left of the founders, what the others added, what is there today.
+The referee can read a room like a small archaeological dig: what is left of the founders, what the others added, what is there today.
 
 ---
 

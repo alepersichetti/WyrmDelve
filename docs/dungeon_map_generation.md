@@ -45,7 +45,7 @@ Quando avvii il programma vedi una barra con 10 passaggi. Ognuno corrisponde a u
 | 6. Passaggi segreti e insoliti | porte segrete, passaggi nascosti, acqua, crolli, gradini | 13 |
 | 7. Verifica dei principi di Jaquays | si controlla che il dungeon rispetti le regole | 14 |
 | 8. Formato di stampa | si sceglie la carta e la grandezza delle lettere | 16 |
-| 9. Mappa del master | si disegna e si salva la mappa completa | 15 |
+| 9. Mappa dell'arbitro | si disegna e si salva la mappa completa | 15 |
 | 10. Mappa dei giocatori e chiave | si disegna la mappa senza segreti e si scrive la chiave | 15 |
 
 Un'idea guida attraversa tutto il programma: il dungeon deve essere **"xanderizzato"**, cioè rispettare i principi che Justin Alexander ha raccolto nella serie *Xandering the Dungeon* studiando i dungeon di Jennell Jaquays. In parole semplici: **più strade per arrivare ovunque**, anelli invece di vicoli ciechi, più ingressi, più collegamenti tra i livelli, segreti e scorciatoie. Così i giocatori hanno sempre delle scelte da fare.
@@ -79,7 +79,7 @@ Dentro il programma i "tiri di dado" non vengono da un unico sacchetto: ce ne so
 - uno per la **mappa**;
 - uno per i **mostri** e uno per le **trappole**, che si aggiungono dopo, a mappa finita.
 
-Così, se cambi una frase della storia nel file JSON, la mappa dello stesso seme resta identica; e scegliere o no storia, mostri e trappole non cambia la mappa (le trappole aggiungono solo il simbolo `^` sulla mappa del master).
+Così, se cambi una frase della storia nel file JSON, la mappa dello stesso seme resta identica; e scegliere o no storia, mostri e trappole non cambia la mappa (le trappole aggiungono solo il simbolo `^` sulla mappa dell'arbitro).
 
 ### Parametri casuali
 
@@ -422,7 +422,7 @@ Come si decide la forma e la grandezza:
 ### Colonne e numeri
 
 - I grandi saloni rettangolari dei fondatori, se sono larghi almeno 10 lettere e alti almeno 5, ricevono **due file di colonne** `■`, una ogni tre lettere, centrate in modo simmetrico.
-- Ogni stanza riceve un **numero** nella forma `livello-numero` (`1-01`, `2a-03`), scritto al centro, in grassetto, solo sulla mappa del master. Le stanze sono numerate in ordine di lettura: da sinistra a destra, dall'alto in basso.
+- Ogni stanza riceve un **numero** nella forma `livello-numero` (`1-01`, `2a-03`), scritto al centro, in grassetto, solo sulla mappa dell'arbitro. Le stanze sono numerate in ordine di lettura: da sinistra a destra, dall'alto in basso.
 
 ---
 
@@ -715,7 +715,7 @@ Se nemmeno così funziona, il programma ricomincia da capo con dadi nuovi (fino 
 
 Il quarto numero del seme dice quanti **segreti** vuoi. Il programma li distribuisce così:
 
-1. **Un terzo** diventano **passaggi segreti**: un intero corridoio nascosto, disegnato con `░` sulla mappa del master, con una porta segreta `$` a ciascuna estremità. Si sceglie solo un corridoio che non è condiviso con altri, lungo almeno 3 lettere, con porte usate solo da lui.
+1. **Un terzo** diventano **passaggi segreti**: un intero corridoio nascosto, disegnato con `░` sulla mappa dell'arbitro, con una porta segreta `$` a ciascuna estremità. Si sceglie solo un corridoio che non è condiviso con altri, lungo almeno 3 lettere, con porte usate solo da lui.
 2. Gli altri diventano **porte segrete** `$` su corridoi visibili, **prima sugli anelli**: così un segreto è sempre una scorciatoia o una via in più, mai l'unica strada.
 3. Se chiedi più segreti dei corridoi disponibili, il programma rende segreta anche l'altra porta di un corridoio, poi **nasconde scale e pozzi** (i portali per ultimi). Se ancora non basta, avvisa con un messaggio.
 
@@ -730,7 +730,7 @@ Poi aggiunge i **percorsi insoliti**, sempre sui corridoi visibili e di preferen
 
 I gradini sono un piccolo **dislivello**: il livello non è tutto piatto. Se non c'è un tratto dritto per due gradini, ne basta uno; se non c'è nemmeno quello, diventa una pedana in una stanza.
 
-La tomba, alla fine, sulla mappa del master:
+La tomba, alla fine, sulla mappa dell'arbitro:
 
 ```
                  ╔══════════════════╗
@@ -836,20 +836,20 @@ fondatori (I)  seconda (II)   grotta o terza epoca (N, III)
 | Simbolo | Significato | Simbolo | Significato |
 |---|---|---|---|
 | `.` | pavimento, apertura | `+` | porta |
-| `$` | porta segreta (solo master) | `░` | passaggio segreto (solo master) |
+| `$` | porta segreta (solo arbitro) | `░` | passaggio segreto (solo arbitro) |
 | `<` `>` | scale su / giù | `≡` | gradini |
 | `○` | pozzo o camino | `Ω` | portale magico |
 | `≈` | acqua | `∴` | crollo |
 | `■` | colonna | `[A]` | ingresso |
-| `^` | trappola (solo master, se scegli le trappole) | | |
+| `^` | trappola (solo arbitro, se scegli le trappole) | | |
 
 Con l'opzione `--solo-ascii` (o se il font non ha un simbolo) si usano solo caratteri della tastiera: `#` per tutti i muri, `o` pozzo, `&` portale, `~` acqua, `%` crollo, `=` gradini, `O` colonna, `:` passaggio segreto.
 
-### Mappa del master e mappa dei giocatori
+### Mappa dell'arbitro e mappa dei giocatori
 
 Il programma disegna ogni livello due volte:
 
-| | Master | Giocatori |
+| | Arbitro | Giocatori |
 |---|---|---|
 | numeri delle stanze | sì, in grassetto | no |
 | porte segrete `$` | sì | diventano muro |
@@ -933,7 +933,7 @@ Il programma suggerisce il foglio più piccolo con lettere leggibili e mostra tu
 
 - **PNG** a 600 dpi o **PDF** (una pagina per foglio), in tre colori a scelta.
 - Un **.txt** con la stessa mappa, da aprire con qualunque editor. Il `.txt` usa solo i caratteri della tastiera, come `--solo-ascii` (tutti i muri sono `#`, e la legenda lo dice): i simboli come `═`, `■` o `≈` non ci sono in tutti i font, e un editor che li prende da un altro font, con un'altra larghezza, spezza l'allineamento. Le epoche dei muri restano visibili nel PNG/PDF e nella chiave.
-- La mappa dei giocatori ha la stessa disposizione e la stessa grandezza di lettere di quella del master.
+- La mappa dei giocatori ha la stessa disposizione e la stessa grandezza di lettere di quella dell'arbitro.
 
 ---
 

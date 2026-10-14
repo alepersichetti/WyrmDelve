@@ -225,7 +225,7 @@ Everything goes in `dungeons_generated/<seed>/`, one folder per dungeon:
 
 | File | What's in it |
 |---|---|
-| `<seed>_gm.png` | the **game master's map**: room numbers, secret doors `$` and secret passages `░` |
+| `<seed>_gm.png` | the **referee's map**: room numbers, secret doors `$` and secret passages `░` |
 | `<seed>_players.png` | the **players' map**: same map, without numbers and secrets |
 | `<seed>_key.txt` | the **dungeon key**: history and strata (with the story), entrances, level connections, then level by level the d6 wandering monster table (with the monsters), the traps in the corridors (with the traps) and every room (description with the story; monsters, clue or "empty" with the monsters; its trap; its treasure), Jaquays check |
 | `<seed>_story.pdf` | the **story**: the same key as a book on A4 pages, with headings in Sebaldus-Gotisch and the text in Crimson Text, ready to print or read on a tablet |
@@ -236,7 +236,7 @@ If you choose **only the maps**, the key and the PDF are not made.
 
 **The monsters.** Every level has a d6 wandering monster table: 1 is today's dwellers, the others are monsters that fit the level's type, more dangerous the deeper you go. About a third of the rooms hold monsters (today's dwellers in their lairs, the other table monsters in theirs); at least a third always stay empty, and next to every room with monsters there is an empty room with a **clue** (gnawed bones, slimy trails, a smell of sulphur…) saying where it comes from. Now and then a monster is **out of place**, with its reason: for instance an aboleth in a castle pool, come up from the flooded caves of the level below. How it works: [docs/monsters.en.md](docs/monsters.en.md); to add monsters: [docs/add_monsters_to_bestiary.en.md](docs/add_monsters_to_bestiary.en.md).
 
-**The traps.** They show **only on the game master's map**, as `^`, and the key describes them: name, **tell** (how you notice it), **effect** and **countermeasures**. Whoever built a place protected it their own way: careful mechanisms in the founders' and second age's halls, crude traps where today's dwellers live, mostly around the important rooms. Before meeting a working trap, the players meet a **broken or exposed** one of the same kind, which shows how it works; the deeper you go, the crueller the traps. Some traps are ready-made (WyrmDelve's own and those of the System Reference Document 3.5), the others are put together from a **trigger**, a **mechanism** and, for the cruel ones, a **twist**: 2,648 different traps in all. How it works: [docs/trap.en.md](docs/trap.en.md).
+**The traps.** They show **only on the referee's map**, as `^`, and the key describes them: name, **tell** (how you notice it), **effect** and **countermeasures**. Whoever built a place protected it their own way: careful mechanisms in the founders' and second age's halls, crude traps where today's dwellers live, mostly around the important rooms. Before meeting a working trap, the players meet a **broken or exposed** one of the same kind, which shows how it works; the deeper you go, the crueller the traps. Some traps are ready-made (WyrmDelve's own and those of the System Reference Document 3.5), the others are put together from a **trigger**, a **mechanism** and, for the cruel ones, a **twist**: 2,648 different traps in all. How it works: [docs/trap.en.md](docs/trap.en.md).
 
 **The treasure.** It follows the room stocking rules of *Old-School Essentials*: a room with monsters holds treasure 3 times in 6 (the monsters' treasure type, A to V), a room with a trap 2 times in 6 (and the trap guards it), an empty room 1 time in 6 (the unguarded treasure of that dungeon level, richer the deeper you go). The key lists coins, gems and jewellery with their value in gold pieces, magic items, and where the treasure is hidden. How it works: [docs/treasure.en.md](docs/treasure.en.md).
 
@@ -249,8 +249,8 @@ With **one level per sheet** the PNG names get the level: `<seed>_gm_L1.png`, `<
 | Symbol | Meaning | Symbol | Meaning |
 |---|---|---|---|
 | `.` | floor | `+` | door |
-| `^` | trap (GM only) | | |
-| `$` | secret door (GM only) | `░` | secret passage (GM only) |
+| `^` | trap (referee only) | | |
+| `$` | secret door (referee only) | `░` | secret passage (referee only) |
 | `<` `>` | stairs up / down | `≡` | steps, same level |
 | `○` | shaft or chimney between levels (may skip some) | `Ω` | magic portal |
 | `≈` | water | `∴` | cave-in |
