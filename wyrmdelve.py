@@ -265,8 +265,11 @@ TEXTS = {
     # steps
     "step_settings": ("Impostazioni", "Settings"),
     "info_seed": ("Seme: {s}", "Seed: {s}"),
-    "info_params": ("{l} livelli, {r} stanze, {e} ingressi, {x} porte/passaggi segreti",
-                    "{l} levels, {r} rooms, {e} entrances, {x} secret doors/passages"),
+    "info_params": ("{l} livelli, {r} stanze, {e}, {x} porte/passaggi segreti",
+                    "{l} levels, {r} rooms, {e}, {x} secret doors/passages"),
+    # "{e}" above and below: entrances(n), "1 ingresso" or "3 ingressi"
+    "entrances_one": ("1 ingresso", "1 entrance"),
+    "entrances_many": ("{n} ingressi", "{n} entrances"),
     "info_random": ("Parametri scelti a caso", "Parameters chosen at random"),
     "info_types": ("Tipo di dungeon: {t}", "Dungeon type: {t}"),
     "types_all": (" (tutti i livelli)", " (every level)"),
@@ -298,7 +301,7 @@ TEXTS = {
     "step_corridors": ("Corridoi e anelli", "Corridors and loops"),
     "info_corridors": ("{c} corridoi, di cui {l} chiudono un anello", "{c} corridors, {l} of them close a loop"),
     "step_links": ("Collegamenti tra livelli e ingressi", "Level connections and entrances"),
-    "info_links": ("{s} scale, {p} pozzi, {g} portali; {e} ingressi", "{s} stairs, {p} shafts, {g} portals; {e} entrances"),
+    "info_links": ("{s} scale, {p} pozzi, {g} portali; {e}", "{s} stairs, {p} shafts, {g} portals; {e}"),
     "step_secrets": ("Passaggi segreti e insoliti", "Secret and unusual paths"),
     "info_secrets": ("{d} porte segrete, {p} passaggi segreti, {h} scale/pozzi nascosti, {w} allagati, {r} crolli, "
                      "{s} dislivelli",
@@ -398,10 +401,10 @@ TEXTS = {
     "level_header": ("LIVELLO {n}", "LEVEL {n}"),
     "sub_header": ("SOTTOLIVELLO {n}", "SUB-LEVEL {n}"),
     "divided_header": (" · diviso", " · divided"),
-    "subtitle": ("Seme {seed} · {l} livelli · {r} stanze · {e} ingressi",
-                 "Seed {seed} · {l} levels · {r} rooms · {e} entrances"),
-    "subtitle_one": ("Seme {seed} · 1 livello · {r} stanze · {e} ingressi",
-                     "Seed {seed} · 1 level · {r} rooms · {e} entrances"),
+    "subtitle": ("Seme {seed} · {l} livelli · {r} stanze · {e}",
+                 "Seed {seed} · {l} levels · {r} rooms · {e}"),
+    "subtitle_one": ("Seme {seed} · 1 livello · {r} stanze · {e}",
+                     "Seed {seed} · 1 level · {r} rooms · {e}"),
     "players_title": ("{t} — mappa dei giocatori", "{t} — players' map"),
     "players_title_plain": ("Mappa dei giocatori", "Players' map"),
     # legend
@@ -580,6 +583,11 @@ def tr(key, **values):
     """The text for `key` in the current language, with {placeholders} filled from `values`."""
     text = TEXTS[key][LANGUAGES.index(LANG)]
     return text.format(**values) if values else text
+
+
+def entrances(n):
+    """"1 ingresso" / "1 entrance", or "3 ingressi" / "3 entrances", in the current language."""
+    return tr("entrances_one") if n == 1 else tr("entrances_many", n=n)
 
 
 def pick(pair):
@@ -5100,7 +5108,8 @@ def main():
     log.step(tr("step_settings"))
     seed = make_seed(params)
     log.info(tr("info_seed", s=seed))
-    log.info(tr("info_params", l=params["levels"], r=params["rooms"], e=params["entrances"], x=params["secrets"]))
+    log.info(tr("info_params", l=params["levels"], r=params["rooms"], e=entrances(params["entrances"]),
+                x=params["secrets"]))
     if params.get("randomized"):
         log.info(tr("info_random"))
     log.info(tr("info_types", t=types_text(params["types"])))
@@ -5142,7 +5151,8 @@ def main():
     # 5: level connections and entrances
     log.step(tr("step_links"))
     kinds = Counter(k.kind for k in dungeon.links)
-    log.info(tr("info_links", s=kinds["stairs"], p=kinds["shaft"], g=kinds["portal"], e=len(dungeon.entrances)))
+    log.info(tr("info_links", s=kinds["stairs"], p=kinds["shaft"], g=kinds["portal"],
+                e=entrances(len(dungeon.entrances))))
 
     # 6: secrets
     log.step(tr("step_secrets"))
@@ -5167,8 +5177,8 @@ def main():
     plain = Glyphs(None, True)                  # the .txt maps: keyboard letters only
     title = pick(dungeon.story["title"]) if params["title"] is None else params["title"]
     L = len(dungeon.mains())
-    subtitle = (tr("subtitle", seed=seed, l=L, r=len(dungeon.rooms), e=len(dungeon.entrances)) if L > 1 else
-                tr("subtitle_one", seed=seed, r=len(dungeon.rooms), e=len(dungeon.entrances)))
+    subtitle = (tr("subtitle", seed=seed, l=L, r=len(dungeon.rooms), e=entrances(len(dungeon.entrances))) if L > 1
+                else tr("subtitle_one", seed=seed, r=len(dungeon.rooms), e=entrances(len(dungeon.entrances))))
     # referee's map panels, one per level, trimmed to their content; the same bounds are reused for every
     # other version of the map, so they all line up
     gm_full = [panel_canvas(lv, True, G) for lv in dungeon.levels]

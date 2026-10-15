@@ -31,6 +31,8 @@
 <img src="img_examples/OSR%20LOGO.png" alt="Logo OSR" width="25%"><br>
 Compatibile con qualunque gioco di ruolo analogico "OSR". Fratello di [WyrmHex](https://github.com/alepersichetti/WyrmHex).
 
+Alcuni dungeon d'esempio sono nella [Galleria](#galleria).
+
 </div>
 
 ### WyrmDelve v1.0.1
@@ -439,6 +441,28 @@ La finestra del terminale è troppo stretta. Allargala e riavvia il programma.
 
 **Voglio fermare il programma a metà.**
 Premi **Ctrl+C**. Non si rompe niente: basta riavviarlo.
+
+---
+
+## Galleria
+
+Mappe ridotte rispetto agli originali (600 dpi). Clicca una mappa per aprirla più grande. Ogni dungeon si può rifare con il suo seme, per esempio `python wyrmdelve.py --seme 2-16-2-1-EJ-4SSX4T`.
+
+**Il Tempio Senza Luce di Ruluabad**: tempio sopra una tomba, 2 livelli e un sottolivello, mappa dell'arbitro, nero su bianco (`--colori 1`) · seme `2-16-2-1-EJ-4SSX4T`
+
+<a href="img_examples/thumbs/tempio_e_tomba_nero_su_bianco.png"><img src="img_examples/thumbs/tempio_e_tomba_nero_su_bianco.png" alt="Il Tempio Senza Luce di Ruluabad, mappa dell'arbitro, nero su bianco" width="70%"></a>
+
+**Maniero di Eirim**: torre, castello e Underdark, 3 livelli e un sottolivello, mappa dell'arbitro, bianco su celeste (`--colori 2`) · seme `3-24-2-4-CDK-ZB9X2Z`
+
+<a href="img_examples/thumbs/torre_castello_underdark_bianco_su_celeste.png"><img src="img_examples/thumbs/torre_castello_underdark_bianco_su_celeste.png" alt="Maniero di Eirim, mappa dell'arbitro, bianco su celeste" width="100%"></a>
+
+**Il Baratro di Urwen**: Underdark, 1 livello e un sottolivello, 4 ingressi, mappa dell'arbitro, bianco su nero (`--colori 3`) · seme `1-14-4-1-K-V5FYT7`
+
+<a href="img_examples/thumbs/underdark_bianco_su_nero.png"><img src="img_examples/thumbs/underdark_bianco_su_nero.png" alt="Il Baratro di Urwen, mappa dell'arbitro, bianco su nero" width="70%"></a>
+
+**Le Stanze Dorate di Ikgrimush**: palazzo, 2 livelli e un sottolivello, **mappa dei giocatori** (senza numeri delle stanze, segreti e trappole), nero su bianco (`--colori 1`) · seme `2-18-1-3-A-JG09XH`
+
+<a href="img_examples/thumbs/palazzo_mappa_giocatori_nero_su_bianco.png"><img src="img_examples/thumbs/palazzo_mappa_giocatori_nero_su_bianco.png" alt="Le Stanze Dorate di Ikgrimush, mappa dei giocatori, nero su bianco" width="100%"></a>
 
 ---
 
