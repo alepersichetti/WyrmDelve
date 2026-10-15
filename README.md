@@ -77,7 +77,7 @@ The layout **always** follows Jennell Jaquays' principles as Justin Alexander de
 Put these files in the **same folder**, for example a folder called `dungeons` on your Desktop:
 
 - `wyrmdelve.py` (the program)
-- the `data` folder (the words and tables the dungeons are made of: names, rooms, history, monsters, traps, treasure; see chapter 7)
+- the `data` folder (the words and tables the dungeons are made of: names, rooms, history, monsters, traps, treasure, factions; see chapter 7)
 - the `fonts` folder (the fonts of the maps and of the story PDF: the program uses only these, so it doesn't depend on your system)
 - `requirements.txt` (the list of what the program needs)
 - `README.md` (this guide) and `README.it.md` (the same guide in Italian)
@@ -181,7 +181,7 @@ The program asks you a few questions. **The questions with a choice are menus**:
    2. white symbols on light blue
    3. white symbols on black
 5. **Do you want a name on the map?** If not, the map has no title. If so, choose whether it's **randomly generated** (e.g. *Tomb of Zordur*, the ready-made answer) or whether **you type it**.
-6. **What do you want to make?** Besides the maps you can have the **story**, the **monsters**, the **traps** and the **treasure**, in any combination: tick or untick them with **Space** (all ticked is the ready-made answer; none ticked = only the maps), then press **Enter**. With any of them you also get the key as `.txt` and as a PDF. The program asks this every time, also for a fully random dungeon.
+6. **What do you want to make?** Besides the maps you can have the **story**, the **monsters**, the **traps**, the **treasure** and the **factions**, in any combination: tick or untick them with **Space** (all ticked is the ready-made answer; none ticked = only the maps), then press **Enter**. With any of them you also get the key as `.txt` and as a PDF. The program asks this every time, also for a fully random dungeon.
 7. **Grid units:** `1` = imperial, **1 square = 5 ft** (the ready-made answer in English); `2` = metric, **1 square = 1.5 m**. The scale is written in the legend of the maps, in the key and in the story PDF; the dungeon is the same with either choice.
 
 Now the program builds the dungeon. It shows each step with a bar that fills up:
@@ -229,9 +229,9 @@ Everything goes in `dungeons_generated/<seed>/`, one folder per dungeon:
 |---|---|
 | `<seed>_gm.png` | the **referee's map**: room numbers, secret doors `$` and secret passages `░` |
 | `<seed>_players.png` | the **players' map**: same map, without numbers and secrets |
-| `<seed>_key.txt` | the **dungeon key**: history and strata (with the story), entrances, level connections, then level by level the d6 wandering monster table (with the monsters), the traps in the corridors (with the traps) and every room (description with the story; monsters, clue or "empty" with the monsters; its trap; its treasure), Jaquays check |
+| `<seed>_key.txt` | the **dungeon key**: history and strata (with the story), entrances, level connections, then level by level the d6 wandering monster table (with the monsters), the traps in the corridors (with the traps) and every room (description with the story; monsters, clue or "empty" with the monsters; its trap; its treasure), Jaquays check; with the factions, the factions section before the entrances |
 | `<seed>_story.pdf` | the **story**: the same key as a book on A4 pages, with headings in Sebaldus-Gotisch and the text in Crimson Text, ready to print or read on a tablet |
-| `<seed>_key.pdf` | instead of the story, if you choose monsters, traps or treasure **without** the story: the key as a PDF |
+| `<seed>_key.pdf` | instead of the story, if you choose monsters, traps, treasure or factions **without** the story: the key as a PDF |
 | `.txt` next to each map | the same map as plain text, to open with any text editor. It uses keyboard characters only (like `--ascii-only`: every wall is `#`), so it stays aligned with any fixed-width font |
 
 If you choose **only the maps**, the key and the PDF are not made.
@@ -241,6 +241,8 @@ If you choose **only the maps**, the key and the PDF are not made.
 **The traps.** They show **only on the referee's map**, as `^`, and the key describes them: name, **tell** (how you notice it), **effect** and **countermeasures**. Whoever built a place protected it their own way: careful mechanisms in the founders' and second age's halls, crude traps where today's dwellers live, mostly around the important rooms. Before meeting a working trap, the players meet a **broken or exposed** one of the same kind, which shows how it works; the deeper you go, the crueller the traps. Some traps are ready-made (WyrmDelve's own and those of the System Reference Document 3.5), the others are put together from a **trigger**, a **mechanism** and, for the cruel ones, a **twist**: 2,648 different traps in all. How it works: [docs/trap.en.md](docs/trap.en.md).
 
 **The treasure.** It follows the room stocking rules of *Old-School Essentials*: a room with monsters holds treasure 3 times in 6 (the monsters' treasure type, A to V), a room with a trap 2 times in 6 (and the trap guards it), an empty room 1 time in 6 (the unguarded treasure of that dungeon level, richer the deeper you go). The key lists coins, gems and jewellery with their value in gold pieces, magic items, and where the treasure is hidden. How it works: [docs/treasure.en.md](docs/treasure.en.md).
+
+**The factions.** Two to four groups fight over the place, and each one is born from its history: today's dwellers, the heirs of the founders, the last of the second age, those who seek the relic of the legend, or outsiders who have just arrived. For each one the key gives its name, its base (a room of its own age, or outside the dungeon), where it comes from, what it wants, how it gets it, who leads it, sometimes a secret, how it treats the adventurers and what it thinks of another faction. FACTIONS_COUNT different factions in all. How it works: [docs/factions.en.md](docs/factions.en.md).
 
 The headings of the story use **Sebaldus-Gotisch** and the text uses **Crimson Text**, both in the `fonts` folder (see `fonts/README.md`).
 
@@ -291,6 +293,7 @@ The program's logic is in `wyrmdelve.py`; the **words and tables** it draws at r
 | `quirks.json` | the reasons a monster is out of place, with the condition that makes them possible (`when`) |
 | `traps.json` | the ready-made traps (`traps`: family, stage 0 broken / 1 working / 2 cruel, places, builders `built` or `crude`, types, name, tell, effect, countermeasures) and the parts new ones are put together from: `triggers`, `mechanisms` (with their `broken` version), `twists`, and the shared text of the broken ones (`lesson`); see [docs/trap.en.md](docs/trap.en.md). Optional: without it there are no traps |
 | `treasure.json` | the treasure tables of *Old-School Essentials* (Open Game Content, see `LICENSE-OGL.txt`): chance of treasure by room content, unguarded treasure by dungeon level, treasure types A–V, gems, jewellery, magic items, and the hiding places; see [docs/treasure.en.md](docs/treasure.en.md). Optional: without it there is no treasure |
+| `factions.json` | the factions: names (with the `origins` each one suits), where they come from (`origins`: `present`, `heirs`, `second`, `relic`, `outsiders`), goals, methods, leaders, secrets, attitudes towards the adventurers and relations with the other factions; see [docs/factions.en.md](docs/factions.en.md). Optional: without it there are no factions |
 
 Each type in `dungeon_types` has:
 
@@ -350,7 +353,7 @@ Without `--language en` the messages and the texts on the map are in Italian. Ev
 | `--pdf` / `--png` | Save as PDF or as PNG | `--pdf` |
 | `--title` / `--titolo` | Name on the map (default: a random one) | `--title "The Ogre's Lair"` |
 | `--no-title` / `--senza-titolo` | Map without a name | `--no-title` |
-| `--content` / `--contenuto` | What to make besides the maps: `story`, `monsters`, `traps`, `treasure`, also together separated by commas; `map` = only the maps; `all` = everything (the default) | `--content story,treasure` |
+| `--content` / `--contenuto` | What to make besides the maps: `story`, `monsters`, `traps`, `treasure`, `factions`, also together separated by commas; `map` = only the maps; `all` = everything (the default) | `--content story,treasure` |
 | `--no-story` / `--senza-storia` | Only the maps, like `--content map` | `--no-story` |
 | `--units` / `--unita` | Grid scale: `imperial` (1 square = 5 ft) or `metric` (1 square = 1.5 m); by default imperial in English, metric in Italian | `--units metric` |
 | `--ascii-only` / `--solo-ascii` | Only plain keyboard characters (`# ~ = o`) in the PNG and PDF too (the `.txt` files always use them) | `--ascii-only` |
@@ -475,6 +478,7 @@ If you want to know how the program invents the dungeons, the `docs` folder has 
 - [How the monsters are made](docs/monsters.en.md): wandering monsters, monsters and clues in the rooms, out-of-place monsters;
 - [How the traps are made](docs/trap.en.md): families and stages, who builds them, learn first and then risk, ready-made traps and traps put together from their parts;
 - [How the treasure is made](docs/treasure.en.md): which rooms hold treasure, treasure types, coins, gems, jewellery and magic items, where it is hidden;
+- [How the factions are made](docs/factions.en.md): where they come from, their base, goals, methods, leaders, secrets, attitudes and relations, how many there are;
 - [How to add monsters to the bestiary](docs/add_monsters_to_bestiary.en.md): the fields of every monster, ready-to-copy examples, clues, out-of-place monsters, common mistakes.
 
 ## Sources
