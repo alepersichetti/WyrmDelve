@@ -31,6 +31,8 @@
 <img src="img_examples/OSR%20LOGO.png" alt="OSR logo" width="25%"><br>
 Works with any analogue "OSR" roleplaying game. Sibling of [WyrmHex](https://github.com/alepersichetti/WyrmHex).
 
+Example dungeons are in the [Gallery](#gallery).
+
 </div>
 
 ### WyrmDelve v1.0.1
@@ -439,6 +441,28 @@ The terminal window is too narrow. Make it wider and start the program again.
 
 **I want to stop the program halfway.**
 Press **Ctrl+C**. Nothing breaks: just start it again.
+
+---
+
+## Gallery
+
+Maps scaled down from the originals (600 dpi). Click a map to open it bigger. Every dungeon can be made again with its seed, for example `python wyrmdelve.py --language en --seed 2-16-2-1-EJ-4SSX4T`.
+
+**The Lightless Temple of Ruluabad**: temple over a tomb, 2 levels and a sub-level, referee's map, black on white (`--colors 1`) · seed `2-16-2-1-EJ-4SSX4T`
+
+<a href="img_examples/thumbs/en/temple_and_tomb_black_on_white.png"><img src="img_examples/thumbs/en/temple_and_tomb_black_on_white.png" alt="The Lightless Temple of Ruluabad, referee's map, black on white" width="70%"></a>
+
+**Eirim Manor**: tower, castle and Underdark, 3 levels and a sub-level, referee's map, white on light blue (`--colors 2`) · seed `3-24-2-4-CDK-ZB9X2Z`
+
+<a href="img_examples/thumbs/en/tower_castle_underdark_white_on_light_blue.png"><img src="img_examples/thumbs/en/tower_castle_underdark_white_on_light_blue.png" alt="Eirim Manor, referee's map, white on light blue" width="100%"></a>
+
+**The Chasm of Urwen**: Underdark, 1 level and a sub-level, 4 entrances, referee's map, white on black (`--colors 3`) · seed `1-14-4-1-K-V5FYT7`
+
+<a href="img_examples/thumbs/en/underdark_white_on_black.png"><img src="img_examples/thumbs/en/underdark_white_on_black.png" alt="The Chasm of Urwen, referee's map, white on black" width="70%"></a>
+
+**The Gilded Rooms of Ikgrimush**: palace, 2 levels and a sub-level, **players' map** (no room numbers, secrets or traps), black on white (`--colors 1`) · seed `2-18-1-3-A-JG09XH`
+
+<a href="img_examples/thumbs/en/palace_players_map_black_on_white.png"><img src="img_examples/thumbs/en/palace_players_map_black_on_white.png" alt="The Gilded Rooms of Ikgrimush, players' map, black on white" width="100%"></a>
 
 ---
 
