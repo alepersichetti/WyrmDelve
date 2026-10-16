@@ -4669,6 +4669,11 @@ def plan_rumours(dungeon, seed, treasure=None, factions=None, npcs=None):
         # one rumour of this kind and truth: (section, values) or None if the facts don't allow it
         if kind == "history":
             return ("history_true" if true else "history_false"), {}
+        if kind in ("levels", "entrances"):
+            # one rumour each at most: two answers to the same question would give each other away
+            if (kind, 0) in used:
+                return None
+            used.add((kind, 0))
         if kind == "levels":
             n = len(dungeon.mains())
             return "levels", {"levels": count_words(n if true else wrong(n), "levels")}
