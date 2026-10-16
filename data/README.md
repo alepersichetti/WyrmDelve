@@ -19,8 +19,9 @@ Everything WyrmDelve draws at random is here, as JSON text files: `wyrmdelve.py`
 | `traps.json` | ready-made traps and the triggers, mechanisms and twists new ones are assembled from (optional) | traps |
 | `treasure.json` | the treasure tables (optional) | treasure |
 | `factions.json` | names, origins, goals, methods, leaders, secrets, attitudes and relations of the factions (optional) | factions |
+| `npcs.json` | roles, ties to the place, wants, fears, secrets, manners, offers and relations of the non-player characters (optional) | NPCs |
 
-Every `.json` file in this folder adds its sections to the tables, except `traps.json`, `treasure.json` and `factions.json`, which are read on their own: without them the program makes dungeons without traps, treasure or factions. A new type goes in `dungeon_types/` with the next number.
+Every `.json` file in this folder adds its sections to the tables, except `traps.json`, `treasure.json`, `factions.json` and `npcs.json`, which are read on their own: without them the program makes dungeons without traps, treasure, factions or NPCs. A new type goes in `dungeon_types/` with the next number.
 
 How the program uses them: [docs](../docs).
 

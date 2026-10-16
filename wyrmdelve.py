@@ -227,6 +227,9 @@ TEXTS = {
     "content_factions": ("fazioni: chi si contende il luogo e perché, legate alla sua storia",
                          "factions: who fights over the place and why, tied to its history"),
     "content_word_factions": ("fazioni", "factions"),
+    "content_npcs": ("PNG: personaggi non giocanti con le loro motivazioni, legati alla storia e alle fazioni",
+                     "NPCs: non-player characters and their motives, tied to the history and the factions"),
+    "content_word_npcs": ("personaggi non giocanti", "NPCs"),
     "content_help": ("    Scrivi i numeri che vuoi, separati da virgole (es. 1,5); 0 = solo le mappe.",
                      "    Type the numbers you want, separated by commas (e.g. 1,5); 0 = only the maps."),
     "content_maps_only": ("solo le mappe", "only the maps"),
@@ -288,6 +291,9 @@ TEXTS = {
     "warn_no_factions": ("Manca data/factions.json (o è rovinato): niente fazioni",
                          "data/factions.json is missing (or broken): no factions"),
     "info_factions": ("Fazioni: {n} ({names})", "Factions: {n} ({names})"),
+    "warn_no_npcs": ("Manca data/npcs.json (o è rovinato): niente personaggi non giocanti",
+                     "data/npcs.json is missing (or broken): no NPCs"),
+    "info_npcs": ("Personaggi non giocanti: {n} ({names})", "NPCs: {n} ({names})"),
     "warn_no_treasure": ("Manca data/treasure.json (o è rovinato): niente tesori",
                          "data/treasure.json is missing (or broken): no treasure"),
     "info_traps": ("{n} trappole (^ solo sulla mappa dell'arbitro)", "{n} traps (^ on the referee's map only)"),
@@ -466,6 +472,10 @@ TEXTS = {
     "pdf_factions": ("Fazioni", "Factions"),
     "faction_base": ("base: {r}", "base: {r}"),
     "faction_outside": ("fuori dal dungeon", "outside the dungeon"),
+    "key_npcs": ("PERSONAGGI NON GIOCANTI", "NON-PLAYER CHARACTERS"),
+    "pdf_npcs": ("Personaggi non giocanti", "Non-player characters"),
+    "npc_room": ("sala {r}", "room {r}"),
+    "secret": ("Segreto", "Secret"),
     "room_treasure": ("Tesoro{v}: {x}; {w}.", "Treasure{v}: {x}; {w}."),
     "treasure_value": (" ({v} mo)", " ({v} gp)"),
     "treasure_trapped": ("La trappola della stanza lo protegge.", "The room's trap guards it."),
@@ -569,14 +579,14 @@ TEXTS = {
     "h_title": ("titolo della mappa (default: il nome del dungeon)", "map title (default: the dungeon's name)"),
     "h_no_title": ("mappa senza nome", "map without a name"),
     "h_no_story": ("solo le mappe, come --contenuto mappa", "only the maps, like --content map"),
-    "h_content": ("cosa generare oltre alle mappe: storia, mostri, trappole, tesori, fazioni, anche insieme "
-                  "separati da virgole (storia,fazioni); mappa = solo le mappe; tutto = tutto (di base)",
-                  "what to make besides the maps: story, monsters, traps, treasure, factions, also together "
-                  "separated by commas (story,factions); map = only the maps; all = everything (the default)"),
+    "h_content": ("cosa generare oltre alle mappe: storia, mostri, trappole, tesori, fazioni, png, anche insieme "
+                  "separati da virgole (storia,fazioni,png); mappa = solo le mappe; tutto = tutto (di base)",
+                  "what to make besides the maps: story, monsters, traps, treasure, factions, npcs, also together "
+                  "separated by commas (story,factions,npcs); map = only the maps; all = everything (the default)"),
     "err_content": ("«{s}» non è una scelta valida: usa mappa, tutto, oppure storia, mostri, trappole, tesori, "
-                    "fazioni separati da virgole",
+                    "fazioni, png separati da virgole",
                     "“{s}” is not a valid choice: use map, all, or story, monsters, traps, treasure, "
-                    "factions separated by commas"),
+                    "factions, npcs separated by commas"),
     "h_units": ("unità della griglia: imperiale (1 casella = 5 ft) o metrica (1 casella = 1,5 m); "
                 "di base metrica in italiano, imperiale in inglese",
                 "grid units: imperial (1 square = 5 ft) or metric (1 square = 1.5 m); "
@@ -861,8 +871,8 @@ def random_params(number, fixed=None):
 # there is {"it": ..., "en": ...}; here it becomes (it, en).
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "data")
-# loaded on their own: without them, no traps, treasure or factions
-OPTIONAL_DATA = ("traps.json", "treasure.json", "factions.json")
+# loaded on their own: without them, no traps, treasure, factions or NPCs
+OPTIONAL_DATA = ("traps.json", "treasure.json", "factions.json", "npcs.json")
 
 
 def from_json(value):
@@ -1010,6 +1020,29 @@ def faction_fits(sentence, origin, inside):
     if not inside and ("{room}" in sentence["it"] or sentence.get("inside")):
         return False
     return origin not in sentence.get("not", [])
+
+
+# NPCs (optional file): roles (Italian masculine and feminine, the kinds of NPC they suit), how an
+# NPC is tied to the place (by kind: today's dwellers, heirs of the founders, the second age, the
+# relic, outsiders, a member or the leader of a faction) and the sentences an NPC is put together
+# from: wants, fears, secrets, manners, offers, relations with another NPC
+NPC_SECTIONS = ("wants", "fears", "secrets", "manners", "offers", "relations")
+NPCS = load_optional(os.path.join(DATA, "npcs.json"), ("roles", "origins") + NPC_SECTIONS)
+NPC_LONERS = ("present", "heirs", "second", "relic", "outsiders")
+# like the factions' sentences, every sentence stays a dict, with its conditions: "inside": true
+# (only for an NPC in the dungeon), "not" (kinds it doesn't suit), "faction": true (only for an NPC
+# who belongs to a faction)
+for _sentences in [*NPCS.get("origins", {}).values(), *(NPCS.get(k, []) for k in NPC_SECTIONS)]:
+    _sentences[:] = [dict(zip(("it", "en"), t)) if isinstance(t, tuple) else t for t in _sentences]
+
+
+def npc_fits(sentence, kind, inside, member):
+    """Whether a sentence of data/npcs.json suits an NPC of this kind, inside the dungeon or not,
+    member of a faction or not."""
+    if sentence.get("faction") and not member:
+        return False
+    return faction_fits(sentence, kind, inside)
+
 
 # treasure (optional file): the Old-School Essentials tables (Open Game Content,
 # see LICENSE-OGL.txt): how often a room holds treasure, treasure by dungeon
@@ -4262,6 +4295,19 @@ def treasure_line(t):
     return line + (" " + tr("treasure_trapped") if t["trapped"] else "")
 
 
+def fill_sentence(sentence, lang, values):
+    """One sentence of factions.json or npcs.json in one language (0 Italian, 1 English), with its
+    {placeholders} filled and a capital letter; a secret starts with "Secret:", for the referee."""
+    template = sentence[("it", "en")[lang]]
+    text = template.format(**values)
+    if sentence.get("secret"):
+        # after the colon, lowercase, unless the sentence starts with a name
+        if not template.startswith(("{npc}", "{hero}", "{other}", "{leader}")):
+            text = text[0].lower() + text[1:]
+        return f"{TEXTS['secret'][lang]}: {text}"
+    return capitalized(text)
+
+
 def story_values(dungeon):
     """The story's words for the {placeholders} of factions, NPCs and rumours: one dict per
     language (0 Italian, 1 English), the same names the history uses."""
@@ -4295,7 +4341,9 @@ def plan_factions(dungeon, seed):
     2 to 4 in all (more for big dungeons). Every faction has a base (a room of its own age, or
     outside for some outsiders), and its sentences are drawn from data/factions.json; the next
     faction in the ring is its rival or ally. Its own random numbers: nothing else changes.
-    Returns [{"name": (it, en), "base": room label or None, "lines": [(it, en), ...]}, ...]."""
+    Returns [{"name": (it, en), "base": room label or None, "lines": [(it, en), ...], "origin",
+    "leader": its leader's name if the key names one, "name_lower": the name with a lowercase
+    article, to use inside a sentence}, ...]."""
     rng = random.Random(f"wyrmdelve-factions-{seed}")
     f = FACTIONS
     values = story_values(dungeon)
@@ -4343,10 +4391,11 @@ def plan_factions(dungeon, seed):
         middle = [draw("goals"), draw("methods")]
         if rng.random() < 0.7 and start.get("leader", True):
             middle.append(draw("leaders"))
+        faction["has_leader"] = len(middle) == 3
         rng.shuffle(middle)
         parts = [start] + middle
         if rng.random() < 0.6:
-            parts.append(draw("secrets"))
+            parts.append(dict(draw("secrets"), secret=True))
         parts.append(draw("attitudes"))
         faction["parts"] = parts
         factions.append(faction)
@@ -4371,15 +4420,130 @@ def plan_factions(dungeon, seed):
                 v = dict(values[lang], faction=fac["name"][lang], leader=fac["leader"],
                          room=fac["base"] or "", other=factions[fac["relation"][1]]["name"][lang]
                          if "relation" in fac else "")
-                pair.append(capitalized(text[("it", "en")[lang]].format(**v)))
+                pair.append(fill_sentence(text, lang, v))
             lines.append(tuple(pair))
         out.append({"name": tuple(capitalized(t) for t in fac["name"]), "base": fac["base"], "lines": lines,
-                    "origin": fac["origin"], "leader": fac["leader"]})
+                    "origin": fac["origin"], "leader": fac["leader"] if fac["has_leader"] else None,
+                    "name_lower": fac["name"]})
+    return out
+
+
+def npc_patterns():
+    """How many different NPCs the tables can make: content (role x tie to the place x want x
+    manner x offer x fear or none x secret or none x relation) and forms (want, manner and offer
+    in any order; with or without fear and secret)."""
+    n = NPCS
+    content = (len(n["roles"]) * sum(len(v) for v in n["origins"].values()) * len(n["wants"]) * len(n["manners"])
+               * len(n["offers"]) * (len(n["fears"]) + 1) * (len(n["secrets"]) + 1) * len(n["relations"]))
+    forms = 6 * 2 * 2           # 3! orders; with or without a fear; with or without a secret
+    return content, forms
+
+
+def plan_npcs(dungeon, seed, factions=None):
+    """The NPCs of the dungeon, 3 to 5 (more for big dungeons), tied to its history and, when there
+    are factions, to them: some belong to a faction (its leader, when the faction has one named, or
+    a member, living at its base), the others are loners tied to one age of the place, the relic, or
+    the outside world. Every NPC has a gender (for the Italian endings and the English pronouns), a
+    role, a room (or none, outside the dungeon) and sentences drawn from data/npcs.json; the next NPC
+    in the ring is the one it has feelings about. Its own random numbers: nothing else changes.
+    Returns [{"name", "role": (it, en), "room": label or None, "faction": (it, en) or None,
+    "lines": [(it, en), ...], "kind"}, ...]."""
+    rng = random.Random(f"wyrmdelve-npcs-{seed}")
+    n = NPCS
+    values = story_values(dungeon)
+    factions = factions or []
+    count = min(5, 3 + (len(dungeon.rooms) >= 14) + (len(dungeon.mains()) >= 3))
+    # who they are: up to count - 2 faction people (at least one if there are factions), then loners
+    people = []
+    for fac in rng.sample(factions, min(len(factions), max(1, count - 2))):
+        leads = fac["leader"] is not None and rng.random() < 0.5
+        people.append({"kind": "leader" if leads else "member", "faction": fac})
+    loners = [k for k in NPC_LONERS if n["origins"].get(k)]
+    people += [{"kind": k, "faction": None} for k in rng.sample(loners, min(count - len(people), len(loners)))]
+    # names: never the hero's, a faction leader's or another NPC's
+    used = {values[0].get("hero", "")} | {f["leader"] for f in factions if f["leader"]}
+    rooms = sorted(dungeon.rooms, key=lambda r: (r.level.depth, r.number))
+    dist = distances(dungeon)
+    # loners keep out of the factions' bases
+    used_rooms = {r.uid for r in rooms if r.label in {f["base"] for f in factions}}
+    roles = Deck(n["roles"], rng)
+    decks = {key: Deck(n[key], rng) for key in NPC_SECTIONS}
+    for person in people:
+        kind, fac = person["kind"], person["faction"]
+        person["gender"] = rng.randrange(2)          # 0 masculine, 1 feminine
+        person["name"] = fac["leader"] if kind == "leader" else make_name(rng, used)
+        for _ in range(len(n["roles"]) * 2):
+            role = roles.draw()
+            if kind in role.get("kinds", []):
+                break
+        person["role"] = (role["it"][person["gender"]], role["en"])
+        # the room: the faction's base for its people; for a loner, a free room of its own age (the
+        # outsiders near an entrance, or outside one time in three)
+        if fac is not None:
+            person["room"] = fac["base"]
+        else:
+            era = {"present": 3, "heirs": 1, "second": 2}.get(kind)
+            pool = [r for r in rooms if r.uid not in used_rooms
+                    and (era is None or any(e == era for e, _ in r.layers))] or \
+                   [r for r in rooms if r.uid not in used_rooms] or rooms
+            if kind == "outsiders":
+                pool = sorted(pool, key=lambda r: dist.get(r.uid, 99))[:3]
+            room = None if kind == "outsiders" and rng.random() < 1 / 3 else rng.choice(pool)
+            if room is not None:
+                used_rooms.add(room.uid)
+            person["room"] = room.label if room else None
+        inside, member = person["room"] is not None, fac is not None
+
+        def draw(key, kind=kind, inside=inside, member=member):
+            # the next sentence of the deck that suits this NPC (see npc_fits)
+            for _ in range(len(n[key]) * 2):
+                text = decks[key].draw()
+                if npc_fits(text, kind, inside, member):
+                    break
+            return text
+        # the sentences: the tie to the place first, then want, manner and offer in any order, (60%)
+        # a fear, (50%) a secret; the relation with another NPC comes last
+        start = rng.choice([o for o in n["origins"][kind] if npc_fits(o, kind, inside, member)]
+                           or n["origins"][kind])
+        middle = [draw("wants"), draw("manners"), draw("offers")]
+        rng.shuffle(middle)
+        parts = [start] + middle
+        if rng.random() < 0.6:
+            parts.insert(2, draw("fears"))
+        if rng.random() < 0.5:
+            parts.append(dict(draw("secrets"), secret=True))
+        person["parts"] = parts
+    # one relation each, with the next NPC in the ring
+    for i, person in enumerate(people):
+        if len(people) > 1:
+            j = (i + 1) % len(people)
+            inside = person["room"] is not None
+            for _ in range(len(n["relations"]) * 2):
+                text = decks["relations"].draw()
+                if npc_fits(text, person["kind"], inside, person["faction"] is not None):
+                    break
+            person["parts"].append(text)
+            person["other"] = people[j]["name"]
+    out = []
+    for person in people:
+        fac = person["faction"]
+        lines = []
+        for text in person["parts"]:
+            pair = []
+            for lang in range(2):
+                v = dict(values[lang], npc=person["name"], room=person["room"] or "", other=person.get("other", ""),
+                         faction=fac["name_lower"][lang] if fac else "", o="oa"[person["gender"]])
+                v.update(zip(("He", "he", "him", "his", "His"), (("He", "he", "him", "his", "His"),
+                                                                 ("She", "she", "her", "her", "Her"))[person["gender"]]))
+                pair.append(fill_sentence(text, lang, v))
+            lines.append(tuple(pair))
+        out.append({"name": person["name"], "role": person["role"], "room": person["room"], "kind": person["kind"],
+                    "faction": fac["name_lower"] if fac else None, "lines": lines})
     return out
 
 
 def key_blocks(dungeon, seed, title, units, story_on=True, monsters=None, traps=None, treasure=None,
-               factions=None):
+               factions=None, npcs=None):
     """The dungeon key as blocks, shared by the .txt and the PDF:
     ("title", text) ("meta", text) ("h", txt, pdf) ("p", text) ("stratum", tag, text, walls, note)
     ("entrance", text) ("link", a, b, kind) ("level", txt, pdf, note) ("note", text) ("wander", rows)
@@ -4412,6 +4576,15 @@ def key_blocks(dungeon, seed, title, units, story_on=True, monsters=None, traps=
         for fac in factions:
             where = tr("faction_base", r=fac["base"]) if fac["base"] else tr("faction_outside")
             blocks.append(("entry", f"{pick(fac['name'])} ({where})", " ".join(pick(line) for line in fac["lines"])))
+    # the NPCs: who the adventurers can meet, and what they want
+    if npcs:
+        blocks.append(("h", tr("key_npcs"), tr("pdf_npcs")))
+        for npc in npcs:
+            where = tr("npc_room", r=npc["room"]) if npc["room"] else tr("faction_outside")
+            if npc["faction"]:
+                where += "; " + pick(npc["faction"])
+            blocks.append(("entry", f"{npc['name']}, {pick(npc['role'])} ({where})",
+                           " ".join(pick(line) for line in npc["lines"])))
     # the entrances, then the links between levels (upper end first)
     blocks.append(("h", tr("key_entrances"), tr("pdf_entrances")))
     for e in dungeon.entrances:
@@ -5078,13 +5251,13 @@ def ask_name():
         print(tr("name_empty"))
 
 
-# what to make besides the maps: (story, monsters, traps, treasure, factions)
-CONTENT_KEYS = ("story", "monsters", "traps", "treasure", "factions")
+# what to make besides the maps: (story, monsters, traps, treasure, factions, NPCs)
+CONTENT_KEYS = ("story", "monsters", "traps", "treasure", "factions", "npcs")
 NO_CONTENT, ALL_CONTENT = (False,) * len(CONTENT_KEYS), (True,) * len(CONTENT_KEYS)
 # the words --content accepts (Italian and English) -> index in CONTENT_KEYS
 CONTENT_PARTS = {"storia": 0, "story": 0, "mostri": 1, "monsters": 1, "trappole": 2, "traps": 2,
                  "tesori": 3, "tesoro": 3, "treasure": 3, "treasures": 3,
-                 "fazioni": 4, "factions": 4}
+                 "fazioni": 4, "factions": 4, "png": 5, "personaggi": 5, "npc": 5, "npcs": 5}
 
 
 def content_name(content):
@@ -5112,7 +5285,8 @@ def read_content(text):
 def ask_content():
     """(story, monsters, traps, treasure): any of them, by number."""
     parts = [tr("content_" + key).split(": ", 1) for key in CONTENT_KEYS]
-    return menu(tr("content_intro"), [label.capitalize() for label, _ in parts], hints=[hint for _, hint in parts],
+    return menu(tr("content_intro"), [label[0].upper() + label[1:] for label, _ in parts],
+                hints=[hint for _, hint in parts],
                 ticks=ALL_CONTENT, numbers_help=tr("content_help"))
 
 
@@ -5132,7 +5306,7 @@ def ask_settings():
     print(tr("enter_accepts"))
     # defaults for what is not asked here; None = ask later or decide automatically
     p = {"title": None, "ascii_only": False, "font": None, "paper": None, "output": OUTPUT_FOLDER, "story": True,
-         "monsters": True, "traps": True, "treasure": True, "factions": True,
+         "monsters": True, "traps": True, "treasure": True, "factions": True, "npcs": True,
          "per_level": None, "pdf": None, "units": None}
     # rebuild: keep asking until the seed can be read, and say what is wrong with it
     if mode == "rebuild":
@@ -5207,8 +5381,8 @@ def settings_from_options(argv):
     naming.add_argument(*names("senza-titolo", "no-title"), dest="title", action="store_const", const="",
                         help=tr("h_no_title"))
     ap.add_argument(*names("contenuto", "content"), dest="content", type=read_content, default=None,
-                    metavar="{map,all,story,monsters,traps,treasure,factions}" if LANG == "en"
-                    else "{mappa,tutto,storia,mostri,trappole,tesori,fazioni}",
+                    metavar="{map,all,story,monsters,traps,treasure,factions,npcs}" if LANG == "en"
+                    else "{mappa,tutto,storia,mostri,trappole,tesori,fazioni,png}",
                     help=tr("h_content"))
     ap.add_argument(*names("senza-storia", "no-story"), dest="no_story", action="store_true", help=tr("h_no_story"))
     ap.add_argument(*names("unita", "units"), dest="units", type=read_units, default=None,
@@ -5294,6 +5468,8 @@ def main():
         log.warn(tr("warn_no_treasure"))
     if params["factions"] and not FACTIONS:
         log.warn(tr("warn_no_factions"))
+    if params["npcs"] and not NPCS:
+        log.warn(tr("warn_no_npcs"))
     if keyed and story_pdf_problem():
         log.error(story_pdf_problem())      # say it now too, not only at the end
     if params["title"]:
@@ -5316,6 +5492,7 @@ def main():
     treasure = (plan_treasure(dungeon, seed, monsters[2] if monsters else None, traps)
                 if params["treasure"] and TREASURE else None)
     factions = plan_factions(dungeon, seed) if params["factions"] and FACTIONS else None
+    npcs = plan_npcs(dungeon, seed, factions) if params["npcs"] and NPCS else None
     loops = sum(1 for c in dungeon.corridors if c.kind == "loop")
     log.info(tr("info_corridors", c=len(dungeon.corridors), l=loops))
 
@@ -5336,6 +5513,8 @@ def main():
                     m=sum(t["magic"] for t in treasure.values())))
     if factions is not None:
         log.info(tr("info_factions", n=len(factions), names=pick(join_pairs([f["name"] for f in factions]))))
+    if npcs is not None:
+        log.info(tr("info_npcs", n=len(npcs), names=pick(join_pairs([(p["name"], p["name"]) for p in npcs]))))
 
     # 7: Jaquays
     log.step(tr("step_check"))
@@ -5424,7 +5603,7 @@ def main():
     save_map(pl_pages, os.path.join(folder, f"{seed}_players"), pdf, params["colors"], settings, log)
     if keyed:
         # the key: as a .txt file, then the same blocks as a PDF book
-        blocks = key_blocks(dungeon, seed, title, units, params["story"], monsters, traps, treasure, factions)
+        blocks = key_blocks(dungeon, seed, title, units, params["story"], monsters, traps, treasure, factions, npcs)
         key_path = os.path.join(folder, f"{seed}_key.txt")
         write_key(blocks, key_path)
         log.info(tr("saved_key", a=short_path(key_path)))

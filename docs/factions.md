@@ -70,7 +70,7 @@ Ogni fazione è un paragrafo di frasi, pescate da `data/factions.json`:
 
 1. **da dove viene** (`origins`): sempre per prima;
 2. **cosa vuole** (`goals`), **come lo ottiene** (`methods`) e, 7 volte su 10, **chi la guida** (`leaders`): queste tre in ordine casuale;
-3. 6 volte su 10, **un segreto** (`secrets`): una verità che i giocatori possono scoprire;
+3. 6 volte su 10, **un segreto** (`secrets`): una verità che i giocatori possono scoprire; nella chiave comincia con «Segreto:», perché l'arbitro lo riconosca subito;
 4. **come tratta gli avventurieri** (`attitudes`);
 5. **cosa pensa di un'altra fazione** (`relations`), se ce n'è un'altra (vedi il capitolo 5).
 
@@ -143,13 +143,13 @@ Le fazioni non compaiono sulle mappe: sono solo nella chiave.
 Seme `2-14-2-1-C-02SFP3`: una torre di guardia a due livelli con il sottolivello 1a. La sua storia: gli eremiti di Lumjorthor la costruirono ai piedi di un vulcano; il risveglio del vulcano la svuotò; i legionari hobgoblin di Wyria se ne impadronirono finché la scomparsa dei bambini non chiuse la loro epoca; oggi ci vivono i ghoul del branco di Thalmorn. Le 14 stanze danno 3 fazioni:
 
 > **Il Covo di Peldi (base: 1a-02)**
-> Serve i ghoul del branco di Thalmorn come corte e come scudo, in cambio delle briciole del bottino. Ha giurato di vendicare Dubiiya, e ha già deciso chi incolpare. Pattuglia i corridoi a coppie, con lanterne schermate e un fischietto d'osso. Il suo oro è falso: piombo dorato, coniato in un'officina nascosta nella sala 1a-02. Mette una taglia su ogni avventuriero che non si presenta prima al suo capo. Per anni il Covo di Peldi ha creduto che il Patto di Dratuchal fosse dalla sua parte; il tradimento è vicino, e nessuno se lo aspetta.
+> Serve i ghoul del branco di Thalmorn come corte e come scudo, in cambio delle briciole del bottino. Ha giurato di vendicare Dubiiya, e ha già deciso chi incolpare. Pattuglia i corridoi a coppie, con lanterne schermate e un fischietto d'osso. Segreto: il suo oro è falso: piombo dorato, coniato in un'officina nascosta nella sala 1a-02. Mette una taglia su ogni avventuriero che non si presenta prima al suo capo. Per anni il Covo di Peldi ha creduto che il Patto di Dratuchal fosse dalla sua parte; il tradimento è vicino, e nessuno se lo aspetta.
 >
 > **Il Patto di Dratuchal (base: 1-05)**
 > Venera come santi i vecchi padroni del luogo, i legionari hobgoblin di Wyria, e ne conserva le ossa nella sala 1-05. Avvelena i pozzi e le cisterne che non usa, e lascia sul bordo un teschio dipinto di blu. Cerca Dubiiya, o ciò che ne resta, e soprattutto la mappa che Dubiiya portava con sé. Ne regge le sorti Duncalme, che porta sempre con sé il diario di Dubiiya e lo cita come un libro sacro. Chiede un pedaggio di dieci monete d'argento a testa, poi lascia passare senza domande. Pur di avere un seme di un albero estinto, il Patto di Dratuchal tradirebbe la Chiesa di Bekthalra senza pensarci due volte.
 >
 > **La Chiesa di Bekthalra (base: 2-01)**
-> Possiede l'unico disegno fedele che ritrae un seme di un albero estinto, e lo mostra solo a chi ha giurato. Chi comanda oggi è Bahal, che uccise il capo precedente durante un banchetto e lo ricorda a tutti a ogni pasto. Mira a fare del luogo un mercato sotterraneo, con i ghoul del branco di Thalmorn a fare la guardia dietro compenso. Fa la guerra con il fuoco: barili di pece, torce e fumo per stanare chi si nasconde. Quasi tutti i suoi membri sono fantocci di paglia vestiti e armati: in carne e ossa sono in quattro. Teme gli avventurieri e fugge, ma ne annota i nomi e le armi. Ogni volta che il Covo di Peldi perde un membro, la Chiesa di Bekthalra ne guadagna uno: i disertori cambiano sempre parte nello stesso verso.
+> Possiede l'unico disegno fedele che ritrae un seme di un albero estinto, e lo mostra solo a chi ha giurato. Chi comanda oggi è Bahal, che uccise il capo precedente durante un banchetto e lo ricorda a tutti a ogni pasto. Mira a fare del luogo un mercato sotterraneo, con i ghoul del branco di Thalmorn a fare la guardia dietro compenso. Fa la guerra con il fuoco: barili di pece, torce e fumo per stanare chi si nasconde. Segreto: quasi tutti i suoi membri sono fantocci di paglia vestiti e armati: in carne e ossa sono in quattro. Teme gli avventurieri e fugge, ma ne annota i nomi e le armi. Ogni volta che il Covo di Peldi perde un membro, la Chiesa di Bekthalra ne guadagna uno: i disertori cambiano sempre parte nello stesso verso.
 
 Si vede che:
 
