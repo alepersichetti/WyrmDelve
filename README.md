@@ -35,7 +35,7 @@ Example dungeons are in the [Gallery](#gallery).
 
 </div>
 
-### WyrmDelve v1.0.1
+### WyrmDelve v1.1.0
 
 **WyrmDelve** draws random dungeons and labyrinths for old school (OSR) campaigns, made only of letters and symbols like the roguelikes NetHack, Angband, ADOM, Brogue, Caves of Qud and Dwarf Fortress.
 
