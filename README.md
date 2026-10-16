@@ -77,7 +77,7 @@ The layout **always** follows Jennell Jaquays' principles as Justin Alexander de
 Put these files in the **same folder**, for example a folder called `dungeons` on your Desktop:
 
 - `wyrmdelve.py` (the program)
-- the `data` folder (the words and tables the dungeons are made of: names, rooms, history, monsters, traps, treasure, factions, NPCs; see chapter 7)
+- the `data` folder (the words and tables the dungeons are made of: names, rooms, history, monsters, traps, treasure, factions, NPCs, rumours; see chapter 7)
 - the `fonts` folder (the fonts of the maps and of the story PDF: the program uses only these, so it doesn't depend on your system)
 - `requirements.txt` (the list of what the program needs)
 - `README.md` (this guide) and `README.it.md` (the same guide in Italian)
@@ -181,7 +181,7 @@ The program asks you a few questions. **The questions with a choice are menus**:
    2. white symbols on light blue
    3. white symbols on black
 5. **Do you want a name on the map?** If not, the map has no title. If so, choose whether it's **randomly generated** (e.g. *Tomb of Zordur*, the ready-made answer) or whether **you type it**.
-6. **What do you want to make?** Besides the maps you can have the **story**, the **monsters**, the **traps**, the **treasure**, the **factions** and the **NPCs**, in any combination: tick or untick them with **Space** (all ticked is the ready-made answer; none ticked = only the maps), then press **Enter**. With any of them you also get the key as `.txt` and as a PDF. The program asks this every time, also for a fully random dungeon.
+6. **What do you want to make?** Besides the maps you can have the **story**, the **monsters**, the **traps**, the **treasure**, the **factions**, the **NPCs** and the **rumours**, in any combination: tick or untick them with **Space** (all ticked is the ready-made answer; none ticked = only the maps), then press **Enter**. With any of them you also get the key as `.txt` and as a PDF. The program asks this every time, also for a fully random dungeon.
 7. **Grid units:** `1` = imperial, **1 square = 5 ft** (the ready-made answer in English); `2` = metric, **1 square = 1.5 m**. The scale is written in the legend of the maps, in the key and in the story PDF; the dungeon is the same with either choice.
 
 Now the program builds the dungeon. It shows each step with a bar that fills up:
@@ -229,9 +229,9 @@ Everything goes in `dungeons_generated/<seed>/`, one folder per dungeon:
 |---|---|
 | `<seed>_gm.png` | the **referee's map**: room numbers, secret doors `$` and secret passages `░` |
 | `<seed>_players.png` | the **players' map**: same map, without numbers and secrets |
-| `<seed>_key.txt` | the **dungeon key**: history and strata (with the story), entrances, level connections, then level by level the d6 wandering monster table (with the monsters), the traps in the corridors (with the traps) and every room (description with the story; monsters, clue or "empty" with the monsters; its trap; its treasure), Jaquays check; with the factions and the NPCs, their sections before the entrances |
+| `<seed>_key.txt` | the **dungeon key**: history and strata (with the story), entrances, level connections, then level by level the d6 wandering monster table (with the monsters), the traps in the corridors (with the traps) and every room (description with the story; monsters, clue or "empty" with the monsters; its trap; its treasure), Jaquays check; with the factions, the NPCs and the rumours, their sections before the entrances |
 | `<seed>_story.pdf` | the **story**: the same key as a book on A4 pages, with headings in Sebaldus-Gotisch and the text in Crimson Text, ready to print or read on a tablet |
-| `<seed>_key.pdf` | instead of the story, if you choose monsters, traps, treasure, factions or NPCs **without** the story: the key as a PDF |
+| `<seed>_key.pdf` | instead of the story, if you choose monsters, traps, treasure, factions, NPCs or rumours **without** the story: the key as a PDF |
 | `.txt` next to each map | the same map as plain text, to open with any text editor. It uses keyboard characters only (like `--ascii-only`: every wall is `#`), so it stays aligned with any fixed-width font |
 
 If you choose **only the maps**, the key and the PDF are not made.
@@ -297,6 +297,7 @@ The program's logic is in `wyrmdelve.py`; the **words and tables** it draws at r
 | `treasure.json` | the treasure tables of *Old-School Essentials* (Open Game Content, see `LICENSE-OGL.txt`): chance of treasure by room content, unguarded treasure by dungeon level, treasure types A–V, gems, jewellery, magic items, and the hiding places; see [docs/treasure.en.md](docs/treasure.en.md). Optional: without it there is no treasure |
 | `factions.json` | the factions: names (with the `origins` each one suits), where they come from (`origins`: `present`, `heirs`, `second`, `relic`, `outsiders`), goals, methods, leaders, secrets, attitudes towards the adventurers and relations with the other factions; see [docs/factions.en.md](docs/factions.en.md). Optional: without it there are no factions |
 | `npcs.json` | the non-player characters: roles (in Italian masculine and feminine, with the `kinds` each one suits), how they are tied to the place (`origins`: `present`, `heirs`, `second`, `relic`, `outsiders`, a faction's `member` or `leader`), wants, fears, secrets, manners, offers and relations with another NPC; see [docs/npcs.en.md](docs/npcs.en.md). Optional: without it there are no NPCs |
+| `rumours.json` | the rumours: who tells them (`sources`), true and false statements about the history (`history_true`, `history_false`), and statements whose truth depends on the facts they are filled with: treasure, where NPCs and factions are, their secrets, levels, entrances; see [docs/rumours.en.md](docs/rumours.en.md). Optional: without it there are no rumours |
 
 Each type in `dungeon_types` has:
 
@@ -356,7 +357,7 @@ Without `--language en` the messages and the texts on the map are in Italian. Ev
 | `--pdf` / `--png` | Save as PDF or as PNG | `--pdf` |
 | `--title` / `--titolo` | Name on the map (default: a random one) | `--title "The Ogre's Lair"` |
 | `--no-title` / `--senza-titolo` | Map without a name | `--no-title` |
-| `--content` / `--contenuto` | What to make besides the maps: `story`, `monsters`, `traps`, `treasure`, `factions`, `npcs`, also together separated by commas; `map` = only the maps; `all` = everything (the default) | `--content story,treasure` |
+| `--content` / `--contenuto` | What to make besides the maps: `story`, `monsters`, `traps`, `treasure`, `factions`, `npcs`, `rumours`, also together separated by commas; `map` = only the maps; `all` = everything (the default) | `--content story,treasure` |
 | `--no-story` / `--senza-storia` | Only the maps, like `--content map` | `--no-story` |
 | `--units` / `--unita` | Grid scale: `imperial` (1 square = 5 ft) or `metric` (1 square = 1.5 m); by default imperial in English, metric in Italian | `--units metric` |
 | `--ascii-only` / `--solo-ascii` | Only plain keyboard characters (`# ~ = o`) in the PNG and PDF too (the `.txt` files always use them) | `--ascii-only` |
@@ -483,6 +484,7 @@ If you want to know how the program invents the dungeons, the `docs` folder has 
 - [How the treasure is made](docs/treasure.en.md): which rooms hold treasure, treasure types, coins, gems, jewellery and magic items, where it is hidden;
 - [How the factions are made](docs/factions.en.md): where they come from, their base, goals, methods, leaders, secrets, attitudes and relations, how many there are;
 - [How the NPCs are made](docs/npcs.en.md): who they are, how they are tied to the history and the factions, where they are, what they want, fear, hide and offer, how many there are;
+- [How the rumours are made](docs/rumours.en.md): the d8-d12 table, true and false rumours, what they are about, how the program knows which are true;
 - [How to add monsters to the bestiary](docs/add_monsters_to_bestiary.en.md): the fields of every monster, ready-to-copy examples, clues, out-of-place monsters, common mistakes.
 
 ## Sources
