@@ -996,6 +996,9 @@ if not (TRIGGERS and LESSON):
 FACTIONS = load_optional(os.path.join(DATA, "factions.json"),
                          ("names", "origins", "goals", "methods", "leaders", "secrets", "attitudes", "relations"))
 FACTION_ORIGINS = ("present", "heirs", "second", "relic", "outsiders")
+# origins stay dicts, so that one can carry "leader": false next to its texts
+for _origins in FACTIONS.get("origins", {}).values():
+    _origins[:] = [dict(zip(("it", "en"), o)) if isinstance(o, tuple) else o for o in _origins]
 
 # treasure (optional file): the Old-School Essentials tables (Open Game Content,
 # see LICENSE-OGL.txt): how often a room holds treasure, treasure by dungeon
@@ -4266,8 +4269,10 @@ def faction_patterns():
     leader or none x secret or none x attitude) and forms (with or without leader and secret,
     goal, method and leader in any order)."""
     f = FACTIONS
-    content = (len(f["names"]) * sum(len(v) for v in f["origins"].values()) * len(f["goals"]) * len(f["methods"])
-               * (len(f["leaders"]) + 1) * (len(f["secrets"]) + 1) * len(f["attitudes"]))
+    # an origin with "leader": false never gets a leader
+    starts = sum(len(f["leaders"]) + 1 if o.get("leader", True) else 1 for v in f["origins"].values() for o in v)
+    content = (len(f["names"]) * starts * len(f["goals"]) * len(f["methods"])
+               * (len(f["secrets"]) + 1) * len(f["attitudes"]))
     forms = (6 + 2) * 2         # 3! orders with a leader, 2 without; with or without a secret
     return content, forms
 
@@ -4320,12 +4325,14 @@ def plan_factions(dungeon, seed):
                 if base is not None or "{room}" not in text[0]:
                     break
             return text
+        # an origin marked "leader": false (a faction that serves today's dwellers) has no leader of its own
+        start = rng.choice([o for o in f["origins"][origin] if base is not None or "{room}" not in o["it"]]
+                           or f["origins"][origin])
         middle = [draw("goals"), draw("methods")]
-        if rng.random() < 0.7:
+        if rng.random() < 0.7 and start.get("leader", True):
             middle.append(draw("leaders"))
         rng.shuffle(middle)
-        parts = [rng.choice([t for t in f["origins"][origin] if base is not None or "{room}" not in t[0]]
-                            or f["origins"][origin])] + middle
+        parts = [(start["it"], start["en"])] + middle
         if rng.random() < 0.6:
             parts.append(draw("secrets"))
         parts.append(draw("attitudes"))

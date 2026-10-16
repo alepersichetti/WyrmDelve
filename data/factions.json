@@ -78,10 +78,10 @@
       {"it": "Commercia ancora con i contatti che {s} avevano in superficie, usando parole d'ordine vecchie di cinquant'anni.", "en": "It still trades with the contacts that {s} had above ground, using passwords fifty years old."}
     ],
     "present": [
-      {"it": "Serve {p} come corte e come scudo, in cambio delle briciole del bottino.", "en": "It serves {p} as court and shield, in exchange for crumbs from the loot."},
+      {"it": "Serve {p} come corte e come scudo, in cambio delle briciole del bottino.", "en": "It serves {p} as court and shield, in exchange for crumbs from the loot.", "leader": false},
       {"it": "I suoi membri sono schiavi che lavorano per {p}, e preparano in segreto la rivolta.", "en": "Its members are slaves who toil for {p}, and are secretly plotting a revolt."},
       {"it": "Adora {p} come una divinità, e porta offerte nella sala {room} a ogni luna nuova.", "en": "It worships {p} as a god, and brings offerings to room {room} every new moon."},
-      {"it": "Scese quaggiù al seguito degli attuali padroni, {p}, e da allora vive di avanzi.", "en": "It came down here in the train of the current masters, {p}, and has lived on scraps ever since."},
+      {"it": "Scese quaggiù al seguito degli attuali padroni, {p}, e da allora vive di avanzi.", "en": "It came down here in the train of the current masters, {p}, and has lived on scraps ever since.", "leader": false},
       {"it": "Commercia con {p} da anni: armi in cambio di prigionieri, e nessuno fa domande.", "en": "It has traded with {p} for years: weapons for prisoners, and no questions asked."},
       {"it": "I suoi membri abitavano il luogo prima dell'arrivo dei nuovi padroni, {p}; ora pagano tributo per restarci.", "en": "Its members lived here before the coming of the new masters, {p}; now they pay tribute to stay."},
       {"it": "Raduna chi è stanco di servire {p}: servi, prigionieri e un paio di guardie pentite.", "en": "It gathers everyone tired of serving {p}: servants, prisoners and a couple of guards with regrets."},
