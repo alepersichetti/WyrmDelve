@@ -77,7 +77,7 @@ La pianta segue **sempre** i principi di Jennell Jaquays, come li descrive Justi
 Metti questi file nella **stessa cartella**, per esempio una cartella `dungeon` sul Desktop:
 
 - `wyrmdelve.py` (il programma)
-- la cartella `data` (le parole e le tabelle di cui sono fatti i dungeon: nomi, stanze, storia, mostri, trappole, tesori, fazioni, PNG; vedi il capitolo 7)
+- la cartella `data` (le parole e le tabelle di cui sono fatti i dungeon: nomi, stanze, storia, mostri, trappole, tesori, fazioni, PNG, dicerie; vedi il capitolo 7)
 - la cartella `fonts` (i font delle mappe e del PDF della storia: il programma usa solo questi, così non dipende dal tuo sistema)
 - `requirements.txt` (l'elenco di quello che serve al programma)
 - `README.md` (la stessa guida in inglese) e `README.it.md` (questa guida)
@@ -181,7 +181,7 @@ Il programma ti fa alcune domande. **Le domande a scelta sono menu**: ti sposti 
    2. simboli bianchi su sfondo celeste
    3. simboli bianchi su sfondo nero
 5. **Vuoi un nome per la mappa?** Se no, la mappa esce senza titolo. Se sì, scegli se **generarlo a caso** (es. *Tomba di Zordur*, la risposta già pronta) o **scriverlo tu**.
-6. **Cosa vuoi generare?** Oltre alle mappe puoi avere la **storia**, i **mostri**, le **trappole**, i **tesori**, le **fazioni** e i **PNG** (personaggi non giocanti), in qualunque combinazione: segnali o toglili con **Spazio** (tutti segnati è la risposta già pronta; nessuno segnato = solo le mappe), poi premi **Invio**. Con uno qualsiasi di questi ottieni anche la chiave in `.txt` e in PDF. Il programma lo chiede ogni volta, anche per un dungeon tutto casuale.
+6. **Cosa vuoi generare?** Oltre alle mappe puoi avere la **storia**, i **mostri**, le **trappole**, i **tesori**, le **fazioni**, i **PNG** (personaggi non giocanti) e le **dicerie**, in qualunque combinazione: segnali o toglili con **Spazio** (tutti segnati è la risposta già pronta; nessuno segnato = solo le mappe), poi premi **Invio**. Con uno qualsiasi di questi ottieni anche la chiave in `.txt` e in PDF. Il programma lo chiede ogni volta, anche per un dungeon tutto casuale.
 7. **Unità di misura della griglia:** `1` = imperiale, **1 casella = 5 ft** (piedi); `2` = metrica, **1 casella = 1,5 m** (la risposta già pronta in italiano). La scala viene scritta nella legenda delle mappe, nella chiave e nel PDF della storia; il dungeon è lo stesso con entrambe le scelte.
 
 A questo punto il programma costruisce il dungeon. Mostra ogni passaggio con una barra che si riempie:
@@ -229,9 +229,9 @@ Tutto va in `dungeons_generated/<seme>/`, una cartella per ogni dungeon:
 |---|---|
 | `<seme>_gm.png` | la **mappa dell'arbitro**: numeri delle stanze, porte segrete `$` e passaggi segreti `░` |
 | `<seme>_players.png` | la **mappa dei giocatori**: la stessa mappa senza numeri e senza segreti |
-| `<seme>_key.txt` | la **chiave del dungeon**: storia e strati (con la storia), ingressi, collegamenti tra livelli, poi livello per livello la tabella d6 dei mostri erranti (con i mostri), le trappole nei corridoi (con le trappole) e ogni stanza (descrizione con la storia; mostri, indizio o «vuota» con i mostri; la sua trappola; il suo tesoro), verifica dei principi di Jaquays; con le fazioni e i PNG, le loro sezioni prima degli ingressi |
+| `<seme>_key.txt` | la **chiave del dungeon**: storia e strati (con la storia), ingressi, collegamenti tra livelli, poi livello per livello la tabella d6 dei mostri erranti (con i mostri), le trappole nei corridoi (con le trappole) e ogni stanza (descrizione con la storia; mostri, indizio o «vuota» con i mostri; la sua trappola; il suo tesoro), verifica dei principi di Jaquays; con le fazioni, i PNG e le dicerie, le loro sezioni prima degli ingressi |
 | `<seme>_story.pdf` | la **storia**: la stessa chiave come un libro su pagine A4, con i titoli in Sebaldus-Gotisch e il testo in Crimson Text, pronta da stampare o da leggere sul tablet |
-| `<seme>_key.pdf` | al posto della storia, se scegli mostri, trappole, tesori, fazioni o PNG **senza** la storia: la chiave come PDF |
+| `<seme>_key.pdf` | al posto della storia, se scegli mostri, trappole, tesori, fazioni, PNG o dicerie **senza** la storia: la chiave come PDF |
 | `.txt` accanto a ogni mappa | la stessa mappa come testo semplice, da aprire con qualsiasi editor di testo. Usa solo i caratteri della tastiera (come `--solo-ascii`: tutti i muri sono `#`), così resta allineata con qualunque font a larghezza fissa |
 
 Se scegli **solo le mappe**, la chiave e il PDF non vengono creati.
@@ -245,6 +245,8 @@ Se scegli **solo le mappe**, la chiave e il PDF non vengono creati.
 **Le fazioni.** Da due a quattro gruppi si contendono il luogo, e ognuno nasce dalla sua storia: gli abitanti di oggi, gli eredi dei fondatori, gli ultimi della seconda epoca, chi cerca la reliquia della leggenda, o estranei appena arrivati. Per ognuna la chiave dà il nome, la base (una stanza della sua epoca, o fuori dal dungeon), da dove viene, cosa vuole, come lo ottiene, chi la guida, a volte un segreto, come tratta gli avventurieri e cosa pensa di un'altra fazione. Più di 48 miliardi di fazioni diverse, in 16 forme. Come funziona: [docs/factions.md](docs/factions.md).
 
 **I PNG.** Da tre a cinque personaggi non giocanti, ognuno con un motivo per essere lì: alcuni fanno parte delle fazioni (a volte ne sono proprio i capi), gli altri sono solitari legati a un pezzo della storia (gli abitanti di oggi, i fondatori, la seconda epoca, la reliquia, il mondo di fuori). Per ognuno la chiave dà nome, ruolo, stanza, il legame con il luogo, cosa vuole, come si presenta, cosa può offrire agli avventurieri, a volte una paura e un segreto, e cosa pensa di un altro PNG. In italiano le parole si accordano con il suo genere, in inglese i pronomi. Quasi 23 mila miliardi di PNG diversi, in 24 forme. Come funziona: [docs/npcs.md](docs/npcs.md).
+
+**Le dicerie.** Una tabella da d8, d10 o d12 con ciò che gli avventurieri sentono prima di entrare, per circa un terzo falsa, con ogni riga segnata vera o falsa per l'arbitro. Le dicerie parlano della storia, dei livelli e degli ingressi e (se li hai generati) dei tesori, di dove stanno i PNG e le fazioni e dei loro segreti: il programma sa quali sono vere dal dungeon stesso (una sala che ha davvero un tesoro, il vero segreto di un PNG, il giusto numero di livelli). Metà dicono chi le racconta. 16.511 dicerie diverse, più di 10²⁹ tabelle da otto. Come funziona: [docs/rumours.md](docs/rumours.md).
 
 I titoli della storia usano **Sebaldus-Gotisch** e il testo **Crimson Text**, entrambi nella cartella `fonts` (vedi `fonts/README.md`).
 
@@ -297,6 +299,7 @@ La logica del programma sta in `wyrmdelve.py`; le **parole e le tabelle** che pe
 | `treasure.json` | le tabelle dei tesori di *Old-School Essentials* (Open Game Content, vedi `LICENSE-OGL.txt`): probabilità di tesoro secondo il contenuto della stanza, tesoro incustodito per livello del dungeon, tipi di tesoro A–V, gemme, gioielli, oggetti magici, e i nascondigli; vedi [docs/treasure.md](docs/treasure.md). Facoltativo: senza, niente tesori |
 | `factions.json` | le fazioni: nomi (con le origini a cui si adattano, `origins`), da dove vengono (`origins`: `present`, `heirs`, `second`, `relic`, `outsiders`), scopi, metodi, capi, segreti, atteggiamenti verso gli avventurieri e rapporti con le altre fazioni; vedi [docs/factions.md](docs/factions.md). Facoltativo: senza, niente fazioni |
 | `npcs.json` | i personaggi non giocanti: ruoli (al maschile e al femminile, con i tipi a cui si adattano, `kinds`), come sono legati al luogo (`origins`: `present`, `heirs`, `second`, `relic`, `outsiders`, membro `member` o capo `leader` di una fazione), desideri, paure, segreti, modi, offerte e rapporti con un altro PNG; vedi [docs/npcs.md](docs/npcs.md). Facoltativo: senza, niente PNG |
+| `rumours.json` | le dicerie: chi le racconta (`sources`), affermazioni vere e false sulla storia (`history_true`, `history_false`), e affermazioni vere o false secondo i fatti con cui sono riempite: tesori, dove stanno PNG e fazioni, i loro segreti, livelli, ingressi; vedi [docs/rumours.md](docs/rumours.md). Facoltativo: senza, niente dicerie |
 
 Ogni tipo in `dungeon_types` ha:
 
@@ -356,7 +359,7 @@ Ogni opzione ha anche un nome inglese (dopo la barra `/`), e puoi mescolarli com
 | `--pdf` / `--png` | Salva in PDF o in PNG | `--pdf` |
 | `--titolo` / `--title` | Nome sulla mappa (default: uno casuale) | `--titolo "La Tana dell'Orco"` |
 | `--senza-titolo` / `--no-title` | Mappa senza nome | `--senza-titolo` |
-| `--contenuto` / `--content` | Cosa generare oltre alle mappe: `storia`, `mostri`, `trappole`, `tesori`, `fazioni`, `png`, anche insieme separati da virgole; `mappa` = solo le mappe; `tutto` = tutto (di base) | `--contenuto storia,tesori` |
+| `--contenuto` / `--content` | Cosa generare oltre alle mappe: `storia`, `mostri`, `trappole`, `tesori`, `fazioni`, `png`, `dicerie`, anche insieme separati da virgole; `mappa` = solo le mappe; `tutto` = tutto (di base) | `--contenuto storia,tesori` |
 | `--senza-storia` / `--no-story` | Solo le mappe, come `--contenuto mappa` | `--senza-storia` |
 | `--unita` / `--units` | Scala della griglia: `imperiale` (1 casella = 5 ft) o `metrica` (1 casella = 1,5 m); di base metrica in italiano, imperiale in inglese | `--unita imperiale` |
 | `--solo-ascii` / `--ascii-only` | Solo i caratteri della tastiera (`# ~ = o`) anche nei PNG e PDF (i `.txt` li usano sempre) | `--solo-ascii` |
@@ -483,6 +486,7 @@ Se vuoi sapere come il programma inventa i dungeon, nella cartella `docs` ci son
 - [Come nascono i tesori](docs/treasure.md): quali stanze hanno un tesoro, tipi di tesoro, monete, gemme, gioielli e oggetti magici, dove è nascosto;
 - [Come nascono le fazioni](docs/factions.md): da dove vengono, la base, scopi, metodi, capi, segreti, atteggiamenti e rapporti, quante sono;
 - [Come nascono i PNG](docs/npcs.md): chi sono, come sono legati alla storia e alle fazioni, dove stanno, cosa vogliono, temono, nascondono e offrono, quanti sono;
+- [Come nascono le dicerie](docs/rumours.md): la tabella da d8 a d12, dicerie vere e false, di cosa parlano, come il programma sa quali sono vere;
 - [Come aggiungere mostri al bestiario](docs/add_monsters_to_bestiary.md): i campi di ogni mostro, esempi pronti da copiare, indizi, mostri fuori posto, errori comuni.
 
 ## Fonti
