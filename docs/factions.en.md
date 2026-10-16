@@ -70,7 +70,7 @@ Every faction is a paragraph of sentences, drawn from `data/factions.json`:
 
 1. **where it comes from** (`origins`): always first;
 2. **what it wants** (`goals`), **how it gets it** (`methods`) and, 7 times in 10, **who leads it** (`leaders`): these three in random order;
-3. 6 times in 10, **a secret** (`secrets`): a truth the players can find out;
+3. 6 times in 10, **a secret** (`secrets`): a truth the players can find out; in the key it starts with "Secret:", so the referee spots it at once;
 4. **how it treats adventurers** (`attitudes`);
 5. **what it thinks of another faction** (`relations`), if there is another one (see chapter 5).
 
@@ -143,13 +143,13 @@ Factions don't show on the maps: they are only in the key.
 Seed `2-14-2-1-C-02SFP3`: a two-level watchtower with sub-level 1a. Its history: the hermits of Lumjorthor built it at the foot of a volcano; the volcano's waking emptied it; the hobgoblin legionaries of Wyria took it until the disappearance of the children ended their age; today the ghouls of the Thalmorn pack live there. Its 14 rooms give 3 factions:
 
 > **The Den of Peldi (base: 1a-02)**
-> It serves the ghouls of the Thalmorn pack as court and shield, in exchange for crumbs from the loot. It has sworn to avenge Dubiiya, and has already decided whom to blame. It patrols the corridors in pairs, with shuttered lanterns and a bone whistle. Its gold is false: gilded lead, struck in a workshop hidden in room 1a-02. It sets a bounty on any adventurer who fails to report to its leader first. For years the Den of Peldi has believed the Pact of Dratuchal was on its side; the betrayal is near, and nobody expects it.
+> It serves the ghouls of the Thalmorn pack as court and shield, in exchange for crumbs from the loot. It has sworn to avenge Dubiiya, and has already decided whom to blame. It patrols the corridors in pairs, with shuttered lanterns and a bone whistle. Secret: its gold is false: gilded lead, struck in a workshop hidden in room 1a-02. It sets a bounty on any adventurer who fails to report to its leader first. For years the Den of Peldi has believed the Pact of Dratuchal was on its side; the betrayal is near, and nobody expects it.
 >
 > **The Pact of Dratuchal (base: 1-05)**
 > It venerates the former masters of the place, the hobgoblin legionaries of Wyria, as saints, and keeps their bones in room 1-05. It poisons the wells and cisterns it does not use, and leaves a blue-painted skull on the rim. It is looking for Dubiiya, or whatever is left, and above all for the map Dubiiya carried. Its fate rests with Duncalme, who always carries the journal of Dubiiya and quotes it like scripture. It demands a toll of ten silver coins a head, then lets anyone pass with no questions. To get a seed from an extinct tree, the Pact of Dratuchal would betray the Church of Bekthalra without a second thought.
 >
 > **The Church of Bekthalra (base: 2-01)**
-> It owns the only faithful drawing of a seed from an extinct tree, and shows it only to the sworn. In charge now is Bahal, who killed the previous chief at a feast and reminds everyone of it at every meal. It aims to turn the place into an underground market, with the ghouls of the Thalmorn pack standing guard for a fee. It wages war with fire: barrels of pitch, torches and smoke to drive out whoever hides. Most of its members are straw dummies dressed and armed: there are four of them in flesh and blood. It fears adventurers and flees, but writes down their names and their weapons. Whenever the Den of Peldi loses a member, the Church of Bekthalra gains one: the deserters always change sides in the same direction.
+> It owns the only faithful drawing of a seed from an extinct tree, and shows it only to the sworn. In charge now is Bahal, who killed the previous chief at a feast and reminds everyone of it at every meal. It aims to turn the place into an underground market, with the ghouls of the Thalmorn pack standing guard for a fee. It wages war with fire: barrels of pitch, torches and smoke to drive out whoever hides. Secret: most of its members are straw dummies dressed and armed: there are four of them in flesh and blood. It fears adventurers and flees, but writes down their names and their weapons. Whenever the Den of Peldi loses a member, the Church of Bekthalra gains one: the deserters always change sides in the same direction.
 
 You can see that:
 

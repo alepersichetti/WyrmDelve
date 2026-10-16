@@ -475,6 +475,7 @@ TEXTS = {
     "key_npcs": ("PERSONAGGI NON GIOCANTI", "NON-PLAYER CHARACTERS"),
     "pdf_npcs": ("Personaggi non giocanti", "Non-player characters"),
     "npc_room": ("sala {r}", "room {r}"),
+    "secret": ("Segreto", "Secret"),
     "room_treasure": ("Tesoro{v}: {x}; {w}.", "Treasure{v}: {x}; {w}."),
     "treasure_value": (" ({v} mo)", " ({v} gp)"),
     "treasure_trapped": ("La trappola della stanza lo protegge.", "The room's trap guards it."),
@@ -4294,6 +4295,19 @@ def treasure_line(t):
     return line + (" " + tr("treasure_trapped") if t["trapped"] else "")
 
 
+def fill_sentence(sentence, lang, values):
+    """One sentence of factions.json or npcs.json in one language (0 Italian, 1 English), with its
+    {placeholders} filled and a capital letter; a secret starts with "Secret:", for the referee."""
+    template = sentence[("it", "en")[lang]]
+    text = template.format(**values)
+    if sentence.get("secret"):
+        # after the colon, lowercase, unless the sentence starts with a name
+        if not template.startswith(("{npc}", "{hero}", "{other}", "{leader}")):
+            text = text[0].lower() + text[1:]
+        return f"{TEXTS['secret'][lang]}: {text}"
+    return capitalized(text)
+
+
 def story_values(dungeon):
     """The story's words for the {placeholders} of factions, NPCs and rumours: one dict per
     language (0 Italian, 1 English), the same names the history uses."""
@@ -4381,7 +4395,7 @@ def plan_factions(dungeon, seed):
         rng.shuffle(middle)
         parts = [start] + middle
         if rng.random() < 0.6:
-            parts.append(draw("secrets"))
+            parts.append(dict(draw("secrets"), secret=True))
         parts.append(draw("attitudes"))
         faction["parts"] = parts
         factions.append(faction)
@@ -4406,7 +4420,7 @@ def plan_factions(dungeon, seed):
                 v = dict(values[lang], faction=fac["name"][lang], leader=fac["leader"],
                          room=fac["base"] or "", other=factions[fac["relation"][1]]["name"][lang]
                          if "relation" in fac else "")
-                pair.append(capitalized(text[("it", "en")[lang]].format(**v)))
+                pair.append(fill_sentence(text, lang, v))
             lines.append(tuple(pair))
         out.append({"name": tuple(capitalized(t) for t in fac["name"]), "base": fac["base"], "lines": lines,
                     "origin": fac["origin"], "leader": fac["leader"] if fac["has_leader"] else None,
@@ -4497,7 +4511,7 @@ def plan_npcs(dungeon, seed, factions=None):
         if rng.random() < 0.6:
             parts.insert(2, draw("fears"))
         if rng.random() < 0.5:
-            parts.append(draw("secrets"))
+            parts.append(dict(draw("secrets"), secret=True))
         person["parts"] = parts
     # one relation each, with the next NPC in the ring
     for i, person in enumerate(people):
@@ -4519,9 +4533,9 @@ def plan_npcs(dungeon, seed, factions=None):
             for lang in range(2):
                 v = dict(values[lang], npc=person["name"], room=person["room"] or "", other=person.get("other", ""),
                          faction=fac["name_lower"][lang] if fac else "", o="oa"[person["gender"]])
-                v.update(zip(("He", "he", "him", "his"), (("He", "he", "him", "his"),
-                                                          ("She", "she", "her", "her"))[person["gender"]]))
-                pair.append(capitalized(text[("it", "en")[lang]].format(**v)))
+                v.update(zip(("He", "he", "him", "his", "His"), (("He", "he", "him", "his", "His"),
+                                                                 ("She", "she", "her", "her", "Her"))[person["gender"]]))
+                pair.append(fill_sentence(text, lang, v))
             lines.append(tuple(pair))
         out.append({"name": person["name"], "role": person["role"], "room": person["room"], "kind": person["kind"],
                     "faction": fac["name_lower"] if fac else None, "lines": lines})
