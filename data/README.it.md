@@ -18,8 +18,9 @@ Qui c'è tutto quello che WyrmDelve pesca a caso, in file di testo JSON: `wyrmde
 | `quirks.json` | perché un mostro è fuori posto | mostri |
 | `traps.json` | le trappole già pronte e gli inneschi, i meccanismi e le varianti con cui se ne montano di nuove (facoltativo) | trappole |
 | `treasure.json` | le tabelle dei tesori (facoltativo) | tesori |
+| `factions.json` | nomi, origini, scopi, metodi, capi, segreti, atteggiamenti e rapporti delle fazioni (facoltativo) | fazioni |
 
-Ogni file `.json` di questa cartella aggiunge le sue sezioni alle tabelle, tranne `traps.json` e `treasure.json`, che vengono letti a parte: senza, il programma fa dungeon senza trappole o senza tesori. Un tipo nuovo va in `dungeon_types/` con il numero successivo.
+Ogni file `.json` di questa cartella aggiunge le sue sezioni alle tabelle, tranne `traps.json`, `treasure.json` e `factions.json`, che vengono letti a parte: senza, il programma fa dungeon senza trappole, tesori o fazioni. Un tipo nuovo va in `dungeon_types/` con il numero successivo.
 
 Come li usa il programma: [docs](../docs).
 

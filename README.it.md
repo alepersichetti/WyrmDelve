@@ -77,7 +77,7 @@ La pianta segue **sempre** i principi di Jennell Jaquays, come li descrive Justi
 Metti questi file nella **stessa cartella**, per esempio una cartella `dungeon` sul Desktop:
 
 - `wyrmdelve.py` (il programma)
-- la cartella `data` (le parole e le tabelle di cui sono fatti i dungeon: nomi, stanze, storia, mostri, trappole, tesori; vedi il capitolo 7)
+- la cartella `data` (le parole e le tabelle di cui sono fatti i dungeon: nomi, stanze, storia, mostri, trappole, tesori, fazioni; vedi il capitolo 7)
 - la cartella `fonts` (i font delle mappe e del PDF della storia: il programma usa solo questi, così non dipende dal tuo sistema)
 - `requirements.txt` (l'elenco di quello che serve al programma)
 - `README.md` (la stessa guida in inglese) e `README.it.md` (questa guida)
@@ -181,7 +181,7 @@ Il programma ti fa alcune domande. **Le domande a scelta sono menu**: ti sposti 
    2. simboli bianchi su sfondo celeste
    3. simboli bianchi su sfondo nero
 5. **Vuoi un nome per la mappa?** Se no, la mappa esce senza titolo. Se sì, scegli se **generarlo a caso** (es. *Tomba di Zordur*, la risposta già pronta) o **scriverlo tu**.
-6. **Cosa vuoi generare?** Oltre alle mappe puoi avere la **storia**, i **mostri**, le **trappole** e i **tesori**, in qualunque combinazione: segnali o toglili con **Spazio** (tutti segnati è la risposta già pronta; nessuno segnato = solo le mappe), poi premi **Invio**. Con uno qualsiasi di questi ottieni anche la chiave in `.txt` e in PDF. Il programma lo chiede ogni volta, anche per un dungeon tutto casuale.
+6. **Cosa vuoi generare?** Oltre alle mappe puoi avere la **storia**, i **mostri**, le **trappole**, i **tesori** e le **fazioni**, in qualunque combinazione: segnali o toglili con **Spazio** (tutti segnati è la risposta già pronta; nessuno segnato = solo le mappe), poi premi **Invio**. Con uno qualsiasi di questi ottieni anche la chiave in `.txt` e in PDF. Il programma lo chiede ogni volta, anche per un dungeon tutto casuale.
 7. **Unità di misura della griglia:** `1` = imperiale, **1 casella = 5 ft** (piedi); `2` = metrica, **1 casella = 1,5 m** (la risposta già pronta in italiano). La scala viene scritta nella legenda delle mappe, nella chiave e nel PDF della storia; il dungeon è lo stesso con entrambe le scelte.
 
 A questo punto il programma costruisce il dungeon. Mostra ogni passaggio con una barra che si riempie:
@@ -229,9 +229,9 @@ Tutto va in `dungeons_generated/<seme>/`, una cartella per ogni dungeon:
 |---|---|
 | `<seme>_gm.png` | la **mappa dell'arbitro**: numeri delle stanze, porte segrete `$` e passaggi segreti `░` |
 | `<seme>_players.png` | la **mappa dei giocatori**: la stessa mappa senza numeri e senza segreti |
-| `<seme>_key.txt` | la **chiave del dungeon**: storia e strati (con la storia), ingressi, collegamenti tra livelli, poi livello per livello la tabella d6 dei mostri erranti (con i mostri), le trappole nei corridoi (con le trappole) e ogni stanza (descrizione con la storia; mostri, indizio o «vuota» con i mostri; la sua trappola; il suo tesoro), verifica dei principi di Jaquays |
+| `<seme>_key.txt` | la **chiave del dungeon**: storia e strati (con la storia), ingressi, collegamenti tra livelli, poi livello per livello la tabella d6 dei mostri erranti (con i mostri), le trappole nei corridoi (con le trappole) e ogni stanza (descrizione con la storia; mostri, indizio o «vuota» con i mostri; la sua trappola; il suo tesoro), verifica dei principi di Jaquays; con le fazioni, la sezione delle fazioni prima degli ingressi |
 | `<seme>_story.pdf` | la **storia**: la stessa chiave come un libro su pagine A4, con i titoli in Sebaldus-Gotisch e il testo in Crimson Text, pronta da stampare o da leggere sul tablet |
-| `<seme>_key.pdf` | al posto della storia, se scegli mostri, trappole o tesori **senza** la storia: la chiave come PDF |
+| `<seme>_key.pdf` | al posto della storia, se scegli mostri, trappole, tesori o fazioni **senza** la storia: la chiave come PDF |
 | `.txt` accanto a ogni mappa | la stessa mappa come testo semplice, da aprire con qualsiasi editor di testo. Usa solo i caratteri della tastiera (come `--solo-ascii`: tutti i muri sono `#`), così resta allineata con qualunque font a larghezza fissa |
 
 Se scegli **solo le mappe**, la chiave e il PDF non vengono creati.
@@ -241,6 +241,8 @@ Se scegli **solo le mappe**, la chiave e il PDF non vengono creati.
 **Le trappole.** Compaiono **solo sulla mappa dell'arbitro**, con il simbolo `^`, e la chiave le descrive: nome, **segnale** (come si capisce che c'è), **effetto** e **contromisure**. Chi ha costruito un luogo l'ha protetto a modo suo: meccanismi accurati nelle sale dei fondatori e della seconda epoca, trappole rozze dove vivono gli abitanti di oggi, soprattutto attorno alle stanze importanti. Prima di incontrare una trappola funzionante, i giocatori ne incontrano una **rotta o scoperta** dello stesso tipo, che insegna come funziona; più si scende, più le trappole sono crudeli. Alcune trappole sono già pronte (quelle di WyrmDelve e quelle del System Reference Document 3.5), le altre vengono montate da un **innesco**, un **meccanismo** e, per quelle crudeli, una **variante**: in tutto 2.648 trappole diverse. Come funziona: [docs/trap.md](docs/trap.md).
 
 **I tesori.** Seguono le regole per riempire le stanze di *Old-School Essentials*: una stanza con mostri ha un tesoro 3 volte su 6 (il tipo di tesoro dei mostri, dalla A alla V), una stanza con una trappola 2 volte su 6 (e la trappola lo protegge), una stanza vuota 1 volta su 6 (il tesoro incustodito di quel livello del dungeon, più ricco man mano che si scende). La chiave elenca monete, gemme e gioielli con il loro valore in monete d'oro, gli oggetti magici e dove è nascosto il tesoro. Come funziona: [docs/treasure.md](docs/treasure.md).
+
+**Le fazioni.** Da due a quattro gruppi si contendono il luogo, e ognuno nasce dalla sua storia: gli abitanti di oggi, gli eredi dei fondatori, gli ultimi della seconda epoca, chi cerca la reliquia della leggenda, o estranei appena arrivati. Per ognuna la chiave dà il nome, la base (una stanza della sua epoca, o fuori dal dungeon), da dove viene, cosa vuole, come lo ottiene, chi la guida, a volte un segreto, come tratta gli avventurieri e cosa pensa di un'altra fazione. Più di 48 miliardi di fazioni diverse, in 16 forme. Come funziona: [docs/factions.md](docs/factions.md).
 
 I titoli della storia usano **Sebaldus-Gotisch** e il testo **Crimson Text**, entrambi nella cartella `fonts` (vedi `fonts/README.md`).
 
@@ -291,6 +293,7 @@ La logica del programma sta in `wyrmdelve.py`; le **parole e le tabelle** che pe
 | `quirks.json` | i motivi per cui un mostro è fuori posto, con la condizione che li rende possibili (`when`) |
 | `traps.json` | le trappole già pronte (`traps`: famiglia, grado 0 rotta / 1 funzionante / 2 crudele, posti, costruttori `built` o `crude`, tipi, nome, segnale, effetto, contromisure) e i pezzi con cui se ne montano di nuove: `triggers` (inneschi), `mechanisms` (meccanismi, con la loro versione rotta `broken`), `twists` (varianti), e il testo comune di quelle rotte (`lesson`); vedi [docs/trap.md](docs/trap.md). Facoltativo: senza, niente trappole |
 | `treasure.json` | le tabelle dei tesori di *Old-School Essentials* (Open Game Content, vedi `LICENSE-OGL.txt`): probabilità di tesoro secondo il contenuto della stanza, tesoro incustodito per livello del dungeon, tipi di tesoro A–V, gemme, gioielli, oggetti magici, e i nascondigli; vedi [docs/treasure.md](docs/treasure.md). Facoltativo: senza, niente tesori |
+| `factions.json` | le fazioni: nomi (con le origini a cui si adattano, `origins`), da dove vengono (`origins`: `present`, `heirs`, `second`, `relic`, `outsiders`), scopi, metodi, capi, segreti, atteggiamenti verso gli avventurieri e rapporti con le altre fazioni; vedi [docs/factions.md](docs/factions.md). Facoltativo: senza, niente fazioni |
 
 Ogni tipo in `dungeon_types` ha:
 
@@ -350,7 +353,7 @@ Ogni opzione ha anche un nome inglese (dopo la barra `/`), e puoi mescolarli com
 | `--pdf` / `--png` | Salva in PDF o in PNG | `--pdf` |
 | `--titolo` / `--title` | Nome sulla mappa (default: uno casuale) | `--titolo "La Tana dell'Orco"` |
 | `--senza-titolo` / `--no-title` | Mappa senza nome | `--senza-titolo` |
-| `--contenuto` / `--content` | Cosa generare oltre alle mappe: `storia`, `mostri`, `trappole`, `tesori`, anche insieme separati da virgole; `mappa` = solo le mappe; `tutto` = tutto (di base) | `--contenuto storia,tesori` |
+| `--contenuto` / `--content` | Cosa generare oltre alle mappe: `storia`, `mostri`, `trappole`, `tesori`, `fazioni`, anche insieme separati da virgole; `mappa` = solo le mappe; `tutto` = tutto (di base) | `--contenuto storia,tesori` |
 | `--senza-storia` / `--no-story` | Solo le mappe, come `--contenuto mappa` | `--senza-storia` |
 | `--unita` / `--units` | Scala della griglia: `imperiale` (1 casella = 5 ft) o `metrica` (1 casella = 1,5 m); di base metrica in italiano, imperiale in inglese | `--unita imperiale` |
 | `--solo-ascii` / `--ascii-only` | Solo i caratteri della tastiera (`# ~ = o`) anche nei PNG e PDF (i `.txt` li usano sempre) | `--solo-ascii` |
@@ -475,6 +478,7 @@ Se vuoi sapere come il programma inventa i dungeon, nella cartella `docs` ci son
 - [Come nascono i mostri](docs/monsters.md): mostri erranti, mostri e indizi nelle stanze, mostri fuori posto;
 - [Come nascono le trappole](docs/trap.md): famiglie e gradi, chi le costruisce, prima si impara e poi si rischia, trappole già pronte e trappole montate dai loro pezzi;
 - [Come nascono i tesori](docs/treasure.md): quali stanze hanno un tesoro, tipi di tesoro, monete, gemme, gioielli e oggetti magici, dove è nascosto;
+- [Come nascono le fazioni](docs/factions.md): da dove vengono, la base, scopi, metodi, capi, segreti, atteggiamenti e rapporti, quante sono;
 - [Come aggiungere mostri al bestiario](docs/add_monsters_to_bestiary.md): i campi di ogni mostro, esempi pronti da copiare, indizi, mostri fuori posto, errori comuni.
 
 ## Fonti
