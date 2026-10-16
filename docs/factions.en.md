@@ -60,7 +60,7 @@ There is **always** a `present` faction, because today's dwellers are the heart 
 | `relic` | any room |
 | `outsiders` | one of the three rooms closest to an entrance, or (one time in two) **outside the dungeon** |
 
-Two factions never share a base. If there are no rooms of its age left, the faction takes another free one. Some sentences name the base ("keeps their bones in room 1-05"); a faction living outside the dungeon never draws them.
+Two factions never share a base. If there are no rooms of its age left, the faction takes another free one. Some sentences name the base ("keeps their bones in room 1-05") or only make sense for those living in the dungeon ("It patrols the corridors in pairs…", "…away from its halls"): a faction living outside the dungeon never draws them, and a relation of this kind ("have fought for a corridor") only links two factions that are both inside.
 
 ---
 
@@ -174,11 +174,20 @@ Everything is in `data/factions.json`. Make a copy of the file before you edit i
 | `attitudes` | how it treats adventurers |
 | `relations` | what it thinks of another faction (uses `{faction}` and `{other}`) |
 
+Next to `it` and `en`, every sentence can have conditions:
+
+| Condition | What it means |
+|---|---|
+| `"inside": true` | only for a faction with its base in the dungeon (for a relation: both factions) |
+| `"not": ["outsiders"]` | not for these origins (here: not for outsiders, who for instance don't know the founders' language) |
+| `"leader": false` | origins only: the faction has no leader of its own |
+
 A name and a sentence:
 
 ```json
 {"it": "l'Ordine di {n}", "en": "the Order of {n}", "origins": ["heirs", "relic", "outsiders"]}
 {"it": "Vuole recuperare {relic} prima di chiunque altro.", "en": "It wants to recover {relic} before anyone else does."}
+{"it": "Pattuglia i corridoi a coppie, …", "en": "It patrols the corridors in pairs, …", "inside": true}
 ```
 
 In English, faction names start with a lowercase `the` (the program capitalises it when needed), a sentence doesn't start with `{faction}` or `{other}`, and there is no *he* or *she*: leaders can be anyone. The rules for the Italian sentences are in [factions.md](factions.md#9-cambiare-le-tabelle).

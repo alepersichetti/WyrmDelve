@@ -60,7 +60,7 @@ C'è **sempre** una fazione `present`, perché gli abitanti di oggi sono il cent
 | `relic` | una stanza qualsiasi |
 | `outsiders` | una delle tre stanze più vicine a un ingresso, oppure (una volta su due) **fuori dal dungeon** |
 
-Due fazioni non hanno mai la stessa base. Se mancano stanze della sua epoca, la fazione ne prende un'altra libera. Alcune frasi nominano la base («ne conserva le ossa nella sala 1-05»); una fazione che sta fuori dal dungeon non pesca mai quelle frasi.
+Due fazioni non hanno mai la stessa base. Se mancano stanze della sua epoca, la fazione ne prende un'altra libera. Alcune frasi nominano la base («ne conserva le ossa nella sala 1-05») o hanno senso solo per chi vive nel dungeon («Pattuglia i corridoi a coppie…», «…lontani dalle sue sale»): una fazione che sta fuori dal dungeon non pesca mai quelle frasi, e un rapporto di questo tipo («si contendono un corridoio») lega solo due fazioni che stanno entrambe dentro.
 
 ---
 
@@ -174,11 +174,20 @@ Tutto è in `data/factions.json`. Fai una copia del file prima di modificarlo.
 | `attitudes` | come tratta gli avventurieri |
 | `relations` | cosa pensa di un'altra fazione (usa `{faction}` e `{other}`) |
 
+Ogni frase può avere, accanto a `it` e `en`, delle condizioni:
+
+| Condizione | Cosa vuol dire |
+|---|---|
+| `"inside": true` | solo per una fazione con la base nel dungeon (per un rapporto: tutte e due le fazioni) |
+| `"not": ["outsiders"]` | non per queste origini (qui: non per gli estranei, che per esempio non conoscono la lingua dei fondatori) |
+| `"leader": false` | solo nelle origini: la fazione non ha un capo suo |
+
 Un nome e una frase:
 
 ```json
 {"it": "l'Ordine di {n}", "en": "the Order of {n}", "origins": ["heirs", "relic", "outsiders"]}
 {"it": "Vuole recuperare {relic} prima di chiunque altro.", "en": "It wants to recover {relic} before anyone else does."}
+{"it": "Pattuglia i corridoi a coppie, …", "en": "It patrols the corridors in pairs, …", "inside": true}
 ```
 
 Qualche regola per l'italiano, perché le frasi stiano in piedi con qualunque parola:

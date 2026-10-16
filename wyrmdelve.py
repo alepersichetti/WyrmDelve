@@ -996,9 +996,20 @@ if not (TRIGGERS and LESSON):
 FACTIONS = load_optional(os.path.join(DATA, "factions.json"),
                          ("names", "origins", "goals", "methods", "leaders", "secrets", "attitudes", "relations"))
 FACTION_ORIGINS = ("present", "heirs", "second", "relic", "outsiders")
-# origins stay dicts, so that one can carry "leader": false next to its texts
-for _origins in FACTIONS.get("origins", {}).values():
-    _origins[:] = [dict(zip(("it", "en"), o)) if isinstance(o, tuple) else o for o in _origins]
+# every sentence stays a dict, so that it can carry its conditions next to its texts: "leader": false
+# (an origin whose faction serves today's dwellers, with no leader of its own), "inside": true (only
+# for a faction with a base in the dungeon) and "not" (origins it doesn't suit)
+for _sentences in [*FACTIONS.get("origins", {}).values(),
+                   *(FACTIONS.get(k, []) for k in ("goals", "methods", "leaders", "secrets", "attitudes", "relations"))]:
+    _sentences[:] = [dict(zip(("it", "en"), t)) if isinstance(t, tuple) else t for t in _sentences]
+
+
+def faction_fits(sentence, origin, inside):
+    """Whether a sentence of data/factions.json suits a faction of this origin, inside the dungeon
+    (with a base) or not: without a base, no sentence that names its room or needs it inside."""
+    if not inside and ("{room}" in sentence["it"] or sentence.get("inside")):
+        return False
+    return origin not in sentence.get("not", [])
 
 # treasure (optional file): the Old-School Essentials tables (Open Game Content,
 # see LICENSE-OGL.txt): how often a room holds treasure, treasure by dungeon
@@ -4271,6 +4282,7 @@ def faction_patterns():
     f = FACTIONS
     # an origin with "leader": false never gets a leader
     starts = sum(len(f["leaders"]) + 1 if o.get("leader", True) else 1 for v in f["origins"].values() for o in v)
+    # (counted as for a faction in the dungeon, which can draw every sentence)
     content = (len(f["names"]) * starts * len(f["goals"]) * len(f["methods"])
                * (len(f["secrets"]) + 1) * len(f["attitudes"]))
     forms = (6 + 2) * 2         # 3! orders with a leader, 2 without; with or without a secret
@@ -4318,31 +4330,37 @@ def plan_factions(dungeon, seed):
         faction["base"] = base.label if base else None
         # the sentences: origin first, then goal, method and (70%) leader in any order, (60%) a
         # secret, the attitude towards adventurers last
-        # (a faction without a base never draws a sentence that names its room)
-        def draw(key):
+        # (only sentences that suit its origin and where it lives: see faction_fits)
+        def draw(key, origin=origin, inside=base is not None):
             for _ in range(len(f[key]) * 2):
                 text = decks[key].draw()
-                if base is not None or "{room}" not in text[0]:
+                if faction_fits(text, origin, inside):
                     break
             return text
         # an origin marked "leader": false (a faction that serves today's dwellers) has no leader of its own
-        start = rng.choice([o for o in f["origins"][origin] if base is not None or "{room}" not in o["it"]]
+        start = rng.choice([o for o in f["origins"][origin] if faction_fits(o, origin, base is not None)]
                            or f["origins"][origin])
         middle = [draw("goals"), draw("methods")]
         if rng.random() < 0.7 and start.get("leader", True):
             middle.append(draw("leaders"))
         rng.shuffle(middle)
-        parts = [(start["it"], start["en"])] + middle
+        parts = [start] + middle
         if rng.random() < 0.6:
             parts.append(draw("secrets"))
         parts.append(draw("attitudes"))
         faction["parts"] = parts
         factions.append(faction)
-    # one relation per faction, with the next one in the ring (two factions: just one)
+    # one relation per faction, with the next one in the ring (two factions: just one); a relation
+    # marked "inside" needs both factions in the dungeon
     pairs = [(i, (i + 1) % len(factions)) for i in range(len(factions))] if len(factions) > 2 else [(0, 1)]
     for i, j in pairs[:len(factions)]:
         if i != j:
-            factions[i]["relation"] = (decks["relations"].draw(), j)
+            inside = factions[i]["base"] is not None and factions[j]["base"] is not None
+            for _ in range(len(f["relations"]) * 2):
+                text = decks["relations"].draw()
+                if faction_fits(text, factions[i]["origin"], inside):
+                    break
+            factions[i]["relation"] = (text, j)
     out = []
     for fac in factions:
         lines = []
@@ -4353,7 +4371,7 @@ def plan_factions(dungeon, seed):
                 v = dict(values[lang], faction=fac["name"][lang], leader=fac["leader"],
                          room=fac["base"] or "", other=factions[fac["relation"][1]]["name"][lang]
                          if "relation" in fac else "")
-                pair.append(capitalized(text[lang].format(**v)))
+                pair.append(capitalized(text[("it", "en")[lang]].format(**v)))
             lines.append(tuple(pair))
         out.append({"name": tuple(capitalized(t) for t in fac["name"]), "base": fac["base"], "lines": lines,
                     "origin": fac["origin"], "leader": fac["leader"]})
