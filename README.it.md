@@ -263,6 +263,7 @@ Con **un livello per foglio** i nomi dei PNG contengono il livello: `<seme>_gm_L
 | `○` | pozzo o camino tra livelli (può saltarne qualcuno) | `Ω` | portale magico |
 | `≈` | acqua | `∴` | crollo |
 | `■` | colonna | `[A]` | ingresso (riquadro pieno sulla mappa) |
+| `♣` | funghi giganti (grotte dell'Underdark) | | |
 
 **Scala.** Ogni lettera della mappa è una casella della griglia: **1 casella = 5 ft** (imperiale) oppure **1,5 m** (metrica), come scritto in fondo alla legenda. Le lettere sono più alte che larghe, quindi sulla carta le caselle sono rettangoli: per misurare conta le caselle, non i millimetri.
 
@@ -289,7 +290,7 @@ La logica del programma sta in `wyrmdelve.py`; le **parole e le tabelle** che pe
 | `dungeon_types/` | gli 11 tipi (strato I), **un file per tipo**, numerati nell'ordine del menu (`01_palace.json` … `11_underdark.json`): i loro nomi, come si impilano, la pianta, chi li costruì, il nome della mappa, le stanze e gli ingressi (vedi sotto). Per aggiungere un tipo, copia un file e dagli il numero successivo |
 | `second_age.json` | chi venne dopo (strato II) e le sue stanze |
 | `present_day.json` | gli abitanti di oggi (strato III) e le loro stanze |
-| `places.json` | le grotte naturali (`natural_rooms`, strato N), dove si trova il dungeon (`areas`: `surface` per gli edifici sopra il suolo, `underground` per gli altri) e l'ingresso usato quando nessuna parete del livello può ospitarne uno (`surface_shaft`) |
+| `places.json` | le grotte naturali (`natural_rooms`, strato N), dove si trova il dungeon (`areas`: `surface` per gli edifici sopra il suolo, `underground` per gli altri) l'ingresso usato quando nessuna parete del livello può ospitarne uno (`surface_shaft`) e come sono le foreste di funghi giganti (`fungus_forests`) |
 | `events.json` | cosa chiuse ogni epoca |
 | `history.json` | le frasi della storia in cima alla chiave: per ogni parte (`founded` la fondazione, `caves` le grotte, `second` la seconda epoca, `fall` la sua fine, `present` gli abitanti di oggi, `crude` i cunicoli recenti) un elenco di frasi tra cui il programma ne sceglie una. La storia può aprirsi con gli abitanti di oggi (`opening`), con una diceria (`opening_legend`) o con il luogo (`opening_place`), e chiudersi con una leggenda (`legend`), un avvertimento (`warning`) o un aggancio per l'avventura (`hook`); otto parti a volte ci sono e a volte no: lo scopo dei fondatori (`purpose`), la loro epoca d'oro (`golden`), i presagi (`omen`), cosa fecero i nuovi arrivati (`second_detail`), l'abbandono (`aftermath`), la sorte dei fondatori (`fate`), chi ci passò in seguito (`interlude`) e un dettaglio sul presente (`present_detail`). In tutto 3.840 forme diverse. `words` contiene gli elenchi da cui pescano: scopi (`goals`), reliquie (`relics`) e visitatori (`visitors`) |
 | `monsters.json` | i mostri: nome, una riga di descrizione, in quali tipi di dungeon compaiono (`where`, `"*"` = tutti), quanto sono pericolosi (`danger`, da 1 a 4: i più pericolosi vanno nei livelli più profondi), che creatura sono (`kind`), quanti sono (`number`) e il loro tipo di tesoro (`treasure`, una lettera dalla A alla V, vuoto se non tengono niente); vedi [docs/add_monsters_to_bestiary.md](docs/add_monsters_to_bestiary.md) |
@@ -312,6 +313,7 @@ Ogni tipo in `dungeon_types` ha:
 | `eras` | quanto è probabile ogni strato nelle sue stanze: grotte naturali, fondatori, seconda epoca, oggi |
 | `pattern` | la sua pianta (una delle 11 piante della tabella in alto) |
 | `loops`, `portal` | quanti corridoi chiudono un anello, quanto è probabile un portale magico |
+| `fungi` | quanto è probabile che un livello abbia una foresta di funghi giganti nelle sue grotte (ce l'ha solo l'Underdark: `0.25`, un livello su quattro) |
 | `builders`, `built`, `titles` | chi lo costruì, cosa costruirono, il nome della mappa |
 | `rooms` | le sue stanze |
 | `special` | i nomi delle sue stanze chiave (la sala del trono, l'abside, il chiostro…) |

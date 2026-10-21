@@ -10,6 +10,7 @@
   "pattern": "underdark",
   "loops": 0.4,
   "portal": 0.3,
+  "fungi": 0.25,
   "builders": [
     {"it": "i nani esiliati del clan {n}", "en": "the exiled dwarves of clan {n}"},
     {"it": "gli elfi oscuri della casata {n}", "en": "the dark elves of House {n}"},

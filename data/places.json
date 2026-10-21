@@ -275,5 +275,23 @@
       {"it": "sotto un guado del fiume", "en": "beneath a river ford"}
     ]
   },
-  "surface_shaft": {"it": "pozzo dalla superficie", "en": "shaft from the surface"}
+  "surface_shaft": {"it": "pozzo dalla superficie", "en": "shaft from the surface"},
+  "fungus_forests": [
+    {"it": "una foresta di funghi giganti, alti come alberi, copre la grotta: chi si muove tra i gambi ha copertura, ma non vede oltre pochi passi", "en": "a forest of giant mushrooms, tall as trees, fills the cave: whoever moves among the stalks has cover, but cannot see more than a few paces"},
+    {"it": "funghi giganti dalle lamelle luminose rischiarano la grotta di una luce verdastra: qui le torce non servono", "en": "giant mushrooms with glowing gills light the cave with a greenish glow: no torch is needed here"},
+    {"it": "una selva di funghi pallidi e gonfi: se colpiti, scoppiano in una nuvola di spore che fa tossire e lacrimare", "en": "a thicket of pale, swollen mushrooms: struck, they burst into a cloud of spores that makes eyes water and throats cough"},
+    {"it": "cappelli di funghi larghi come tetti formano un soffitto basso; sotto, il terreno è morbido e attutisce ogni passo", "en": "mushroom caps as wide as roofs make a low ceiling; beneath, the ground is soft and muffles every step"},
+    {"it": "una foresta di funghi coltivata con cura: file ordinate, gambi potati e cesti abbandonati a metà raccolto", "en": "a carefully tended mushroom forest: neat rows, pruned stalks and baskets abandoned halfway through the harvest"},
+    {"it": "funghi giganti dal gambo cavo, in cui qualcuno ha scavato tane e nascondigli", "en": "giant mushrooms with hollow stalks, where someone has dug dens and hiding places"},
+    {"it": "una distesa di funghi rossi a pois bianchi, alti fino al ginocchio: chi ne mangia vede cose che non ci sono per un'ora", "en": "a spread of knee-high red mushrooms with white spots: whoever eats one sees things that are not there for an hour"},
+    {"it": "funghi neri e lucidi che sanno di carne arrosto: sono commestibili, e chi vive quaggiù lo sa bene", "en": "glossy black mushrooms that taste of roast meat: they are edible, and whoever lives down here knows it well"},
+    {"it": "una foresta di funghi che si piegano lentamente verso ogni fonte di calore, torce comprese", "en": "a mushroom forest that slowly bends towards any source of warmth, torches included"},
+    {"it": "funghi giganti coperti di muffa grigia: l'aria è densa e umida, e i suoni arrivano attutiti e confusi", "en": "giant mushrooms coated in grey mould: the air is thick and damp, and sounds come muffled and confused"},
+    {"it": "tra i funghi giganti corre una rete di filamenti bianchi: se qualcuno li calpesta, l'intera foresta trema come se sentisse", "en": "a web of white threads runs between the giant mushrooms: if someone treads on them, the whole forest shivers as if it could feel"},
+    {"it": "funghi a forma di mensola crescono uno sull'altro lungo le pareti, come scale che salgono fino al soffitto", "en": "shelf-shaped mushrooms grow one above the other along the walls, like stairs climbing to the ceiling"},
+    {"it": "una foresta di funghi azzurri che tintinnano come campanelle quando qualcuno ci passa in mezzo: impossibile attraversarla in silenzio", "en": "a forest of blue mushrooms that chime like little bells when someone walks through: impossible to cross in silence"},
+    {"it": "funghi giganti marci e cadenti, divorati da insetti grossi come gatti", "en": "giant mushrooms rotten and sagging, eaten by insects the size of cats"},
+    {"it": "tra i gambi dei funghi giganti si trovano ossa ricoperte di muschio: la foresta si nutre di ciò che cade", "en": "moss-covered bones lie among the giant stalks: the forest feeds on whatever falls"},
+    {"it": "una foresta di funghi dal profumo dolce e pesante: chi si ferma a lungo comincia ad avere sonno", "en": "a mushroom forest with a heavy, sweet scent: whoever lingers starts to grow drowsy"}
+  ]
 }

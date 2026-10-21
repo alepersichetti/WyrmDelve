@@ -727,8 +727,11 @@ Then it adds the **unusual paths**, always on visible corridors and preferably o
 | **cave-in** to climb over | `∴` | 1 (2 with at least 30 rooms) |
 | **steps** on the same level | `≡≡` | 1 per level (2 with at least 8 rooms) |
 | **pools** in caves | `≈` | in about 4 caves out of 10 |
+| **forests of giant mushrooms** in Underdark caves | `♣` | on 1 Underdark level out of 4: one forest (two if the level has at least 8 caves) |
 
 Steps are a small **elevation shift**: the level isn't completely flat. If there is no straight stretch for two steps, one is enough; if there isn't even that, it becomes a dais in a room.
+
+**Forests of giant mushrooms** grow only on **Underdark** levels, in the caves (natural or dug by today's dwellers): each level gets one with the chance written in the type's `fungi` field (`0.25`, one level in four), in one of its caves, or in two if the level has at least 8 caves; a cave already called a "fungus cavern" comes first. So a one-level Underdark dungeon has a forest one time in four, a three-level one a little more than one time in two. The mushrooms `♣` cover a third to a half of the floor, away from doors, room numbers and other symbols. They don't block the way and hide nothing: they are terrain, good for taking cover or getting lost. In the key the cave gets a sentence describing it (taken from `fungus_forests` in `data/places.json`): glowing mushrooms, spores that make you cough, edible or hallucinogenic mushrooms, little bells that give away whoever passes. They grow last, with dice of their own: without them the map would be identical, traps included.
 
 The tomb, at the end, on the referee's map:
 
@@ -841,9 +844,10 @@ founders (I)   second (II)    cave or third age (N, III)
 | `○` | shaft or chimney | `Ω` | magic portal |
 | `≈` | water | `∴` | cave-in |
 | `■` | pillar | `[A]` | entrance |
+| `♣` | giant mushrooms (Underdark) | | |
 | `^` | trap (referee only, if you choose traps) | | |
 
-With the `--ascii-only` option (or if the font lacks a symbol) only keyboard characters are used: `#` for every wall, `o` shaft, `&` portal, `~` water, `%` cave-in, `=` steps, `O` pillar, `:` secret passage.
+With the `--ascii-only` option (or if the font lacks a symbol) only keyboard characters are used: `#` for every wall, `o` shaft, `&` portal, `~` water, `%` cave-in, `=` steps, `O` pillar, `*` giant mushrooms, `:` secret passage.
 
 ### The referee's map and the players' map
 
@@ -1151,6 +1155,7 @@ The files in the `data` folder hold mostly words, but each dungeon type (one fil
 | `eras` | the weights of the four ages N, I, II, III | `[0.75, 0.1, 0.1, 0.05]` = mostly caves |
 | `loops` | the share of loops | `0.5` = one loop every two rooms |
 | `portal` | the chance of a portal | `1.0` = always |
+| `fungi` | the chance that a level holds a forest of giant mushrooms | `0.25` = one level in four (Underdark only) |
 | `below` | the types that may lie below | `["tomb", "underdark"]` |
 | `surface` | whether the type stands above ground | `true` / `false` |
 
