@@ -297,6 +297,7 @@ TEXTS = {
     "info_factions": ("Fazioni: {n} ({names})", "Factions: {n} ({names})"),
     "warn_no_npcs": ("Manca data/npcs.json (o è rovinato): niente personaggi non giocanti",
                      "data/npcs.json is missing (or broken): no NPCs"),
+    "info_fungi": ("Foreste di funghi giganti: {n} (♣)", "Forests of giant mushrooms: {n} (♣)"),
     "info_npcs": ("Personaggi non giocanti: {n} ({names})", "NPCs: {n} ({names})"),
     "warn_no_rumours": ("Manca data/rumours.json (o è rovinato): niente dicerie",
                         "data/rumours.json is missing (or broken): no rumours"),
@@ -438,6 +439,7 @@ TEXTS = {
     "lg_water": ("acqua", "water"),
     "lg_rubble": ("crollo", "cave-in"),
     "lg_pillar": ("colonna", "pillar"),
+    "lg_fungi": ("funghi giganti", "giant mushrooms"),
     "lg_entrance": ("ingresso", "entrance"),
     "lg_room": ("stanza (livello-numero)", "room (level-number)"),
     "lg_scale": ("Scala:", "Scale:"),
@@ -975,6 +977,8 @@ NATURAL_ROOMS = TABLES["natural_rooms"]
 EVENTS = TABLES["events"]
 AREAS = TABLES["areas"]
 SURFACE_SHAFT = TABLES["surface_shaft"]
+# what a forest of giant mushrooms in an Underdark cave is like (optional: without them, no description)
+FUNGUS_FORESTS = TABLES.get("fungus_forests", [])
 # The history: the parts every story has (HISTORY_PARTS), an optional opening and closing, and
 # extra parts told only sometimes. WORD_TABLES maps a {field} in the sentences to its word list in
 # history.words; STORY_FIELDS are the fields the story itself fills (see history_text).
@@ -2352,17 +2356,19 @@ def free_spot(level, room, rng):
     # cells next to a door stay clear, so a feature never blocks a doorway
     near_doors = {(d.cell[0] + dx, d.cell[1] + dy) for d in room.doors for dx, dy in AROUND}
     spots = []
+    # (giant mushrooms are no obstacle: they grow last, so everything else keeps its place)
     for x, y in room.cells:
         i = level.i(x, y)
-        if i in level.feat or i in level.labels or (x, y) in near_doors:
+        if level.feat.get(i, "fungi") != "fungi" or i in level.labels or (x, y) in near_doors:
             continue
-        if any(level.i(x + dx, y + dy) in level.labels or level.feat.get(level.i(x + dx, y + dy)) not in (None, "pillar")
-               for dx, dy in AROUND):
+        if any(level.i(x + dx, y + dy) in level.labels
+               or level.feat.get(level.i(x + dx, y + dy)) not in (None, "pillar", "fungi") for dx, dy in AROUND):
             continue
         spots.append((x, y))
     # crowded room: relax the rules, any floor cell without a feature or room number will do
     if not spots:
-        spots = [c for c in room.cells if level.i(*c) not in level.feat and level.i(*c) not in level.labels]
+        spots = [c for c in room.cells if level.feat.get(level.i(*c), "fungi") == "fungi"
+                 and level.i(*c) not in level.labels]
     return rng.choice(sorted(spots)) if spots else None
 
 
@@ -2788,6 +2794,41 @@ def secret_and_unusual(dungeon, rng, log):
                     level.feat[i] = "water"
 
 
+def grow_fungi(dungeon, rng):
+    """Forests of giant mushrooms in the caves of the Underdark levels: every cave room (natural, or
+    dug by today's dwellers) of a level whose type has a "fungi" chance gets a forest with that
+    chance, and always if its name already speaks of mushrooms. The mushrooms cover a third to a half
+    of the floor, away from doors, room numbers and other features; they hide nothing and block
+    nothing. They come last, with random numbers of their own: the rest of the map stays the same.
+    Each forest gets a description from places.json (room.fungi); returns how many forests grew."""
+    forests = 0
+    descriptions = Deck(FUNGUS_FORESTS, rng)      # no two forests of a dungeon described alike
+    for room in sorted(dungeon.rooms, key=lambda r: r.uid):
+        level = room.level
+        chance = TYPE[level.kind].get("fungi", 0)
+        if not chance or room.era not in (0, 3):
+            continue
+        named = any("fung" in layer[0] for _, layer in room.layers)
+        roll = rng.random()
+        if not named and roll >= chance:
+            continue
+        density = rng.uniform(0.3, 0.5)
+        near_doors = {(d.cell[0] + dx, d.cell[1] + dy) for d in room.doors for dx, dy in AROUND}
+        grown = 0
+        for x, y in sorted(room.cells):
+            i = level.i(x, y)
+            if (i in level.feat or i in level.labels or (x, y) in near_doors
+                    or any(level.i(x + dx, y + dy) in level.labels for dx, dy in AROUND)):
+                continue
+            if rng.random() < density:
+                level.feat[i] = "fungi"
+                grown += 1
+        if grown:
+            room.fungi = descriptions.draw() if FUNGUS_FORESTS else None
+            forests += 1
+    return forests
+
+
 # --- checks ---
 def traversal_graph(dungeon):
     """Rooms plus "outside": corridors, level links and entrances as edges."""
@@ -2951,6 +2992,7 @@ def generate(params, log):
             log.warn(tr("info_retry", n=attempt + 1))
             continue
         secret_and_unusual(dungeon, rng, QuietLog() if attempt else log)
+        dungeon.stats["fungi"] = grow_fungi(dungeon, random.Random(f"wyrmdelve-fungi-{seed}"))
         dungeon.corridors = [c for lv in dungeon.levels for c in lv.corridors]
         return dungeon
     sys.exit(tr("err_build"))
@@ -3084,6 +3126,7 @@ WALL_DEFAULTS = {1: "═", 2: "─"}
 FEATURE_GLYPHS = {
     "up": ("<", "<"), "down": (">", ">"), "shaft": ("○", "o"), "portal": ("Ω", "&"),
     "pillar": ("■", "O"), "water": ("≈", "~"), "rubble": ("∴", "%"), "steps": ("≡", "="), "hidden": ("░", ":"),
+    "fungi": ("♣", "*"),
 }
 
 
@@ -3275,7 +3318,7 @@ def legend_entries(dungeon, gm, G, units):
     if feats & {"up", "down"}:
         out.append([("< >", "b"), (" " + tr("lg_stairs"), "n")])
     for key, label in (("steps", "lg_steps"), ("shaft", "lg_shaft"), ("portal", "lg_portal"), ("water", "lg_water"),
-                       ("rubble", "lg_rubble"), ("pillar", "lg_pillar")):
+                       ("rubble", "lg_rubble"), ("pillar", "lg_pillar"), ("fungi", "lg_fungi")):
         if key in feats:
             fancy, plain = FEATURE_GLYPHS[key]
             out.append([(G(fancy, plain), "b" if key in ("shaft", "portal") else "n"), (" " + tr(label), "n")])
@@ -3750,6 +3793,8 @@ def room_text(room):
     text = text[0].upper() + text[1:]
     for era, layer in room.layers[1:]:
         text += f"; {ERA_TAGS[era]}: {pick(layer)}"
+    if getattr(room, "fungi", None):
+        text += f". {capitalized(pick(room.fungi))}"
     return f"[{ERA_TAGS[first_era]}] {text}."
 
 
@@ -5730,6 +5775,8 @@ def main():
     log.step(tr("step_secrets"))
     st = dungeon.stats
     log.info(tr("info_secrets", d=st["secret_doors"], p=st["hidden"], h=st["secret_links"], w=st["water"], r=st["rubble"], s=st["steps"]))
+    if st["fungi"]:
+        log.info(tr("info_fungi", n=st["fungi"]))
     if traps is not None:
         log.info(tr("info_traps", n=len(traps)))
     if treasure is not None:

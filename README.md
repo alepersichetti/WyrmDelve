@@ -263,6 +263,7 @@ With **one level per sheet** the PNG names get the level: `<seed>_gm_L1.png`, `<
 | `○` | shaft or chimney between levels (may skip some) | `Ω` | magic portal |
 | `≈` | water | `∴` | cave-in |
 | `■` | pillar | `[A]` | entrance (solid box on the map) |
+| `♣` | giant mushrooms (Underdark caves) | | |
 
 **Scale.** Every letter of the map is one grid square: **1 square = 5 ft** (imperial) or **1.5 m** (metric), as written at the end of the legend. Letters are taller than wide, so on paper the squares are rectangles: to measure, count squares, not millimetres.
 
@@ -289,7 +290,7 @@ The program's logic is in `wyrmdelve.py`; the **words and tables** it draws at r
 | `dungeon_types/` | the 11 types (stratum I), **one file per type**, numbered in the order of the menu (`01_palace.json` … `11_underdark.json`): their names, how they stack, their floor plan, who built them, the map's name, their rooms and their entrances (see below). To add a type, copy a file and give it the next number |
 | `second_age.json` | who came next (stratum II) and their rooms |
 | `present_day.json` | today's dwellers (stratum III) and their rooms |
-| `places.json` | the natural caves (`natural_rooms`, stratum N), where the dungeon is (`areas`: `surface` for buildings above ground, `underground` for the others) and the entrance used when no wall of the level can take one (`surface_shaft`) |
+| `places.json` | the natural caves (`natural_rooms`, stratum N), where the dungeon is (`areas`: `surface` for buildings above ground, `underground` for the others) the entrance used when no wall of the level can take one (`surface_shaft`) and what the forests of giant mushrooms are like (`fungus_forests`) |
 | `events.json` | what ended each age |
 | `history.json` | the sentences of the story at the top of the key: for each part (`founded` the founding, `caves` the caves, `second` the second age, `fall` its end, `present` today's dwellers, `crude` the newer tunnels) a list of sentences the program picks one from. The story can open with today's dwellers (`opening`), a rumour (`opening_legend`) or the place (`opening_place`), and close with a legend (`legend`), a warning (`warning`) or an adventure hook (`hook`); eight parts are sometimes there and sometimes not: the founders' purpose (`purpose`), their golden age (`golden`), ill omens (`omen`), what the newcomers did (`second_detail`), the abandonment (`aftermath`), the founders' fate (`fate`), who passed through later (`interlude`) and a detail about the present (`present_detail`). 3,840 different shapes in all. `words` holds the lists they draw from: goals (`goals`), relics (`relics`) and visitors (`visitors`) |
 | `monsters.json` | the monsters: name, a one-line description, which dungeon types they appear in (`where`, `"*"` = all), how dangerous they are (`danger`, 1 to 4: the most dangerous go to the deepest levels), what kind of creature they are (`kind`), how many (`number`) and their treasure type (`treasure`, a letter from A to V, empty if they keep nothing); see [docs/add_monsters_to_bestiary.en.md](docs/add_monsters_to_bestiary.en.md) |
@@ -312,6 +313,7 @@ Each type in `dungeon_types` has:
 | `eras` | how likely each stratum is in its rooms: natural caves, founders, second age, today |
 | `pattern` | its floor plan (one of the 11 plans in the table at the top) |
 | `loops`, `portal` | how many corridors close a loop, how likely a magic portal is |
+| `fungi` | how likely a cave is to hold a forest of giant mushrooms (only the Underdark has it: `0.35`) |
 | `builders`, `built`, `titles` | who built it, what they built, the map's name |
 | `rooms` | its rooms |
 | `special` | the names of its key rooms (the throne hall, the apse, the cloister…) |

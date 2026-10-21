@@ -10,7 +10,7 @@ Everything WyrmDelve draws at random is here, as JSON text files: `wyrmdelve.py`
 | `dungeon_types/` | the 11 dungeon types, one file each, numbered in menu order: names, how they stack, floor plan, founders, rooms, entrances | map and story |
 | `second_age.json` | who came next (stratum II) and their rooms | story |
 | `present_day.json` | today's dwellers (stratum III) and their rooms | story, monsters |
-| `places.json` | natural caves, where the dungeon is, the shaft from the surface | map and story |
+| `places.json` | natural caves, where the dungeon is, the shaft from the surface, the forests of giant mushrooms | map and story |
 | `events.json` | what ended each age | story |
 | `history.json` | the sentences of the history and the words they draw from | story |
 | `monsters.json` | the 245 monsters, with their treasure type | monsters, treasure |

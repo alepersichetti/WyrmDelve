@@ -10,7 +10,7 @@ Qui c'è tutto quello che WyrmDelve pesca a caso, in file di testo JSON: `wyrmde
 | `dungeon_types/` | gli 11 tipi di dungeon, un file per tipo, numerati nell'ordine del menu: nomi, come si impilano, pianta, fondatori, stanze, ingressi | mappa e storia |
 | `second_age.json` | chi venne dopo (strato II) e le sue stanze | storia |
 | `present_day.json` | gli abitanti di oggi (strato III) e le loro stanze | storia, mostri |
-| `places.json` | grotte naturali, dove si trova il dungeon, il pozzo dalla superficie | mappa e storia |
+| `places.json` | grotte naturali, dove si trova il dungeon, il pozzo dalla superficie, le foreste di funghi giganti | mappa e storia |
 | `events.json` | cosa chiuse ogni epoca | storia |
 | `history.json` | le frasi della storia e le parole da cui pescano | storia |
 | `monsters.json` | i 245 mostri, con il loro tipo di tesoro | mostri, tesori |
