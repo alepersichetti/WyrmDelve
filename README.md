@@ -313,7 +313,7 @@ Each type in `dungeon_types` has:
 | `eras` | how likely each stratum is in its rooms: natural caves, founders, second age, today |
 | `pattern` | its floor plan (one of the 11 plans in the table at the top) |
 | `loops`, `portal` | how many corridors close a loop, how likely a magic portal is |
-| `fungi` | how likely a cave is to hold a forest of giant mushrooms (only the Underdark has it: `0.35`) |
+| `fungi` | how likely a level is to hold a forest of giant mushrooms in its caves (only the Underdark has it: `0.25`, one level in four) |
 | `builders`, `built`, `titles` | who built it, what they built, the map's name |
 | `rooms` | its rooms |
 | `special` | the names of its key rooms (the throne hall, the apse, the cloister…) |

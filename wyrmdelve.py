@@ -2795,37 +2795,38 @@ def secret_and_unusual(dungeon, rng, log):
 
 
 def grow_fungi(dungeon, rng):
-    """Forests of giant mushrooms in the caves of the Underdark levels: every cave room (natural, or
-    dug by today's dwellers) of a level whose type has a "fungi" chance gets a forest with that
-    chance, and always if its name already speaks of mushrooms. The mushrooms cover a third to a half
-    of the floor, away from doors, room numbers and other features; they hide nothing and block
-    nothing. They come last, with random numbers of their own: the rest of the map stays the same.
-    Each forest gets a description from places.json (room.fungi); returns how many forests grew."""
+    """Forests of giant mushrooms in the caves of the Underdark levels: a level whose type has a
+    "fungi" chance gets a forest with that chance, in one of its caves (natural, or dug by today's
+    dwellers; a cave whose name already speaks of mushrooms first), in two if it has at least eight.
+    The mushrooms cover a third to a half of the floor, away from doors, room numbers and other
+    features; they hide nothing and block nothing. They come last, with random numbers of their
+    own: the rest of the map stays the same. Each forest gets a description from places.json
+    (room.fungi); returns how many forests grew."""
     forests = 0
     descriptions = Deck(FUNGUS_FORESTS, rng)      # no two forests of a dungeon described alike
-    for room in sorted(dungeon.rooms, key=lambda r: r.uid):
-        level = room.level
+    for level in dungeon.levels:
         chance = TYPE[level.kind].get("fungi", 0)
-        if not chance or room.era not in (0, 3):
+        caves = sorted((r for r in level.rooms if r.era in (0, 3)), key=lambda r: r.uid)
+        if not chance or not caves or rng.random() >= chance:
             continue
-        named = any("fung" in layer[0] for _, layer in room.layers)
-        roll = rng.random()
-        if not named and roll >= chance:
-            continue
-        density = rng.uniform(0.3, 0.5)
-        near_doors = {(d.cell[0] + dx, d.cell[1] + dy) for d in room.doors for dx, dy in AROUND}
-        grown = 0
-        for x, y in sorted(room.cells):
-            i = level.i(x, y)
-            if (i in level.feat or i in level.labels or (x, y) in near_doors
-                    or any(level.i(x + dx, y + dy) in level.labels for dx, dy in AROUND)):
-                continue
-            if rng.random() < density:
-                level.feat[i] = "fungi"
-                grown += 1
-        if grown:
-            room.fungi = descriptions.draw() if FUNGUS_FORESTS else None
-            forests += 1
+        # fungus caverns first, then the other caves in random order
+        rng.shuffle(caves)
+        caves.sort(key=lambda r: not any("fung" in layer[0] for _, layer in r.layers))
+        for room in caves[:1 + (len(caves) >= 8)]:
+            density = rng.uniform(0.3, 0.5)
+            near_doors = {(d.cell[0] + dx, d.cell[1] + dy) for d in room.doors for dx, dy in AROUND}
+            grown = 0
+            for x, y in sorted(room.cells):
+                i = level.i(x, y)
+                if (i in level.feat or i in level.labels or (x, y) in near_doors
+                        or any(level.i(x + dx, y + dy) in level.labels for dx, dy in AROUND)):
+                    continue
+                if rng.random() < density:
+                    level.feat[i] = "fungi"
+                    grown += 1
+            if grown:
+                room.fungi = descriptions.draw() if FUNGUS_FORESTS else None
+                forests += 1
     return forests
 
 

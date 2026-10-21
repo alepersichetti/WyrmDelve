@@ -727,11 +727,11 @@ Poi aggiunge i **percorsi insoliti**, sempre sui corridoi visibili e di preferen
 | **crollo** da scavalcare | `∴` | 1 (2 con almeno 30 stanze) |
 | **gradini** nello stesso livello | `≡≡` | 1 per livello (2 con almeno 8 stanze) |
 | **pozze d'acqua** nelle grotte | `≈` | in circa 4 grotte su 10 |
-| **foreste di funghi giganti** nelle grotte dell'Underdark | `♣` | in circa 1 grotta su 3 (sempre nelle «caverne dei funghi») |
+| **foreste di funghi giganti** nelle grotte dell'Underdark | `♣` | in 1 livello Underdark su 4: una foresta (due se il livello ha almeno 8 grotte) |
 
 I gradini sono un piccolo **dislivello**: il livello non è tutto piatto. Se non c'è un tratto dritto per due gradini, ne basta uno; se non c'è nemmeno quello, diventa una pedana in una stanza.
 
-Le **foreste di funghi giganti** crescono solo nei livelli **Underdark**, nelle grotte (naturali o scavate dagli abitanti di oggi): ogni grotta ne ha una con la probabilità scritta nel campo `fungi` del tipo (`0.35`, poco più di una su tre), e sempre se si chiama già «caverna dei funghi». I funghi `♣` coprono da un terzo a metà del pavimento, lontano dalle porte, dai numeri delle stanze e dagli altri simboli. Non bloccano il passaggio e non nascondono niente: sono terreno, buono per ripararsi o perdersi. Nella chiave la grotta riceve una frase che la descrive (presa da `fungus_forests` in `data/places.json`): funghi luminosi, spore che fanno tossire, funghi commestibili o allucinogeni, campanelle che tradiscono chi passa. Crescono per ultimi, con dadi propri: senza di loro la mappa sarebbe identica, trappole comprese.
+Le **foreste di funghi giganti** crescono solo nei livelli **Underdark**, nelle grotte (naturali o scavate dagli abitanti di oggi): ogni livello ne ha una con la probabilità scritta nel campo `fungi` del tipo (`0.25`, un livello su quattro), in una sua grotta, o in due se il livello ha almeno 8 grotte; una grotta che si chiama già «caverna dei funghi» ha la precedenza. Così un dungeon Underdark di un livello ha una foresta una volta su quattro, uno di tre livelli poco più di una volta su due. I funghi `♣` coprono da un terzo a metà del pavimento, lontano dalle porte, dai numeri delle stanze e dagli altri simboli. Non bloccano il passaggio e non nascondono niente: sono terreno, buono per ripararsi o perdersi. Nella chiave la grotta riceve una frase che la descrive (presa da `fungus_forests` in `data/places.json`): funghi luminosi, spore che fanno tossire, funghi commestibili o allucinogeni, campanelle che tradiscono chi passa. Crescono per ultimi, con dadi propri: senza di loro la mappa sarebbe identica, trappole comprese.
 
 La tomba, alla fine, sulla mappa dell'arbitro:
 
@@ -1155,7 +1155,7 @@ I file della cartella `data` contengono soprattutto parole, ma per ogni tipo di 
 | `eras` | i pesi delle quattro epoche N, I, II, III | `[0.75, 0.1, 0.1, 0.05]` = soprattutto grotte |
 | `loops` | la percentuale di anelli | `0.5` = un anello ogni due stanze |
 | `portal` | la probabilità del portale | `1.0` = sempre |
-| `fungi` | la probabilità che una grotta ospiti una foresta di funghi giganti | `0.35` = poco più di una grotta su tre (solo l'Underdark) |
+| `fungi` | la probabilità che un livello abbia una foresta di funghi giganti | `0.25` = un livello su quattro (solo l'Underdark) |
 | `below` | i tipi che possono stare sotto | `["tomb", "underdark"]` |
 | `surface` | se il tipo sta sopra il suolo | `true` / `false` |
 

@@ -313,7 +313,7 @@ Ogni tipo in `dungeon_types` ha:
 | `eras` | quanto è probabile ogni strato nelle sue stanze: grotte naturali, fondatori, seconda epoca, oggi |
 | `pattern` | la sua pianta (una delle 11 piante della tabella in alto) |
 | `loops`, `portal` | quanti corridoi chiudono un anello, quanto è probabile un portale magico |
-| `fungi` | quanto è probabile che una grotta ospiti una foresta di funghi giganti (ce l'ha solo l'Underdark: `0.35`) |
+| `fungi` | quanto è probabile che un livello abbia una foresta di funghi giganti nelle sue grotte (ce l'ha solo l'Underdark: `0.25`, un livello su quattro) |
 | `builders`, `built`, `titles` | chi lo costruì, cosa costruirono, il nome della mappa |
 | `rooms` | le sue stanze |
 | `special` | i nomi delle sue stanze chiave (la sala del trono, l'abside, il chiostro…) |
